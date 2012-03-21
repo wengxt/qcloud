@@ -13,7 +13,7 @@ qt4_wrap_cpp(
 
 add_library(qcloud_network_general MODULE ${network_general_SRCS} ${network_general_MOC_SRCS})
 target_link_libraries(qcloud_network_general
-                      ${KDE4_KIO_LIBS}
+                      ${QT_QTNETWORK_LIBRARY}
                       qcloud
                       )
 

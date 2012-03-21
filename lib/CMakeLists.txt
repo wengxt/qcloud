@@ -15,6 +15,7 @@ set(qcloud_SRCS
     reply.cpp
     factory.cpp
     utils.cpp
+    isecurestore.cpp
     )
 
 set(qcloud_MOC_HDRS
@@ -23,6 +24,7 @@ set(qcloud_MOC_HDRS
     authorizewidget.h
     reply.h
     factory.h
+    isecurestore.h
     )
 
 qt4_wrap_cpp(
