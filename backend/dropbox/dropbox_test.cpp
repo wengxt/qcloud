@@ -2,6 +2,7 @@
 #include <QWidget>
 #include "dropbox.h"
 #include "authorizewidget.h"
+#include "factory.h"
 
 int main(int argc, char* argv[])
 {
@@ -10,7 +11,7 @@ int main(int argc, char* argv[])
     dropbox->setAppKey("d2anwsztkcu1upz");
     dropbox->setAppSecret("kt9a7tuph615hzs");
     
-    QCloud::AuthorizeWidget* widget = new QCloud::AuthorizeWidget(dropbox);
+    QCloud::AuthorizeWidget* widget = new QCloud::AuthorizeWidget(dropbox, QCloud::Factory::instance()->loadNetworkPlugin("kde"));
     widget->show();
     
     app.exec();

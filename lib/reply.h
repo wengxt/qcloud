@@ -1,8 +1,14 @@
+#ifndef QCLOUD_REPLY_H
+#define QCLOUD_REPLY_H
+
 #include <QNetworkReply>
+#include "qcloud_global.h"
+
+
 namespace QCloud {
 
-
-class Reply : public QNetworkReply {
+class QCLOUD_EXPORT Reply : public QNetworkReply {
+    Q_OBJECT
 public:
     Reply(const QUrl& url, QObject* parent = 0);
     
@@ -18,3 +24,5 @@ private:
     int m_offset;
 };
 }
+
+#endif

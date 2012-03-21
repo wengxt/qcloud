@@ -4,7 +4,9 @@ project(qcloud)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-find_package(Qt4 REQUIRED)
+find_package(KDE4 REQUIRED)
+include_directories(${KDE4_INCLUDES})
+add_definitions(${KDE4_DEFINITIONS})
 find_package(QCA2 REQUIRED)
 find_package(QOAuth REQUIRED)
 
@@ -13,6 +15,9 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -fvis
 set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed -Wl,--no-undefined ${CMAKE_SHARED_LINKER_FLAGS}")
 set(CMAKE_MODULE_LINKER_FLAGS "-Wl,--as-needed ${CMAKE_MODULE_LINKER_FLAGS}")
 
+set(QCLOUD_PLUGIN_DIR ${QT_PLUGINS_DIR}/qcloud)
+
 add_subdirectory(backend)
 add_subdirectory(daemon)
 add_subdirectory(lib)
+add_subdirectory(network)

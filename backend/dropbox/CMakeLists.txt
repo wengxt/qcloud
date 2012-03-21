@@ -17,6 +17,13 @@ qt4_wrap_cpp(
 )
 
 add_library(qcloud_dropbox MODULE ${dropbox_SRCS} ${dropbox_MOC_SRCS})
+target_link_libraries(qcloud_dropbox
+                      ${QT_QTCORE_LIBRARY}
+                      ${QT_QTGUI_LIBRARY}
+                      qcloud
+                      )
+
+install(TARGETS qcloud_dropbox DESTINATION ${QCLOUD_PLUGIN_DIR}/backend)
 
 add_executable(qcloud_dropbox_test dropbox_test.cpp ${dropbox_SRCS} ${dropbox_MOC_SRCS} )
 target_link_libraries(qcloud_dropbox_test

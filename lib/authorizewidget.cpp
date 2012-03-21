@@ -4,14 +4,15 @@
 
 #include "authorizewidget.h"
 #include "ibackend.h"
-#include "networkaccessmanager.h"
+#include "utils.h"
 #include "ui_authorizewidget.h"
 
 namespace QCloud {
 
-AuthorizeWidget::AuthorizeWidget(IBackend* backend, QWidget* parent): QWidget(parent)
+AuthorizeWidget::AuthorizeWidget(IBackend* backend, QNetworkAccessManager* manager, QWidget* parent): QWidget(parent)
     ,m_backend(backend)
     ,m_ui(new Ui::AuthorizeWidget)
+    ,m_networkaccessmanager(manager)
 {
     m_ui->setupUi(this);
     m_authorizeButton = m_ui->authorizeButton;
@@ -21,12 +22,12 @@ AuthorizeWidget::AuthorizeWidget(IBackend* backend, QWidget* parent): QWidget(pa
     m_webView->settings()->globalSettings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
     m_webView->settings()->globalSettings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
     m_webView->settings()->globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-    m_networkaccessmanager = new NetworkAccessManager(m_webView->page()->networkAccessManager(), this);
     m_webView->page()->setNetworkAccessManager(m_networkaccessmanager);
     
     connect(m_authorizeButton, SIGNAL(clicked(bool)), this, SLOT(authorizeButtonClicked()));
     
     backend->setAuthorizeWidget(this);
+    backend->setNetworkAccessManager(m_networkaccessmanager);
 }
 
 AuthorizeWidget::~AuthorizeWidget()
@@ -43,15 +44,14 @@ void AuthorizeWidget::openUrl(const QUrl& url)
 
 void AuthorizeWidget::authorizeButtonClicked()
 {
-    if (m_backend->requestToken()) {
+    if (m_backend->prepare()) {
         m_backend->authorize();
     }
 }
 
 void AuthorizeWidget::urlChanged(const QUrl& url)
 {
-    qDebug() << url;
-    if (url.scheme() == "qcloud") {
+    if (QCloud::isCustomCallbackUrl(url)) {
         authorizeSuccess();
     }
 }

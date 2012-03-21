@@ -10,14 +10,19 @@ include_directories(${QT_QTCORE_INCLUDE_DIR}
 
 set(qcloud_SRCS
     ibackend.cpp
+    oauthbackend.cpp
     authorizewidget.cpp
-    networkaccessmanager.cpp
     reply.cpp
+    factory.cpp
+    utils.cpp
     )
 
 set(qcloud_MOC_HDRS
     ibackend.h
+    oauthbackend.h
     authorizewidget.h
+    reply.h
+    factory.h
     )
 
 qt4_wrap_cpp(
