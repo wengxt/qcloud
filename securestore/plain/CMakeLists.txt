@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/lib)
-
 set(securestore_plain_SRCS plainstore.cpp)
 
 set(securestore_plain_MOC_HDRS

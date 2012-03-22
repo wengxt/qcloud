@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 find_package(KDE4 REQUIRED)
 include_directories(${KDE4_INCLUDES})
+include_directories(${PROJECT_SOURCE_DIR}/lib)
+
 add_definitions(${KDE4_DEFINITIONS})
 find_package(QCA2 REQUIRED)
 find_package(QOAuth REQUIRED)

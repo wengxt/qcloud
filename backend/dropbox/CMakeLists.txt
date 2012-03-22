@@ -1,5 +1,4 @@
 include_directories(${QT_QTCORE_INCLUDE_DIR}
-                    ${PROJECT_SOURCE_DIR}/lib
                     ${QOAuth_INCLUDE_DIR}
                     ${QT_QTGUI_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}

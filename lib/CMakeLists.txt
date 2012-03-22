@@ -1,5 +1,4 @@
 include_directories(${QT_INCLUDE_DIR}
-                    ${PROJECT_SOURCE_DIR}/lib
                     ${QOAuth_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
@@ -17,7 +16,7 @@ set(qcloud_SRCS
     client.cpp
     )
 
-set(qcloud_MOC_HDRS
+set(qcloud_HDRS
     ibackend.h
     oauthbackend.h
     authorizewidget.h
@@ -27,6 +26,8 @@ set(qcloud_MOC_HDRS
     server.h
     client.h
     )
+
+set(qcloud_MOC_HDRS ${qcloud_HDRS} client_p.h)
 
 qt4_wrap_cpp(
     qcloud_MOC_SRCS
@@ -45,7 +46,7 @@ qt4_add_dbus_adaptor(qcloud_SRCS
 
 qt4_add_dbus_interface(qcloud_SRCS
     daemon.xml
-    org.qcloud.daemon
+    org.qcloud.Daemon
 )
 
 add_library(qcloud SHARED ${qcloud_SRCS} ${qcloud_MOC_SRCS} ${qcloud_UI_SRCS})

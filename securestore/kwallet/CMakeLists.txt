@@ -1,9 +1,6 @@
-include_directories(${PROJECT_SOURCE_DIR}/lib ${KDE4_INCLUDES} ${KDE4_INCLUDE_DIR} ${QT_INCLUDES})
-add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
-
 set(securestore_kwallet_SRCS kwallet.cpp)
 
-set(securestore_kwallet_MOC_HDRS 
+set(securestore_kwallet_MOC_HDRS
     kwallet.h
     )
 
