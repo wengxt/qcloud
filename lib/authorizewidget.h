@@ -1,8 +1,8 @@
 #ifndef QCLOUD_AUTHORIZEWIDGET_H
 #define QCLOUD_AUTHORIZEWIDGET_H
 
-#include <QWidget>
-#include <QUrl>
+#include <QtCore/QUrl>
+#include <QtGui/QWidget>
 #include "qcloud_global.h"
 
 class QNetworkAccessManager;

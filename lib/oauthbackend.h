@@ -2,8 +2,9 @@
 #define QCLOUD_OAUTHBACKEND_H
 
 #include <QtCore/QtPlugin>
-#include <QUrl>
+#include <QtCore/QUrl>
 #include <QtOAuth/QtOAuth>
+
 #include "qcloud_global.h"
 #include "ibackend.h"
 

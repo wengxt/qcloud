@@ -4,6 +4,6 @@
 
 #include <QtCore/qglobal.h>
 
-#   define QCLOUD_EXPORT Q_DECL_EXPORT
+#define QCLOUD_EXPORT Q_DECL_EXPORT
 
 #endif // QOAUTH_GLOBAL_H

@@ -1,5 +1,5 @@
-#include <QTimer>
-#include <QDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QDebug>
 #include "reply.h"
 
 namespace QCloud {

@@ -1,7 +1,7 @@
 #ifndef QCLOUD_REPLY_H
 #define QCLOUD_REPLY_H
 
-#include <QNetworkReply>
+#include <QtNetwork/QNetworkReply>
 #include "qcloud_global.h"
 
 

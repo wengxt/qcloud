@@ -1,6 +1,7 @@
-#include <QObject>
-#include <QMap>
-#include <QStringList>
+#include <QtCore/QObject>
+#include <QtCore/QMap>
+#include <QtCore/QStringList>
+
 #include "qcloud_global.h"
 
 class QPluginLoader;

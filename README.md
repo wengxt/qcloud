@@ -1,5 +1,5 @@
-QCloud is a general Qt Library that provides access to all kinds of open API network
-disk/storage, such as dropbox, wuala and so on.
+QCloud is a general Qt Library licensed under GPLv2+ that provides access to all kinds of 
+open API network disk/storage, such as dropbox, and so on.
 
 In order to provides general usage, it can also launch a daemon and interact application
 with DBus interface.

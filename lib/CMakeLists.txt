@@ -1,10 +1,7 @@
-include_directories(${QT_QTCORE_INCLUDE_DIR}
+include_directories(${QT_INCLUDE_DIR}
                     ${PROJECT_SOURCE_DIR}/lib
                     ${QOAuth_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}
-                    ${QT_QTGUI_INCLUDE_DIR}
-                    ${QT_QTWEBKIT_INCLUDE_DIR}
-                    ${QT_QTNETWORK_INCLUDE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
                     )
 
@@ -16,6 +13,8 @@ set(qcloud_SRCS
     factory.cpp
     utils.cpp
     isecurestore.cpp
+    server.cpp
+    client.cpp
     )
 
 set(qcloud_MOC_HDRS
@@ -25,6 +24,8 @@ set(qcloud_MOC_HDRS
     reply.h
     factory.h
     isecurestore.h
+    server.h
+    client.h
     )
 
 qt4_wrap_cpp(
@@ -37,11 +38,22 @@ qt4_wrap_ui(
     authorizewidget.ui
     )
 
+qt4_add_dbus_adaptor(qcloud_SRCS
+    daemon.xml
+    server.h
+    QCloud::Server)
+
+qt4_add_dbus_interface(qcloud_SRCS
+    daemon.xml
+    org.qcloud.daemon
+)
+
 add_library(qcloud SHARED ${qcloud_SRCS} ${qcloud_MOC_SRCS} ${qcloud_UI_SRCS})
 target_link_libraries(qcloud
                       ${QT_QTCORE_LIBRARY}
                       ${QT_QTGUI_LIBRARY}
                       ${QT_QTWEBKIT_LIBRARY}
                       ${QT_QTNETWORK_LIBRARY}
+                      ${QT_QTDBUS_LIBRARY}
                       ${QTOAUTH_LIBRARY}
                       )

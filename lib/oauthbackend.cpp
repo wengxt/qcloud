@@ -1,4 +1,4 @@
-#include <QDebug>
+#include <QtCore/QDebug>
 #include "oauthbackend.h"
 
 namespace QCloud {

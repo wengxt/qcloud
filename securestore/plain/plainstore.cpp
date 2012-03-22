@@ -2,7 +2,7 @@
 #include "plainstore.h"
 
 namespace QCloud {
-    
+
 PlainStore::PlainStore()
 {
     setObjectName("plain");
@@ -14,9 +14,9 @@ PlainStore::~PlainStore()
 
 }
 
-QString PlainStore::GetItem(const QString& key)
+bool PlainStore::GetItem(const QString& key, QString& value)
 {
-    return QString();
+    return false;
 }
 
 bool PlainStore::SetItem(const QString& key, const QString& value)

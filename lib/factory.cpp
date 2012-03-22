@@ -1,8 +1,9 @@
-#include <QNetworkAccessManager>
-#include <QPluginLoader>
-#include <QCoreApplication>
-#include <QDir>
-#include <QDebug>
+#include <QtCore/QPluginLoader>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDir>
+#include <QtCore/QDebug>
+#include <QtNetwork/QNetworkAccessManager>
+
 #include "factory.h"
 #include "ibackend.h"
 

@@ -1,4 +1,5 @@
-#include <QDebug>
+#include <QtCore/QDebug>
+
 #include "ibackend.h"
 
 namespace QCloud {

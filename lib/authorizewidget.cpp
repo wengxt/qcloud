@@ -1,6 +1,6 @@
-#include <QNetworkRequest>
-#include <QMessageBox>
-#include <QDebug>
+#include <QtCore/QDebug>
+#include <QtNetwork/QNetworkRequest>
+#include <QtGui/QMessageBox>
 
 #include "authorizewidget.h"
 #include "ibackend.h"
