@@ -12,10 +12,10 @@ public:
 
     virtual ~ISecureStore();
 
-    bool isAvailable() = 0;
+    virtual bool isAvailable() = 0;
 
-    QString GetItem(const QString& key) = 0;
-    bool SetItem(const QString& key, const QString& value) = 0;
+    virtual QString GetItem(const QString& key) = 0;
+    virtual bool SetItem(const QString& key, const QString& value) = 0;
 
 };
 
