@@ -12,6 +12,7 @@ set(qcloud_SRCS
     factory.cpp
     utils.cpp
     isecurestore.cpp
+    isecurestorewidget.cpp
     server.cpp
     client.cpp
     )
@@ -23,6 +24,7 @@ set(qcloud_HDRS
     reply.h
     factory.h
     isecurestore.h
+    isecurestorewidget.h
     server.h
     client.h
     )
