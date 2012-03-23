@@ -18,9 +18,10 @@ target_link_libraries(qcloud_securestore_kwallet
                         qcloud )
 install(TARGETS qcloud_securestore_kwallet DESTINATION ${QCLOUD_PLUGIN_DIR}/securestore)
 
-add_executable(kwallet_test kwallet_test.cpp ${securestore_kwallet_SRCS} ${securestore_kwallet_MOC_SRCS})
+add_executable(kwallet_test kwallet_test.cpp ${securestore_kwallet_SRCS} ${securestore_kwallet_MOC_SRCS} ${qcloud_SRCS})
 target_link_libraries(
     kwallet_test
+    ${qcloud_SRCS}
     ${QT_QTCORE_LIBRARY}
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KPARTS_LIBS}

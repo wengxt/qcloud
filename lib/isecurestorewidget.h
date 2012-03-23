@@ -2,6 +2,7 @@
 #define QCLOUD_ISECURESTOREWIDGET_H
 
 #include "isecurestore.h"
+#include "qcloud_global.h"
 #include <QWidget>
 #include <QLineEdit>
 #include <QLayout>
@@ -12,7 +13,7 @@
 
 namespace QCloud{
     
-class ISecureStoreWidget : public QDialog
+class QCLOUD_EXPORT ISecureStoreWidget : public QDialog
 {
 Q_OBJECT
 public:

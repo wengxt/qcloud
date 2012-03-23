@@ -6,7 +6,7 @@ ISecureStoreWidget::ISecureStoreWidget(ISecureStore *storage)
     m_storage = storage;
     setLayout(new QVBoxLayout);
     QLabel *explanation= new QLabel(
-        "Press 'Get' to get value of the key you input.</br>"
+        "Press 'Get' to get value of the key you input.\n"
         "Or press 'Set' to set the key and value."
     );
     m_statLabel = new QLabel("Opening storage...",this);
@@ -27,20 +27,33 @@ ISecureStoreWidget::ISecureStoreWidget(ISecureStore *storage)
     
     connect(m_GetButton,SIGNAL(clicked()),SLOT(GetItem()));
     connect(m_SetButton,SIGNAL(clicked()),SLOT(SetItem()));
+    
+    if (storage==NULL || (!storage->isAvailable()))
+        m_statLabel->setText("Failed opening wallet!");
+    else
+        m_statLabel->setText("Succeeded in opening wallet!");
 }
 
 bool ISecureStoreWidget::GetItem()
 {
     QString value;
     bool ret = m_storage->GetItem(m_keyInput->text(),value);
-    if (ret)
+    if (ret){
         m_valueInput->setText(value);
+        m_statLabel->setText("Succeeded in getting value!");
+    }
+    else
+        m_statLabel->setText("Failed getting value!");
     return ret;
 }
 
 bool ISecureStoreWidget::SetItem()
 {
     bool ret = m_storage->SetItem(m_keyInput->text(),m_valueInput->text());
+    if (ret)
+        m_statLabel->setText("Succeed in setting value!");
+    else
+        m_statLabel->setText("Failed settings value!");
     return ret;
 }
 

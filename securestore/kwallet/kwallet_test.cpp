@@ -14,8 +14,9 @@ KWalletStore storage;
 int main(int argc,char **argv)
 {
     QApplication app(argc,argv);
-    KWalletStore wallet;
-    ISecureStoreWidget test_widget(&wallet);
+    KWalletStore *wallet = new KWalletStore;
+    ISecureStoreWidget test_widget(wallet);
+    test_widget.show();
     app.exec();
     return 0;
 }
