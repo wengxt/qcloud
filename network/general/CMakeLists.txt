@@ -1,5 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/lib)
-
 set(network_general_SRCS networkaccessmanager.cpp)
 
 set(network_general_MOC_HDRS
