@@ -1,6 +1,6 @@
 #include "client.h"
 #include "client_p.h"
-#include "org.qcloud.daemon.h"
+#include "org.qcloud.Daemon.h"
 
 namespace QCloud {
 
