@@ -5,27 +5,36 @@
 #include <QtNetwork/QNetworkAccessManager>
 
 #include "factory.h"
+#include "factory_p.h"
 #include "ibackend.h"
 
 #define PLUGIN_SUBDIR "qcloud"
 
 namespace QCloud {
-    
-Factory* Factory::inst = NULL;
-    
-Factory::Factory()
-{
+
+Factory* Factory::Private::inst = NULL;
+
+Factory::Private::Private(Factory* factory) : QObject(factory) {
     m_categoryList << "network" << "backend";
     scan();
 }
 
-void Factory::scan()
+Factory::Private::~Private() {
+}
+
+void Factory::Private::scan()
 {
     Q_FOREACH(const QString& category, m_categoryList)
         scan(category);
+
+    Q_FOREACH(QPluginLoader* loader, m_plugins["backend"].values())
+    {
+        IBackend* backend = qobject_cast<IBackend*>(loader->instance());
+        m_backendList.push_back(backend);
+    }
 }
 
-void Factory::scan(const QString& category)
+void Factory::Private::scan(const QString& category)
 {
     // check plugin files
     const QStringList dirs = QCoreApplication::libraryPaths();
@@ -61,7 +70,7 @@ void Factory::scan(const QString& category)
             {
                 continue;
             }
-            
+
             QPluginLoader* loader = new QPluginLoader(filePath, this);
             QObject* object = loader->instance();
 
@@ -71,32 +80,41 @@ void Factory::scan(const QString& category)
 }
 
 
+QObject* Factory::Private::loadPlugin(const QString& category, const QString& name)
+{
+    QPluginLoader* loader = m_plugins[category][name];
+    if (loader)
+        return loader->instance();
+
+    return NULL;
+}
+
+Factory::Factory() : QObject(NULL)
+    ,d(new Private(this))
+{
+}
+
 Factory* Factory::instance()
 {
-    if (!inst)
-        inst = new Factory;
-    return inst;
+    if (!Private::inst)
+        Private::inst = new Factory;
+    return Private::inst;
 }
 
 
 IBackend* Factory::loadBackendPlugin(const QString& name)
 {
-    return qobject_cast<IBackend*>(loadPlugin("backend", name));
+    return qobject_cast<IBackend*>(d->loadPlugin("backend", name));
 }
 
 QNetworkAccessManager* Factory::loadNetworkPlugin(const QString& name)
 {
-    return qobject_cast<QNetworkAccessManager*>(loadPlugin("network", name));
+    return qobject_cast<QNetworkAccessManager*>(d->loadPlugin("network", name));
 }
 
-QObject* Factory::loadPlugin(const QString& category, const QString& name)
+const QList< IBackend* >& Factory::backendList()
 {
-    QPluginLoader* loader = m_plugins[category][name];
-    if (loader)
-        return loader->instance();
-        
-    return NULL;
+    return d->m_backendList;
 }
-
 
 }

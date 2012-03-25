@@ -19,9 +19,11 @@ set(CMAKE_MODULE_LINKER_FLAGS "-Wl,--as-needed ${CMAKE_MODULE_LINKER_FLAGS}")
 
 set(QCLOUD_PLUGIN_DIR ${QT_PLUGINS_DIR}/qcloud)
 
-add_subdirectory(backend)
-add_subdirectory(daemon)
 add_subdirectory(lib)
+add_subdirectory(backend)
+add_subdirectory(tool)
+add_subdirectory(daemon)
 add_subdirectory(network)
 add_subdirectory(securestore)
 add_subdirectory(data)
+

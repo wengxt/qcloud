@@ -9,7 +9,8 @@ class Dropbox : public QCloud::OAuthBackend
 public:
     explicit Dropbox(QObject* parent = 0);
     virtual ~Dropbox();
-    
+    virtual bool uploadFile (const QString& filename);
+
     virtual void authorize();
 };
 

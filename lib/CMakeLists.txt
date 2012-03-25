@@ -29,7 +29,10 @@ set(qcloud_HDRS
     client.h
     )
 
-set(qcloud_MOC_HDRS ${qcloud_HDRS} client_p.h)
+set(qcloud_MOC_HDRS ${qcloud_HDRS}
+    client_p.h
+    factory_p.h
+    )
 
 qt4_wrap_cpp(
     qcloud_MOC_SRCS
