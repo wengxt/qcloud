@@ -16,6 +16,8 @@ set(qcloud_SRCS
     server.cpp
     client.cpp
     iplugin.cpp
+    authdialog.cpp
+    authwidget.cpp
     )
 
 set(qcloud_HDRS
@@ -28,6 +30,8 @@ set(qcloud_HDRS
     isecurestorewidget.h
     server.h
     client.h
+    authdialog.h
+    authwidget.h
     )
 
 set(qcloud_MOC_HDRS ${qcloud_HDRS}

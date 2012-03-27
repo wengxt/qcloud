@@ -20,14 +20,15 @@ public:
     virtual ~OAuthBackend();
     virtual void setNetworkAccessManager(QNetworkAccessManager* manager);
     virtual bool prepare();
-    
+
     virtual bool requestToken();
-    virtual void authorize() = 0;
+    virtual bool authorize(QWidget* widget = 0) = 0;
+    virtual void startAuth(QCloud::OAuthWidget* oauthWidget) = 0;
     virtual bool accessToken();
     virtual int error() const;
 
     QString appKey() const;
-    void setAppKey(const QString & appkey); 
+    void setAppKey(const QString & appkey);
     QString appSecret() const;
     void setAppSecret(const QString & appsecret);
     QString oauthToken() const;

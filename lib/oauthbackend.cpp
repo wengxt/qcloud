@@ -2,9 +2,9 @@
 #include "oauthbackend.h"
 
 namespace QCloud {
-    
-OAuthBackend::OAuthBackend(QObject* parent) : 
-    m_oauth(new QOAuth::Interface(this))
+
+OAuthBackend::OAuthBackend(QObject* parent) : IBackend(parent)
+    ,m_oauth(new QOAuth::Interface(this))
 {
 }
 
@@ -88,6 +88,7 @@ uint OAuthBackend::timeout() const
 
 void OAuthBackend::setNetworkAccessManager(QNetworkAccessManager* manager)
 {
+    IBackend::setNetworkAccessManager(manager);
     m_oauth->setNetworkAccessManager(manager);
 }
 

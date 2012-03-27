@@ -4,19 +4,21 @@
 #include <QtCore/QUrl>
 #include <QtGui/QWidget>
 #include "qcloud_global.h"
+#include "authwidget.h"
 
 class QNetworkAccessManager;
 
 namespace QCloud {
 
-class IBackend;
+class OAuthBackend;
 
-class QCLOUD_EXPORT OAuthWidget : public QWidget {
+class QCLOUD_EXPORT OAuthWidget : public AuthWidget {
     Q_OBJECT
 public:
-    explicit OAuthWidget(IBackend* backend, QNetworkAccessManager* manager, QWidget* parent = 0);
+    explicit OAuthWidget(OAuthBackend* backend, QWidget* parent = 0);
     virtual ~OAuthWidget();
     void openUrl(const QUrl& url);
+    virtual void startAuth();
 private:
     class Private;
     Private* d;

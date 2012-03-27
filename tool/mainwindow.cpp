@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "accountdialog.h"
+#include "factory.h"
+#include "ibackend.h"
 #include "ui_tool.h"
 
 namespace QCloud {
@@ -30,7 +32,13 @@ MainWindow::~MainWindow()
 void MainWindow::addAccountButtonClicked()
 {
     AccountDialog dialog;
-    dialog.exec();
+    int result = dialog.exec();
+    if (result == QDialog::Accepted && !dialog.accountType().isEmpty()) {
+        IBackend* account = QCloud::Factory::instance()->createBackend(dialog.accountType());
+        if (account) {
+            account->authorize();
+        }
+    }
 }
 
 void MainWindow::deleteAccountButtonClicked()

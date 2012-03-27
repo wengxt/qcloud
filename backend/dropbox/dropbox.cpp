@@ -2,6 +2,7 @@
 #include <QUrl>
 #include "dropbox.h"
 #include "oauthwidget.h"
+#include "authdialog.h"
 #include "utils.h"
 
 Dropbox::Dropbox(QObject* parent): OAuthBackend(parent)
@@ -16,15 +17,25 @@ Dropbox::~Dropbox()
 
 }
 
-void Dropbox::authorize()
+bool Dropbox::authorize(QWidget* parent)
 {
-    if (m_authWidget) {
-        QUrl url("https://www.dropbox.com/1/oauth/authorize");
-        url.addQueryItem("oauth_token", m_oauthToken);
-        url.addQueryItem("oauth_callback", QCloud::customCallbackUrl().toString());
-        m_authWidget->openUrl(url);
-    }
+    if (!prepare())
+        return false;
+
+    QCloud::AuthDialog dialog(new QCloud::OAuthWidget(this), parent);
+    int result = dialog.exec();
+    return result == QDialog::Accepted;
 }
+
+void Dropbox::startAuth(QCloud::OAuthWidget* widget)
+{
+    QUrl url("https://www.dropbox.com/1/oauth/authorize");
+    url.addQueryItem("oauth_token", m_oauthToken);
+    url.addQueryItem("oauth_callback", QCloud::customCallbackUrl().toString());
+
+    widget->openUrl(url);
+}
+
 
 bool Dropbox::uploadFile (const QString& filename)
 {

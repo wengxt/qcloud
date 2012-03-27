@@ -19,7 +19,6 @@ public:
     virtual ~Private();
 protected slots:
     void urlChanged(const QUrl& url);
-    void authorizeButtonClicked();
     void authorizeSuccess();
     void loadStarted();
     void loadProgress(int);
@@ -27,7 +26,7 @@ protected slots:
 
 protected:
     OAuthWidget* p;
-    IBackend* m_backend;
+    OAuthBackend* m_backend;
     Ui::OAuthWidget* m_ui;
 };
 }

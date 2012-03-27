@@ -13,20 +13,15 @@ IBackend::~IBackend()
 
 }
 
-bool IBackend::prepare()
-{
-    return true;
-}
-
 void IBackend::setNetworkAccessManager(QNetworkAccessManager* manager)
 {
+    m_networkAccessManager = manager;
 }
 
-void IBackend::setAuthorizeWidget(OAuthWidget* widget)
+QNetworkAccessManager* IBackend::networkAccessManager()
 {
-    m_authWidget = widget;
+    return m_networkAccessManager;
 }
-
 
 
 }

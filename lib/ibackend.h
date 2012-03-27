@@ -16,17 +16,12 @@ public:
     explicit IBackend(QObject* parent = 0);
     virtual ~IBackend();
 
-    virtual bool prepare();
-    virtual void authorize() = 0;
+    virtual bool authorize(QWidget* widget = 0) = 0;
     virtual void setNetworkAccessManager(QNetworkAccessManager* manager);
     virtual bool uploadFile(const QString& filename) = 0;
-
-    void setAuthorizeWidget(OAuthWidget* widget);
-
+    QNetworkAccessManager* networkAccessManager();
 protected:
-    OAuthWidget* m_authWidget;
-    QString m_name;
-    QString m_iconName;
+    QNetworkAccessManager* m_networkAccessManager;
 };
 
 }

@@ -6,6 +6,7 @@
 #include "ibackend.h"
 #include "utils.h"
 #include "oauthwidget_p.h"
+#include "oauthbackend.h"
 #include "ui_oauthwidget.h"
 
 namespace QCloud {
@@ -20,14 +21,6 @@ OAuthWidget::Private::Private(OAuthWidget* parent) : QObject(parent)
 OAuthWidget::Private::~Private()
 {
     delete m_ui;
-}
-
-
-void OAuthWidget::Private::authorizeButtonClicked()
-{
-    if (m_backend->prepare()) {
-        m_backend->authorize();
-    }
 }
 
 void OAuthWidget::Private::urlChanged(const QUrl& url)
@@ -57,10 +50,10 @@ void OAuthWidget::Private::loadFinished(bool suc)
 void OAuthWidget::Private::authorizeSuccess()
 {
     m_ui->webView->disconnect(SIGNAL(urlChanged(QUrl)));
-    QMessageBox::information(p, "Success", "Success");
+    emit p->authFinished(true);
 }
 
-OAuthWidget::OAuthWidget(IBackend* backend, QNetworkAccessManager* manager, QWidget* parent): QWidget(parent)
+OAuthWidget::OAuthWidget(QCloud::OAuthBackend* backend, QWidget* parent): AuthWidget(parent)
     ,d(new Private(this))
 {
     d->m_ui->setupUi(this);
@@ -72,15 +65,11 @@ OAuthWidget::OAuthWidget(IBackend* backend, QNetworkAccessManager* manager, QWid
     webView->settings()->globalSettings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
     webView->settings()->globalSettings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
     webView->settings()->globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-    webView->page()->setNetworkAccessManager(manager);
+    webView->page()->setNetworkAccessManager(backend->networkAccessManager());
 
-    connect(d->m_ui->authorizeButton, SIGNAL(clicked(bool)), d, SLOT(authorizeButtonClicked()));
     connect(webView, SIGNAL(loadStarted()), d, SLOT(loadStarted()));
     connect(webView, SIGNAL(loadProgress(int)), d, SLOT(loadProgress(int)));
     connect(webView, SIGNAL(loadFinished(bool)), d, SLOT(loadFinished(bool)));
-
-    backend->setAuthorizeWidget(this);
-    backend->setNetworkAccessManager(manager);
 }
 
 OAuthWidget::~OAuthWidget()
@@ -93,5 +82,11 @@ void OAuthWidget::openUrl(const QUrl& url)
     d->m_ui->webView->load(url);
     connect(d->m_ui->webView, SIGNAL(urlChanged(QUrl)), d, SLOT(urlChanged(QUrl)));
 }
+
+void OAuthWidget::startAuth()
+{
+    d->m_backend->startAuth(this);
+}
+
 
 }

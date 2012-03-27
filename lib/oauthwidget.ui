@@ -15,13 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QPushButton" name="authorizeButton">
-     <property name="text">
-      <string>&amp;Authorize</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QWebView" name="webView">
      <property name="url">
       <url>

@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QWidget>
+#include <QDebug>
 #include "dropbox.h"
 #include "oauthwidget.h"
 #include "factory.h"
@@ -10,10 +11,8 @@ int main(int argc, char* argv[])
     Dropbox* dropbox = new Dropbox;
     dropbox->setAppKey("d2anwsztkcu1upz");
     dropbox->setAppSecret("kt9a7tuph615hzs");
+    dropbox->setNetworkAccessManager(QCloud::Factory::instance()->createNetwork("kde"));
 
-    QCloud::OAuthWidget* widget = new QCloud::OAuthWidget(dropbox, QCloud::Factory::instance()->createNetwork("kde"));
-    widget->show();
-
-    app.exec();
+    qDebug() << "Authorize result" << dropbox->authorize();
     return 0;
 }
