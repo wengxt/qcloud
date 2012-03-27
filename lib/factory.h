@@ -10,15 +10,17 @@
 class QPluginLoader;
 class QNetworkAccessManager;
 namespace QCloud {
+
+class IPlugin;
 class IBackend;
 
 class QCLOUD_EXPORT Factory : public QObject {
     Q_OBJECT
 public:
     static Factory* instance();
-    QNetworkAccessManager* loadNetworkPlugin(const QString& name);
-    IBackend* loadBackendPlugin(const QString& name);
-    const QList< IBackend* >& backendList();
+    QNetworkAccessManager* createNetwork(const QString& name);
+    IBackend* createBackend(const QString& name);
+    const QList< IPlugin* >& backendList();
 private:
     Factory();
     class Private;

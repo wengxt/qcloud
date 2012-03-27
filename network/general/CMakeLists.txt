@@ -1,7 +1,8 @@
-set(network_general_SRCS networkaccessmanager.cpp)
+set(network_general_SRCS networkaccessmanager.cpp plugin.cpp)
 
 set(network_general_MOC_HDRS
     networkaccessmanager.h
+    plugin.h
     )
 
 qt4_wrap_cpp(

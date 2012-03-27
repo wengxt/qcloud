@@ -7,7 +7,7 @@ include_directories(${QT_INCLUDE_DIR}
 set(qcloud_SRCS
     ibackend.cpp
     oauthbackend.cpp
-    authorizewidget.cpp
+    oauthwidget.cpp
     reply.cpp
     factory.cpp
     utils.cpp
@@ -15,12 +15,13 @@ set(qcloud_SRCS
     isecurestorewidget.cpp
     server.cpp
     client.cpp
+    iplugin.cpp
     )
 
 set(qcloud_HDRS
     ibackend.h
     oauthbackend.h
-    authorizewidget.h
+    oauthwidget.h
     reply.h
     factory.h
     isecurestore.h
@@ -32,6 +33,7 @@ set(qcloud_HDRS
 set(qcloud_MOC_HDRS ${qcloud_HDRS}
     client_p.h
     factory_p.h
+    oauthwidget_p.h
     )
 
 qt4_wrap_cpp(
@@ -41,7 +43,7 @@ qt4_wrap_cpp(
 
 qt4_wrap_ui(
     qcloud_UI_SRCS
-    authorizewidget.ui
+    oauthwidget.ui
     )
 
 qt4_add_dbus_adaptor(qcloud_SRCS

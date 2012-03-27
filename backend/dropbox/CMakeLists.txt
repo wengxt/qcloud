@@ -4,10 +4,11 @@ include_directories(${QT_QTCORE_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}
                     )
 
-set(dropbox_SRCS dropbox.cpp)
+set(dropbox_SRCS dropbox.cpp plugin.cpp)
 
 set(dropbox_MOC_HDRS
     dropbox.h
+    plugin.h
     )
 
 qt4_wrap_cpp(

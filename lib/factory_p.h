@@ -2,8 +2,11 @@
 #define QCLOUD_FACTORY_P_H
 
 #include "factory.h"
+#include "iplugin.h"
 
 namespace QCloud {
+
+class IPlugin;
 
 class Factory::Private : public QObject {
     friend class Factory;
@@ -15,10 +18,10 @@ public:
 private:
     void scan();
     void scan(const QString& category);
-    QObject* loadPlugin(const QString& category, const QString& name);
-    QStringList m_categoryList;
+    IPlugin* loadPlugin(const QString& category, const QString& name);
+    QMap<QString, IPlugin::PluginCategory> m_categoryMap;
     QMap<QString, QMap<QString, QPluginLoader* > > m_plugins;
-    QList<IBackend*> m_backendList;
+    QList<IPlugin*> m_backendList;
 
     static Factory* inst;
 };

@@ -10,7 +10,6 @@ QUrl customCallbackUrl()
 bool isCustomCallbackUrl(const QUrl& url)
 {
     return (url.scheme() == "http"  && url.host() == "qcloud-custom-url");
-    
 }
 
 }

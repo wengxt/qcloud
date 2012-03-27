@@ -1,11 +1,8 @@
 #include <QtCore/QtPlugin>
 #include "plainstore.h"
 
-namespace QCloud {
-
 PlainStore::PlainStore()
 {
-    setObjectName("plain");
 }
 
 
@@ -28,8 +25,3 @@ bool PlainStore::isAvailable()
 {
     return true;
 }
-
-
-}
-
-Q_EXPORT_PLUGIN2(securestore_plain, QCloud::PlainStore)

@@ -13,16 +13,6 @@ IBackend::~IBackend()
 
 }
 
-const QString& IBackend::name()
-{
-    return m_name;
-}
-
-const QString& IBackend::iconName()
-{
-    return m_iconName;
-}
-
 bool IBackend::prepare()
 {
     return true;
@@ -32,7 +22,7 @@ void IBackend::setNetworkAccessManager(QNetworkAccessManager* manager)
 {
 }
 
-void IBackend::setAuthorizeWidget(AuthorizeWidget* widget)
+void IBackend::setAuthorizeWidget(OAuthWidget* widget)
 {
     m_authWidget = widget;
 }

@@ -1,7 +1,11 @@
-set(securestore_plain_SRCS plainstore.cpp)
+set(securestore_plain_SRCS
+    plainstore.cpp
+    plugin.cpp
+    )
 
 set(securestore_plain_MOC_HDRS
     plainstore.h
+    plugin.h
     )
 
 qt4_wrap_cpp(

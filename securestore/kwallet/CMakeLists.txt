@@ -1,7 +1,8 @@
-set(securestore_kwallet_SRCS kwallet.cpp)
+set(securestore_kwallet_SRCS kwallet.cpp plugin.cpp)
 
 set(securestore_kwallet_MOC_HDRS
     kwallet.h
+    plugin.h
     )
 
 qt4_wrap_cpp(

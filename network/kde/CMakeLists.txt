@@ -1,9 +1,10 @@
 include_directories(${PROJECT_SOURCE_DIR}/lib)
 
-set(network_kde_SRCS kdenetworkaccessmanager.cpp)
+set(network_kde_SRCS kdenetworkaccessmanager.cpp plugin.cpp)
 
 set(network_kde_MOC_HDRS
     kdenetworkaccessmanager.h
+    plugin.h
     )
 
 qt4_wrap_cpp(
@@ -16,5 +17,5 @@ target_link_libraries(qcloud_network_kde
                       ${KDE4_KIO_LIBS}
                       qcloud
                       )
-                      
+
 install(TARGETS qcloud_network_kde DESTINATION ${QCLOUD_PLUGIN_DIR}/network)

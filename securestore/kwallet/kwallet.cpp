@@ -2,8 +2,6 @@
 
 using KWallet::Wallet;
 
-namespace QCloud{
-    
 KWalletStore::KWalletStore()
 {
     m_wallet = Wallet::openWallet( Wallet::LocalWallet(),0,
@@ -58,6 +56,4 @@ bool KWalletStore::GetItem(const QString& key,QString& value)
     }
     stat = SUCCEEDED;
     return true;
-}
-
 }

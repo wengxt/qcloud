@@ -7,6 +7,7 @@
 #include "factory.h"
 #include "factory_p.h"
 #include "ibackend.h"
+#include "iplugin.h"
 
 #define PLUGIN_SUBDIR "qcloud"
 
@@ -15,7 +16,9 @@ namespace QCloud {
 Factory* Factory::Private::inst = NULL;
 
 Factory::Private::Private(Factory* factory) : QObject(factory) {
-    m_categoryList << "network" << "backend";
+    m_categoryMap["network"] = IPlugin::Network;
+    m_categoryMap["backend"] = IPlugin::Backend;
+    m_categoryMap["securestore"] = IPlugin::SecureStore;
     scan();
 }
 
@@ -24,12 +27,12 @@ Factory::Private::~Private() {
 
 void Factory::Private::scan()
 {
-    Q_FOREACH(const QString& category, m_categoryList)
+    Q_FOREACH(const QString& category, m_categoryMap.keys())
         scan(category);
 
     Q_FOREACH(QPluginLoader* loader, m_plugins["backend"].values())
     {
-        IBackend* backend = qobject_cast<IBackend*>(loader->instance());
+        IPlugin* backend = qobject_cast<IPlugin*>(loader->instance());
         m_backendList.push_back(backend);
     }
 }
@@ -72,19 +75,24 @@ void Factory::Private::scan(const QString& category)
             }
 
             QPluginLoader* loader = new QPluginLoader(filePath, this);
-            QObject* object = loader->instance();
+            IPlugin* plugin = qobject_cast< IPlugin* >(loader->instance());
+            if (plugin) {
+                if (plugin->category() == m_categoryMap[category])
+                    m_plugins[category][plugin->name()] = loader;
+                else
+                    qDebug() << filePath << " is not a " << category  << "plugin!";
 
-            m_plugins[category][object->objectName()] = loader;
+            }
         }
     }
 }
 
 
-QObject* Factory::Private::loadPlugin(const QString& category, const QString& name)
+IPlugin* Factory::Private::loadPlugin(const QString& category, const QString& name)
 {
     QPluginLoader* loader = m_plugins[category][name];
     if (loader)
-        return loader->instance();
+        return qobject_cast< IPlugin* >(loader->instance());
 
     return NULL;
 }
@@ -102,17 +110,23 @@ Factory* Factory::instance()
 }
 
 
-IBackend* Factory::loadBackendPlugin(const QString& name)
+IBackend* Factory::createBackend(const QString& name)
 {
-    return qobject_cast<IBackend*>(d->loadPlugin("backend", name));
+    IPlugin* plugin = d->loadPlugin("backend", name);
+    if (plugin)
+        return qobject_cast<IBackend*>(plugin->create());
+    return NULL;
 }
 
-QNetworkAccessManager* Factory::loadNetworkPlugin(const QString& name)
+QNetworkAccessManager* Factory::createNetwork(const QString& name)
 {
-    return qobject_cast<QNetworkAccessManager*>(d->loadPlugin("network", name));
+    IPlugin* plugin = d->loadPlugin("network", name);
+    if (plugin)
+        return qobject_cast<QNetworkAccessManager*>(plugin->create());
+    return NULL;
 }
 
-const QList< IBackend* >& Factory::backendList()
+const QList< IPlugin* >& Factory::backendList()
 {
     return d->m_backendList;
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AuthorizeWidget</class>
- <widget class="QWidget" name="AuthorizeWidget">
+ <class>OAuthWidget</class>
+ <widget class="QWidget" name="OAuthWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -27,6 +27,13 @@
       <url>
        <string>about:blank</string>
       </url>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>24</number>
      </property>
     </widget>
    </item>

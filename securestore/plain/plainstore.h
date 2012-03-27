@@ -3,9 +3,7 @@
 
 #include "isecurestore.h"
 
-namespace QCloud {
-
-class PlainStore : public ISecureStore
+class PlainStore : public QCloud::ISecureStore
 {
 Q_OBJECT
 public:
@@ -18,7 +16,5 @@ public:
     virtual bool SetItem(const QString& key, const QString& value);
 
 };
-
-}
 
 #endif

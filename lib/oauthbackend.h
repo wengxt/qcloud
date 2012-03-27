@@ -11,7 +11,7 @@
 namespace QCloud
 {
 
-class AuthorizeWidget;
+class OAuthWidget;
 class QCLOUD_EXPORT OAuthBackend : public IBackend
 {
     Q_OBJECT
