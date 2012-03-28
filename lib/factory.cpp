@@ -7,6 +7,7 @@
 #include "factory.h"
 #include "factory_p.h"
 #include "ibackend.h"
+#include "isecurestore.h"
 #include "iplugin.h"
 
 #define PLUGIN_SUBDIR "qcloud"
@@ -123,6 +124,14 @@ QNetworkAccessManager* Factory::createNetwork(const QString& name)
     IPlugin* plugin = d->loadPlugin("network", name);
     if (plugin)
         return qobject_cast<QNetworkAccessManager*>(plugin->create());
+    return NULL;
+}
+
+ISecureStore* Factory::createSecureStore(const QString& name)
+{
+    IPlugin* plugin = d->loadPlugin("securestore", name);
+    if (plugin)
+        return qobject_cast<ISecureStore*>(plugin->create());
     return NULL;
 }
 
