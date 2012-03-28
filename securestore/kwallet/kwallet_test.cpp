@@ -1,5 +1,5 @@
 #include "kwallet.h"
-#include "isecurestorewidget.h"
+#include "../isecurestorewidget.h"
 #include <QtCore/QIODevice>
 #include <QtCore/QDataStream>
 #include <QtCore/QFile>
