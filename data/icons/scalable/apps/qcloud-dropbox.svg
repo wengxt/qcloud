@@ -14,8 +14,11 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3 r9882"
-   sodipodi:docname="qcloud-dropbox.svg">
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="qcloud-dropbox.svg"
+   inkscape:export-filename="/home/saber/Develop/qcloud/data/icons/48x48/apps/qcloud-dropbox.png"
+   inkscape:export-xdpi="33.75"
+   inkscape:export-ydpi="33.75">
   <defs
      id="defs4">
     <linearGradient
@@ -457,7 +460,7 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="1"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
      inkscape:cx="53.434836"
@@ -465,8 +468,8 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1366"
-     inkscape:window-height="748"
+     inkscape:window-width="1440"
+     inkscape:window-height="846"
      inkscape:window-x="-2"
      inkscape:window-y="-3"
      inkscape:window-maximized="1"
@@ -490,7 +493,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
