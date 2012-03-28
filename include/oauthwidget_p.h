@@ -1,6 +1,7 @@
 #ifndef QCLOUD_OAUTHWIDGET_P_H
 #define QCLOUD_OAUTHWIDGET_P_H
-#include <QObject>
+
+#include <QtCore/QObject>
 #include "oauthwidget.h"
 
 class QPushButton;

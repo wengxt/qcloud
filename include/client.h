@@ -1,8 +1,8 @@
 #ifndef QCLOUD_CLIENT_H
 #define QCLOUD_CLIENT_H
-#include <QObject>
-#include <QDBusConnection>
-#include <QDBusPendingReply>
+#include <QtCore/QObject>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusPendingReply>
 
 namespace QCloud {
 

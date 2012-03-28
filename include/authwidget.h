@@ -1,8 +1,8 @@
 #ifndef QCLOUD_AUTHWIDGET_H
 #define QCLOUD_AUTHWIDGET_H
-#include <QDialog>
+#include <QtGui/QDialog>
+#include <QtCloud/IBackend>
 #include "qcloud_global.h"
-#include "ibackend.h"
 
 namespace QCloud {
 class QCLOUD_EXPORT AuthWidget : public QWidget

@@ -1,8 +1,8 @@
 #ifndef QCLOUD_FACTORY_P_H
 #define QCLOUD_FACTORY_P_H
 
-#include "factory.h"
-#include "iplugin.h"
+#include <QtCloud/Factory>
+#include <QtCloud/IPlugin>
 
 namespace QCloud {
 

@@ -3,8 +3,9 @@
 
 #include <QtCore/QUrl>
 #include <QtGui/QWidget>
+#include <QtCloud/AuthWidget>
+
 #include "qcloud_global.h"
-#include "authwidget.h"
 
 class QNetworkAccessManager;
 

@@ -1,0 +1,17 @@
+#ifndef QCLOUD_MODULE_H
+#define QCLOUD_MODULE_H
+#include "../app.h"
+#include "../appmanager.h"
+#include "../authdialog.h"
+#include "../authwidget.h"
+#include "../client.h"
+#include "../factory.h"
+#include "../ibackend.h"
+#include "../iplugin.h"
+#include "../isecurestore.h"
+#include "../oauthbackend.h"
+#include "../oauthwidget.h"
+#include "../reply.h"
+#include "../server.h"
+#include "../utils.h"
+#endif

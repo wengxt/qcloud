@@ -1,9 +1,9 @@
 #ifndef QCLOUD_SERVER_H
 #define QCLOUD_SERVER_H
-#include <QObject>
-#include <QStringList>
-#include <QDBusConnection>
-#include <QDBusVariant>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
+#include <QtDBus/QDBusConnection>
+#include <QtDBus/QDBusVariant>
 #include "qcloud_global.h"
 
 class DaemonAdaptor;

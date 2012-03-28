@@ -4,9 +4,9 @@
 #include <QtCore/QtPlugin>
 #include <QtCore/QUrl>
 #include <QtOAuth/QtOAuth>
+#include <QtCloud/IBackend>
 
 #include "qcloud_global.h"
-#include "ibackend.h"
 
 namespace QCloud
 {

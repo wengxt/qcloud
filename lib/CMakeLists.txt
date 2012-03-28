@@ -2,6 +2,7 @@ include_directories(${QT_INCLUDE_DIR}
                     ${QOAuth_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
+                    ${PROJECT_SOURCE_DIR}/include
                     )
 
 set(qcloud_SRCS
@@ -18,26 +19,30 @@ set(qcloud_SRCS
     iplugin.cpp
     authdialog.cpp
     authwidget.cpp
+    app.cpp
+    appmanager.cpp
     )
 
 set(qcloud_HDRS
-    ibackend.h
-    oauthbackend.h
-    oauthwidget.h
-    reply.h
-    factory.h
-    isecurestore.h
-    isecurestorewidget.h
-    server.h
-    client.h
-    authdialog.h
-    authwidget.h
+    ../include/ibackend.h
+    ../include/oauthbackend.h
+    ../include/oauthwidget.h
+    ../include/reply.h
+    ../include/factory.h
+    ../include/isecurestore.h
+    ../include/isecurestorewidget.h
+    ../include/server.h
+    ../include/client.h
+    ../include/authdialog.h
+    ../include/authwidget.h
+    ../include/appmanager.h
     )
 
 set(qcloud_MOC_HDRS ${qcloud_HDRS}
-    client_p.h
-    factory_p.h
-    oauthwidget_p.h
+    ../include/client_p.h
+    ../include/factory_p.h
+    ../include/oauthwidget_p.h
+    ../include/appmanager_p.h
     )
 
 qt4_wrap_cpp(
@@ -69,3 +74,10 @@ target_link_libraries(qcloud
                       ${QT_QTDBUS_LIBRARY}
                       ${QTOAUTH_LIBRARY}
                       )
+
+set_target_properties(qcloud
+                      PROPERTIES VERSION 0.1
+                      SOVERSION 0
+)
+
+install(TARGETS qcloud DESTINATION ${LIB_INSTALL_DIR})

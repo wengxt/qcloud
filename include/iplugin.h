@@ -1,8 +1,8 @@
 #ifndef QCLOUD_IPLUGIN_H
 #define QCLOUD_IPLUGIN_H
 
-#include <QString>
-#include <QObject>
+#include <QtCore/QString>
+#include <QtCore/QObject>
 #include "qcloud_global.h"
 
 namespace QCloud {

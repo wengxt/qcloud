@@ -1,29 +1,29 @@
 #ifndef QCLOUD_ISECURESTOREWIDGET_H
 #define QCLOUD_ISECURESTOREWIDGET_H
 
+#include <QtGui/QWidget>
+#include <QtGui/QLineEdit>
+#include <QtGui/QLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QPushButton>
+#include <QtGui/QDialog>
+#include <QtGui/QLabel>
 #include "isecurestore.h"
 #include "qcloud_global.h"
-#include <QWidget>
-#include <QLineEdit>
-#include <QLayout>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QDialog>
-#include <QLabel>
 
 namespace QCloud{
-    
+
 class QCLOUD_EXPORT ISecureStoreWidget : public QDialog
 {
 Q_OBJECT
 public:
     ISecureStoreWidget(ISecureStore *storage);
     ~ISecureStoreWidget();
-    
+
 protected slots:
     bool SetItem();
     bool GetItem();
-    
+
 protected:
     ISecureStore *m_storage;
     QLineEdit *m_keyInput;

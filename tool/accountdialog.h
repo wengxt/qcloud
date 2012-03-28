@@ -7,6 +7,8 @@ class AccountDialog;
 
 namespace QCloud {
 
+class AppModel;
+
 class BackendModel;
 class AccountDialog : public QDialog {
     Q_OBJECT
@@ -21,5 +23,6 @@ private:
     Ui::AccountDialog* m_ui;
     QCloud::BackendModel* m_backendModel;
     QString m_accountType;
+    QCloud::AppModel* m_appModel;
 };
 }

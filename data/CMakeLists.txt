@@ -8,3 +8,5 @@ endforeach(size 48)
 install(DIRECTORY icons/scalable DESTINATION share/icons/hicolor
          PATTERN .* EXCLUDE
          PATTERN *~ EXCLUDE)
+
+install(FILES testapp DESTINATION share/qcloud/app)
