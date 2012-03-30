@@ -20,6 +20,7 @@ set(qcloud_SRCS
     authwidget.cpp
     app.cpp
     appmanager.cpp
+    ipackager.cpp
     )
 
 set(qcloud_HDRS
@@ -34,6 +35,7 @@ set(qcloud_HDRS
     ../include/authdialog.h
     ../include/authwidget.h
     ../include/appmanager.h
+    ../include/ipackager.h
     )
 
 set(qcloud_MOC_HDRS ${qcloud_HDRS}
@@ -71,6 +73,7 @@ target_link_libraries(qcloud
                       ${QT_QTNETWORK_LIBRARY}
                       ${QT_QTDBUS_LIBRARY}
                       ${QTOAUTH_LIBRARY}
+                      archive
                       )
 
 set_target_properties(qcloud
