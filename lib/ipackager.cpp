@@ -42,7 +42,7 @@ bool IPackager::CompressFile(const QString& FileName,const QStringList& FileList
 bool IPackager::ExtractFile(const QString& FileName,const QString& OutputPath)
 {
     archive* m_archive = archive_read_new();
-    if (archive_read_open_filename(m_archive,(FileName.toLocal8Bit()).constData(),65536)
+    if (archive_read_open_filename(m_archive,(FileName.toLocal8Bit()).constData(),BLOCK_SIZE)
         !=ARCHIVE_OK){
         archive_read_close(m_archive);
         return false;
