@@ -1,6 +1,7 @@
 #include <cstdio>
 
 #include <archive_entry.h>
+#include <archive.h>
 
 #include <QDir>
 #include <QDebug>
