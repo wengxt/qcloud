@@ -1,7 +1,6 @@
-#ifndef QCLOUD_IPACKAGE_H
-#define QCLOUD_IPACKAGE_H
+#ifndef QCLOUD_PACKAGE_H
+#define QCLOUD_PACKAGE_H
 
-#include <archive.h>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -22,4 +21,4 @@ public:
 
 }
 
-#endif
+#endif // QCLOUD_PACKAGE_H
