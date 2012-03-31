@@ -2,6 +2,7 @@ include_directories(${QT_INCLUDE_DIR}
                     ${QOAuth_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
+                    ${LibArchive_INCLUDE_DIRS}
                     ${PROJECT_SOURCE_DIR}/include
                     )
 
@@ -73,7 +74,7 @@ target_link_libraries(qcloud
                       ${QT_QTNETWORK_LIBRARY}
                       ${QT_QTDBUS_LIBRARY}
                       ${QTOAUTH_LIBRARY}
-                      archive
+                      ${LibArchive_LIBRARIES}
                       )
 
 set_target_properties(qcloud

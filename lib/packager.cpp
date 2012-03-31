@@ -165,7 +165,6 @@ bool Packager::extract (const QString& fileName, const QString& outputPath)
             result = false;
             break;
         }
-        qDebug() << archive_entry_pathname(entry);
 
         QString absPath = dir.absoluteFilePath(QString::fromLocal8Bit(archive_entry_pathname(entry)));
 
