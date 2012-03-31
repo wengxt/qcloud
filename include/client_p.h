@@ -2,9 +2,11 @@
 
 class OrgQcloudDaemonInterface;
 
-namespace QCloud {
+namespace QCloud
+{
 
-class Client::Private : public QObject {
+class Client::Private : public QObject
+{
     friend class Client;
     Q_OBJECT
 public:
@@ -13,6 +15,6 @@ public:
 
 private:
     QDBusConnection m_connection;
-    OrgQcloudDaemonInterface *m_daemon;
+    OrgQcloudDaemonInterface* m_daemon;
 };
 }

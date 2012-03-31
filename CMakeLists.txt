@@ -4,6 +4,8 @@ project(qcloud)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+option(ENABLE_TEST "Enable test program build" Off)
+
 find_package(KDE4 REQUIRED)
 include_directories(${KDE4_INCLUDES})
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -12,6 +14,7 @@ include_directories(${PROJECT_BINARY_DIR})
 add_definitions(${KDE4_DEFINITIONS})
 find_package(QCA2 REQUIRED)
 find_package(QOAuth REQUIRED)
+find_package(LibArchive REQUIRED)
 
 set(CMAKE_C_FLAGS "-Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -fvisibility=hidden ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -fvisibility=hidden ${CMAKE_CXX_FLAGS}")
@@ -34,6 +37,9 @@ add_subdirectory(daemon)
 add_subdirectory(network)
 add_subdirectory(securestore)
 add_subdirectory(data)
-
-
 add_subdirectory(include)
+
+if (ENABLE_TEST)
+    enable_testing()
+    add_subdirectory(tests)
+endif (ENABLE_TEST)

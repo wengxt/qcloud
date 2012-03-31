@@ -12,7 +12,7 @@ QString KDENetworkPlugin::name()
 
 QString KDENetworkPlugin::displayName()
 {
-    return tr("KDE");
+    return tr ("KDE");
 }
 
 QObject* KDENetworkPlugin::create()
@@ -26,4 +26,4 @@ QCloud::IPlugin::PluginCategory KDENetworkPlugin::category()
 }
 
 
-Q_EXPORT_PLUGIN2(qcloud_kdenetwork, KDENetworkPlugin)
+Q_EXPORT_PLUGIN2 (qcloud_kdenetwork, KDENetworkPlugin)

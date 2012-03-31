@@ -3,15 +3,16 @@
 #include "authdialog.h"
 #include "authwidget.h"
 
-namespace QCloud {
+namespace QCloud
+{
 AuthDialog::AuthDialog (AuthWidget* widget, QWidget* parent, Qt::WindowFlags f) : QDialog (parent, f)
 {
-    widget->setParent(this);
+    widget->setParent (this);
 
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(widget);
-    setLayout(layout);
-    connect(widget, SIGNAL(authFinished(bool)), SLOT(authFinished(bool)));
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->addWidget (widget);
+    setLayout (layout);
+    connect (widget, SIGNAL (authFinished (bool)), SLOT (authFinished (bool)));
 
     widget->startAuth();
 }

@@ -9,19 +9,21 @@
 
 class QPluginLoader;
 class QNetworkAccessManager;
-namespace QCloud {
+namespace QCloud
+{
 
 class ISecureStore;
 class IPlugin;
 class IBackend;
 
-class QCLOUD_EXPORT Factory : public QObject {
+class QCLOUD_EXPORT Factory : public QObject
+{
     Q_OBJECT
 public:
     static Factory* instance();
-    QNetworkAccessManager* createNetwork(const QString& name);
-    IBackend* createBackend(const QString& name);
-    ISecureStore* createSecureStore(const QString& name);
+    QNetworkAccessManager* createNetwork (const QString& name);
+    IBackend* createBackend (const QString& name);
+    ISecureStore* createSecureStore (const QString& name);
     const QList< IPlugin* >& backendList();
 private:
     Factory();

@@ -9,16 +9,18 @@
 
 class QNetworkAccessManager;
 
-namespace QCloud {
+namespace QCloud
+{
 
 class OAuthBackend;
 
-class QCLOUD_EXPORT OAuthWidget : public AuthWidget {
+class QCLOUD_EXPORT OAuthWidget : public AuthWidget
+{
     Q_OBJECT
 public:
-    explicit OAuthWidget(OAuthBackend* backend, QWidget* parent = 0);
+    explicit OAuthWidget (OAuthBackend* backend, QWidget* parent = 0);
     virtual ~OAuthWidget();
-    void openUrl(const QUrl& url);
+    void openUrl (const QUrl& url);
     virtual void startAuth();
 private:
     class Private;

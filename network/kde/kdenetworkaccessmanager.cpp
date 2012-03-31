@@ -6,14 +6,14 @@
 #include "reply.h"
 #include "utils.h"
 
-KDENetworkAccessManager::KDENetworkAccessManager(QObject* parent): KIO::Integration::AccessManager(parent)
+KDENetworkAccessManager::KDENetworkAccessManager (QObject* parent) : KIO::Integration::AccessManager (parent)
 {
 }
 
-QNetworkReply* KDENetworkAccessManager::createRequest(QNetworkAccessManager::Operation op, const QNetworkRequest& request, QIODevice* outgoingData)
+QNetworkReply* KDENetworkAccessManager::createRequest (QNetworkAccessManager::Operation op, const QNetworkRequest& request, QIODevice* outgoingData)
 {
-    if (QCloud::isCustomCallbackUrl(request.url()) && op == QNetworkAccessManager::GetOperation)
-        return new QCloud::Reply(request.url(), this);
+    if (QCloud::isCustomCallbackUrl (request.url()) && op == QNetworkAccessManager::GetOperation)
+        return new QCloud::Reply (request.url(), this);
 
-    return KIO::Integration::AccessManager::createRequest(op, request, outgoingData);
+    return KIO::Integration::AccessManager::createRequest (op, request, outgoingData);
 }

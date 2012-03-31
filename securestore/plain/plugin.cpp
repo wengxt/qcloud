@@ -12,7 +12,7 @@ QString PlainStorePlugin::name()
 
 QString PlainStorePlugin::displayName()
 {
-    return tr("Plain");
+    return tr ("Plain");
 }
 
 QObject* PlainStorePlugin::create()
@@ -26,4 +26,4 @@ QCloud::IPlugin::PluginCategory PlainStorePlugin::category()
 }
 
 
-Q_EXPORT_PLUGIN2(qcloud_plainstore, PlainStorePlugin)
+Q_EXPORT_PLUGIN2 (qcloud_plainstore, PlainStorePlugin)

@@ -11,12 +11,12 @@ PlainStore::~PlainStore()
 
 }
 
-bool PlainStore::GetItem(const QString& key, QString& value)
+bool PlainStore::GetItem (const QString& key, QString& value)
 {
     return false;
 }
 
-bool PlainStore::SetItem(const QString& key, const QString& value)
+bool PlainStore::SetItem (const QString& key, const QString& value)
 {
     return false;
 }

@@ -12,7 +12,7 @@ QString DropboxPlugin::name()
 
 QString DropboxPlugin::displayName()
 {
-    return tr("Dropbox");
+    return tr ("Dropbox");
 }
 
 QObject* DropboxPlugin::create()
@@ -31,4 +31,4 @@ QString DropboxPlugin::iconName()
 }
 
 
-Q_EXPORT_PLUGIN2(qcloud_dropbox, DropboxPlugin)
+Q_EXPORT_PLUGIN2 (qcloud_dropbox, DropboxPlugin)

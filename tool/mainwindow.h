@@ -1,11 +1,13 @@
 #include <QMainWindow>
 
 class QPushButton;
-namespace Ui {
+namespace Ui
+{
 class Tool;
 }
 
-namespace QCloud {
+namespace QCloud
+{
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

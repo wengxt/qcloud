@@ -3,7 +3,7 @@
 class KWalletStorePlugin: public QObject, public QCloud::IPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(QCloud::IPlugin)
+    Q_INTERFACES (QCloud::IPlugin)
 public:
     virtual QString name();
     virtual QString displayName();

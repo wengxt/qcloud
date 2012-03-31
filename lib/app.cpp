@@ -2,12 +2,13 @@
 #include <QSettings>
 #include <qset.h>
 
-namespace QCloud {
-App::App(const QSettings& settings)
+namespace QCloud
 {
-    m_name = settings.value("Name").toString();
-    m_iconName = settings.value("IconName").toString();
-    m_description = settings.value("Description").toString();
+App::App (const QSettings& settings)
+{
+    m_name = settings.value ("Name").toString();
+    m_iconName = settings.value ("IconName").toString();
+    m_description = settings.value ("Description").toString();
 }
 
 const QString& App::name()
@@ -25,15 +26,14 @@ const QString& App::description()
     return m_description;
 }
 
-App* App::parseAppFile(const QString& appFile)
+App* App::parseAppFile (const QString& appFile)
 {
-    QSettings settings(appFile, QSettings::IniFormat);
-    settings.beginGroup("QCloud App");
-    if (settings.contains("Name")
-     && settings.contains("IconName")
-     && settings.contains("Description"))
-    {
-        App* app = new App(settings);
+    QSettings settings (appFile, QSettings::IniFormat);
+    settings.beginGroup ("QCloud App");
+    if (settings.contains ("Name")
+            && settings.contains ("IconName")
+            && settings.contains ("Description")) {
+        App* app = new App (settings);
         return app;
     }
     return NULL;

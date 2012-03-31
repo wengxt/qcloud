@@ -4,23 +4,23 @@ using KWallet::Wallet;
 
 KWalletStore::KWalletStore()
 {
-    m_wallet = Wallet::openWallet( Wallet::LocalWallet(),0,
+    m_wallet = Wallet::openWallet (Wallet::LocalWallet(), 0,
                                    Wallet::Asynchronous);
     stat = NOT_SET;
-    if (m_wallet==NULL){
+    if (m_wallet == NULL) {
         stat = NOT_AVAILABLE;
         return ;
     }
-    connect(m_wallet,SIGNAL(walletOpened(bool)),SLOT(walletOpened(bool)));
+    connect (m_wallet, SIGNAL (walletOpened (bool)), SLOT (walletOpened (bool)));
 }
 
-void KWalletStore::walletOpened(bool succeeded)
+void KWalletStore::walletOpened (bool succeeded)
 {
     if (succeeded &&
-        (m_wallet->hasFolder(KWallet::Wallet::FormDataFolder()) ||
-        m_wallet->createFolder(KWallet::Wallet::FormDataFolder())) &&
-        m_wallet->setFolder(KWallet::Wallet::FormDataFolder())
-    )
+            (m_wallet->hasFolder (KWallet::Wallet::FormDataFolder()) ||
+             m_wallet->createFolder (KWallet::Wallet::FormDataFolder())) &&
+            m_wallet->setFolder (KWallet::Wallet::FormDataFolder())
+       )
         stat = SUCCEEDED;
     else
         stat = NOT_AVAILABLE;
@@ -29,16 +29,16 @@ void KWalletStore::walletOpened(bool succeeded)
 
 bool KWalletStore::isAvailable()
 {
-    return stat!=NOT_AVAILABLE;
+    return stat != NOT_AVAILABLE;
 }
 
-bool KWalletStore::SetItem(const QString& key,const QString& value)
+bool KWalletStore::SetItem (const QString& key, const QString& value)
 {
-    if (stat==NOT_AVAILABLE)
+    if (stat == NOT_AVAILABLE)
         return false;
-    if (m_wallet->hasEntry(key))
-        m_wallet->removeEntry(key);
-    if (m_wallet->writePassword(key,value)!=0){
+    if (m_wallet->hasEntry (key))
+        m_wallet->removeEntry (key);
+    if (m_wallet->writePassword (key, value) != 0) {
         stat = FAILED;
         return false;
     }
@@ -46,11 +46,11 @@ bool KWalletStore::SetItem(const QString& key,const QString& value)
     return true;
 }
 
-bool KWalletStore::GetItem(const QString& key,QString& value)
+bool KWalletStore::GetItem (const QString& key, QString& value)
 {
-    if (stat==NOT_AVAILABLE)
+    if (stat == NOT_AVAILABLE)
         return false;
-    if (m_wallet->readPassword(key,value)!=0){
+    if (m_wallet->readPassword (key, value) != 0) {
         stat = FAILED;
         return false;
     }

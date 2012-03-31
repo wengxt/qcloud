@@ -2,9 +2,10 @@
 
 #include "ibackend.h"
 
-namespace QCloud {
+namespace QCloud
+{
 
-IBackend::IBackend(QObject* parent)
+IBackend::IBackend (QObject* parent)
 {
 }
 
@@ -13,7 +14,7 @@ IBackend::~IBackend()
 
 }
 
-void IBackend::setNetworkAccessManager(QNetworkAccessManager* manager)
+void IBackend::setNetworkAccessManager (QNetworkAccessManager* manager)
 {
     m_networkAccessManager = manager;
 }

@@ -1,0 +1,3 @@
+add_subdirectory(dropbox)
+add_subdirectory(securestore)
+add_subdirectory(packager)

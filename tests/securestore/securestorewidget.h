@@ -11,26 +11,27 @@
 #include "isecurestore.h"
 #include "qcloud_global.h"
 
-namespace QCloud{
-
-class QCLOUD_EXPORT ISecureStoreWidget : public QDialog
+namespace QCloud
 {
-Q_OBJECT
+
+class QCLOUD_EXPORT SecureStoreWidget : public QDialog
+{
+    Q_OBJECT
 public:
-    ISecureStoreWidget(ISecureStore *storage);
-    ~ISecureStoreWidget();
+    SecureStoreWidget (ISecureStore* storage);
+    ~SecureStoreWidget();
 
 protected slots:
     bool SetItem();
     bool GetItem();
 
 protected:
-    ISecureStore *m_storage;
-    QLineEdit *m_keyInput;
-    QLineEdit *m_valueInput;
-    QLabel *m_statLabel;
-    QPushButton *m_GetButton;
-    QPushButton *m_SetButton;
+    ISecureStore* m_storage;
+    QLineEdit* m_keyInput;
+    QLineEdit* m_valueInput;
+    QLabel* m_statLabel;
+    QPushButton* m_GetButton;
+    QPushButton* m_SetButton;
 };
 
 }

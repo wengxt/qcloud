@@ -12,7 +12,7 @@ QString KWalletStorePlugin::name()
 
 QString KWalletStorePlugin::displayName()
 {
-    return tr("KWallet");
+    return tr ("KWallet");
 }
 
 QObject* KWalletStorePlugin::create()
@@ -26,4 +26,4 @@ QCloud::IPlugin::PluginCategory KWalletStorePlugin::category()
 }
 
 
-Q_EXPORT_PLUGIN2(qcloud_plainstore, KWalletStorePlugin)
+Q_EXPORT_PLUGIN2 (qcloud_plainstore, KWalletStorePlugin)

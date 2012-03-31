@@ -12,7 +12,7 @@ QString GeneralNetworkPlugin::name()
 
 QString GeneralNetworkPlugin::displayName()
 {
-    return tr("General");
+    return tr ("General");
 }
 
 QObject* GeneralNetworkPlugin::create()
@@ -26,4 +26,4 @@ QCloud::IPlugin::PluginCategory GeneralNetworkPlugin::category()
 }
 
 
-Q_EXPORT_PLUGIN2(qcloud_generalnetwork, GeneralNetworkPlugin)
+Q_EXPORT_PLUGIN2 (qcloud_generalnetwork, GeneralNetworkPlugin)

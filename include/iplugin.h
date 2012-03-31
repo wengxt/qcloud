@@ -5,7 +5,8 @@
 #include <QtCore/QObject>
 #include "qcloud_global.h"
 
-namespace QCloud {
+namespace QCloud
+{
 
 class QCLOUD_EXPORT IPlugin
 {
@@ -25,6 +26,6 @@ public:
 
 }
 
-Q_DECLARE_INTERFACE(QCloud::IPlugin, "org.qcloud.plugin")
+Q_DECLARE_INTERFACE (QCloud::IPlugin, "org.qcloud.plugin")
 
 #endif

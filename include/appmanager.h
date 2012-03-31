@@ -4,8 +4,10 @@
 #include <QtCloud/App>
 #include "qcloud_global.h"
 
-namespace QCloud {
-class QCLOUD_EXPORT AppManager : public QObject {
+namespace QCloud
+{
+class QCLOUD_EXPORT AppManager : public QObject
+{
     Q_OBJECT
 public:
     static AppManager* instance();

@@ -1,6 +1,7 @@
 #include "service.h"
 
-namespace QCloud {
+namespace QCloud
+{
 
 Service::Service (QObject* parent) : Server (parent)
 {

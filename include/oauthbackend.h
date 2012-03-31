@@ -16,21 +16,21 @@ class QCLOUD_EXPORT OAuthBackend : public IBackend
 {
     Q_OBJECT
 public:
-    explicit OAuthBackend(QObject* parent = 0);
+    explicit OAuthBackend (QObject* parent = 0);
     virtual ~OAuthBackend();
-    virtual void setNetworkAccessManager(QNetworkAccessManager* manager);
+    virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
     virtual bool prepare();
 
     virtual bool requestToken();
-    virtual bool authorize(QWidget* widget = 0) = 0;
-    virtual void startAuth(QCloud::OAuthWidget* oauthWidget) = 0;
+    virtual bool authorize (QWidget* widget = 0) = 0;
+    virtual void startAuth (QCloud::OAuthWidget* oauthWidget) = 0;
     virtual bool accessToken();
     virtual int error() const;
 
     QString appKey() const;
-    void setAppKey(const QString & appkey);
+    void setAppKey (const QString& appkey);
     QString appSecret() const;
-    void setAppSecret(const QString & appsecret);
+    void setAppSecret (const QString& appsecret);
     QString oauthToken() const;
     QString oauthTokenSecret() const;
     QString requestTokenUrl() const;

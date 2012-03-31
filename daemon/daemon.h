@@ -1,5 +1,6 @@
 #include <QCoreApplication>
-namespace QCloud {
+namespace QCloud
+{
 class Daemon : public QCoreApplication
 {
     Q_OBJECT

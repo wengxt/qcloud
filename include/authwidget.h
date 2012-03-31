@@ -4,7 +4,8 @@
 #include <QtCloud/IBackend>
 #include "qcloud_global.h"
 
-namespace QCloud {
+namespace QCloud
+{
 class QCLOUD_EXPORT AuthWidget : public QWidget
 {
     Q_OBJECT
@@ -16,7 +17,7 @@ public slots:
     virtual void startAuth() = 0;
 
 signals:
-    void authFinished(bool success);
+    void authFinished (bool success);
 };
 }
 

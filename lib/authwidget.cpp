@@ -1,6 +1,7 @@
 #include "authwidget.h"
 
-namespace QCloud{
+namespace QCloud
+{
 
 AuthWidget::AuthWidget (QWidget* parent, Qt::WindowFlags f)
 {

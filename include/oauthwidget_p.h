@@ -7,23 +7,26 @@
 class QPushButton;
 class QWebView;
 
-namespace Ui {
+namespace Ui
+{
 class OAuthWidget;
 }
 
-namespace QCloud {
-class OAuthWidget::Private : public QObject {
+namespace QCloud
+{
+class OAuthWidget::Private : public QObject
+{
     Q_OBJECT
     friend class OAuthWidget;
 public:
     explicit Private (OAuthWidget* parent);
     virtual ~Private();
 protected slots:
-    void urlChanged(const QUrl& url);
+    void urlChanged (const QUrl& url);
     void authorizeSuccess();
     void loadStarted();
-    void loadProgress(int);
-    void loadFinished(bool suc);
+    void loadProgress (int);
+    void loadFinished (bool suc);
 
 protected:
     OAuthWidget* p;

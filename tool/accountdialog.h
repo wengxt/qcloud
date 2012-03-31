@@ -1,16 +1,19 @@
 #include <QDialog>
 
 class QListView;
-namespace Ui {
+namespace Ui
+{
 class AccountDialog;
 }
 
-namespace QCloud {
+namespace QCloud
+{
 
 class AppModel;
 
 class BackendModel;
-class AccountDialog : public QDialog {
+class AccountDialog : public QDialog
+{
     Q_OBJECT
 public:
     explicit AccountDialog (QWidget* parent = 0, Qt::WindowFlags f = 0);

@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "server.h"
-namespace QCloud {
+namespace QCloud
+{
 class Service : public Server
 {
     Q_OBJECT

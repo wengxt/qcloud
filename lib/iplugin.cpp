@@ -1,12 +1,14 @@
 #include "iplugin.h"
 
-namespace QCloud {
+namespace QCloud
+{
 IPlugin::~IPlugin()
 {
 
 }
 
-QString IPlugin::iconName() {
+QString IPlugin::iconName()
+{
     return "";
 }
 

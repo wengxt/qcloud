@@ -1,7 +1,8 @@
 #include "isecurestore.h"
 
-namespace QCloud {
-    
+namespace QCloud
+{
+
 ISecureStore::~ISecureStore()
 {
 

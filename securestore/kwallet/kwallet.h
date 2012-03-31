@@ -20,14 +20,14 @@ public:
 
     bool isAvailable();
 
-    bool GetItem(const QString& key,QString& value);
-    bool SetItem(const QString& key,const QString& value);
+    bool GetItem (const QString& key, QString& value);
+    bool SetItem (const QString& key, const QString& value);
 
-    private slots:
-        void walletOpened(bool success);
+private slots:
+    void walletOpened (bool success);
 
 private:
-    KWallet::Wallet *m_wallet;
+    KWallet::Wallet* m_wallet;
     KWALLET_STAT stat;
 };
 

@@ -3,7 +3,8 @@
 #include <QDialog>
 #include "qcloud_global.h"
 
-namespace QCloud {
+namespace QCloud
+{
 
 class AuthWidget;
 class QCLOUD_EXPORT AuthDialog : public QDialog
@@ -14,7 +15,7 @@ public:
     virtual ~AuthDialog();
 
 protected slots:
-    void authFinished(bool success);
+    void authFinished (bool success);
 };
 }
 

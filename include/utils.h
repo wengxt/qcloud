@@ -3,9 +3,10 @@
 
 #include <QtCore/QUrl>
 #include "qcloud_global.h"
-namespace QCloud {
+namespace QCloud
+{
 QCLOUD_EXPORT QUrl customCallbackUrl();
-QCLOUD_EXPORT bool isCustomCallbackUrl(const QUrl& url);   
+QCLOUD_EXPORT bool isCustomCallbackUrl (const QUrl& url);
 }
 
 #endif
