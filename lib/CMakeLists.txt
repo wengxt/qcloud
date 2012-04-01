@@ -22,6 +22,7 @@ set(qcloud_SRCS
     app.cpp
     appmanager.cpp
     packager.cpp
+    encrypter.cpp
     )
 
 set(qcloud_HDRS
@@ -37,6 +38,7 @@ set(qcloud_HDRS
     ../include/authwidget.h
     ../include/appmanager.h
     ../include/packager.h
+    ../include/encrypter.h
     )
 
 set(qcloud_MOC_HDRS ${qcloud_HDRS}
@@ -75,6 +77,7 @@ target_link_libraries(qcloud
                       ${QT_QTDBUS_LIBRARY}
                       ${QTOAUTH_LIBRARY}
                       ${LibArchive_LIBRARIES}
+                      /usr/lib/libqca.so
                       )
 
 set_target_properties(qcloud

@@ -15,6 +15,7 @@ set(qcloud_HEADER
     authdialog.h
     authwidget.h
     appmanager.h
+    encrypter.h
     )
 
 install(FILES ${qcloud_HEADER} DESTINATION include)

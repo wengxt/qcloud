@@ -1,4 +1,4 @@
-#include "kwallet.h"
+#include "kwalletstore.h"
 
 using KWallet::Wallet;
 

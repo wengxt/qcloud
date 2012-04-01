@@ -2,7 +2,7 @@
 #include <QObject>
 #include <QtPlugin>
 #include "iplugin.h"
-#include "kwallet.h"
+#include "kwalletstore.h"
 #include "plugin.h"
 
 QString KWalletStorePlugin::name()

@@ -1,7 +1,7 @@
-set(securestore_kwallet_SRCS kwallet.cpp plugin.cpp )
+set(securestore_kwallet_SRCS kwalletstore.cpp plugin.cpp )
 
 set(securestore_kwallet_MOC_HDRS
-    kwallet.h
+    kwalletstore.h
     plugin.h
     )
 
