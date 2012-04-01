@@ -7,36 +7,36 @@
 #define IV_NAME "Qcloud_Encrypter_Initiazation_Vector"
 #define KEY_LEN 16
 #define IV_LEN 16
-#define BUF_SIZE 8192
+#define BUF_SIZE 16
+#define PADDING NoPadding
+#define ENC_TYPE CFB
 
 namespace QCloud{
     
 inline bool Encrypter::init()
 {
-    if (!hasKey){
+   if (!hasKey){
+       qDebug() << "Key not found , assume it is the first time to run encrypt/decrypt";
         QString key_value,iv_value;
         if ((!m_storage->GetItem(KEY_NAME,key_value)) || (!m_storage->GetItem(IV_NAME,iv_value))){
             qDebug() << "Failed getting key or iv , generating new value and new iv";
-            //key = QCA::SymmetricKey(KEY_LEN);
-            //iv = QCA::InitializationVector(IV_LEN);
-            QCA::SymmetricKey key1(KEY_LEN);
+            key = QCA::SymmetricKey(KEY_LEN);
+            iv = QCA::InitializationVector(IV_LEN);
             qDebug() << "Finished generating. key : " << key.constData() << "iv : " << iv.constData() << ". Starting writing value to ISecureStore";
-            return false;
             bool flag = m_storage->SetItem(KEY_NAME,key.data());
             flag &= m_storage->SetItem(IV_NAME,iv.data());
-            qDebug() << "Finished Writing";
+            qDebug() << "Finished Writing key and iv";
             if (!flag){
-                qDebug() << "Failed Setting Item";
+                qDebug() << "Failed setting one of the items";
                 return false;
             }
-            key_value = "";
-            iv_value = "";
-            hasKey = true;
         }
         else{
-            key = QCA::SymmetricKey(key_value.toAscii());
-            iv = QCA::InitializationVector(iv_value.toAscii());
+            key = QCA::SymmetricKey(key_value.toLocal8Bit());
+            iv = QCA::InitializationVector(iv_value.toLocal8Bit());
         }
+        hasKey = true;
+        qDebug() << "Set hasKey to True";
     }
     return true;
 }
@@ -58,36 +58,43 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
         return false;
     QFile readFile(fileName);
     if (!readFile.exists()){
-        qDebug() << "File \'" << fileName << "\' Not found";
+        qDebug() << "Input file \'" << fileName << "\' Not found";
         return false;
     }
     if (!readFile.open(QIODevice::ReadOnly)){
-        qDebug() << "Open \'" << fileName << "\' failed";
+        qDebug() << "Open input \'" << fileName << "\' failed";
         return false;
     }
-    QFile writeFile(fileName);
-    if (!writeFile.exists()){
-        qDebug() << "File \'" << fileName << "\' Not found";
-        return false;
-    }
+    QFile writeFile(outputFile);
     if (!writeFile.open(QIODevice::WriteOnly)){
-        qDebug() << "Open \'" << fileName << "\' failed";
+        qDebug() << "Open output \'" << outputFile << "\' failed";
         return false;
     }
     
-    QCA::Cipher cipher("aes128",QCA::Cipher::CFB,
+    QCA::Cipher cipher("aes128",QCA::Cipher::ENC_TYPE,
         //NoPadding with CFB or DefaultPadding with CBC
-        QCA::Cipher::DefaultPadding,
+        QCA::Cipher::PADDING,
         QCA::Encode,
         key,iv);
     
     QByteArray buf;
     buf = readFile.read(BUF_SIZE);
+    qDebug() << "Reading First buffer : " << buf;
     while (buf.size()>0){
-        QCA::SecureArray bufRegion(buf);
-        QCA::SecureArray bufWrite = cipher.update(bufRegion);
-        writeFile.write(bufWrite.append(cipher.final()).constData());
+        QCA::SecureArray bufRegion;
+        QCA::SecureArray bufWrite;
+        bufRegion = QCA::SecureArray(buf);
+        qDebug() << "Changing buffer : " << bufRegion.constData();
+        cipher.setup(QCA::Encode,key,iv);
+        bufWrite = cipher.process(bufRegion);
+        if (!cipher.ok()){
+            qDebug() << "Error while encrypting";
+            return false;
+        }
+        qDebug() << "Writing data : " << bufWrite.constData();
+        writeFile.write(bufWrite.constData());
         buf = readFile.read(BUF_SIZE);
+        //qDebug() << "Read buffer : " << buf;
     }
     
     readFile.close();
@@ -99,39 +106,43 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
 {
     if (!init())
         return false;
-     QFile readFile(fileName);
+    QFile readFile(fileName);
     if (!readFile.exists()){
-        qDebug() << "File \'" << fileName << "\' Not found";
+        qDebug() << "Input file \'" << fileName << "\' Not found";
         return false;
     }
     if (!readFile.open(QIODevice::ReadOnly)){
-        qDebug() << "Open \'" << fileName << "\' failed";
+        qDebug() << "Open input \'" << fileName << "\' failed";
         return false;
     }
-    QFile writeFile(fileName);
-    if (!writeFile.exists()){
-        qDebug() << "File \'" << fileName << "\' Not found";
-        return false;
-    }
+    QFile writeFile(outputFile);
     if (!writeFile.open(QIODevice::WriteOnly)){
-        qDebug() << "Open \'" << fileName << "\' failed";
+        qDebug() << "Open output \'" << outputFile << "\' failed";
         return false;
     }
     
-    QCA::Cipher cipher("aes128",QCA::Cipher::CBC,
+    QCA::Cipher cipher("aes128",QCA::Cipher::ENC_TYPE,
         //NoPadding with CFB or DefaultPadding with CBC
-        QCA::Cipher::DefaultPadding,
+        QCA::Cipher::PADDING,
         QCA::Decode,
-        key,iv
-    );
+        key,iv);
     
     QByteArray buf;
     buf = readFile.read(BUF_SIZE);
+    qDebug() << "Reading First buffer : " << buf;
     while (buf.size()>0){
-        QCA::SecureArray bufRegion(buf);
-        QCA::SecureArray bufWrite = cipher.update(buf);
-        writeFile.write(bufWrite.append(cipher.final()).constData());
+        QCA::SecureArray bufRegion;
+        QCA::SecureArray bufWrite;
+        cipher.setup(QCA::Decode,key,iv);
+        bufRegion = QCA::SecureArray(buf);
+        bufWrite = cipher.process(bufRegion);
+        if (!cipher.ok()){
+            qDebug() << "Error while encrypting";
+            return false;
+        }
+        writeFile.write(bufWrite.constData());
         buf = readFile.read(BUF_SIZE);
+        //qDebug() << "Reading buffer : " << buf;
     }
     
     readFile.close();
