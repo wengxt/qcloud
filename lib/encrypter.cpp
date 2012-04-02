@@ -22,7 +22,7 @@ inline bool Encrypter::init()
             qDebug() << "Failed getting key or iv , generating new value and new iv";
             key = QCA::SymmetricKey(KEY_LEN);
             iv = QCA::InitializationVector(IV_LEN);
-            qDebug() << "Finished generating. key : " << key.constData() << "iv : " << iv.constData() << ". Starting writing value to ISecureStore";
+            qDebug() << "Finished generating. key : " << key.toByteArray() << "iv : " << iv.toByteArray() << ". Starting writing value to ISecureStore";
             bool flag = m_storage->SetItem(KEY_NAME,key.data());
             flag &= m_storage->SetItem(IV_NAME,iv.data());
             qDebug() << "Finished Writing key and iv";
@@ -59,15 +59,18 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
     QFile readFile(fileName);
     if (!readFile.exists()){
         qDebug() << "Input file \'" << fileName << "\' Not found";
+        readFile.close();
         return false;
     }
     if (!readFile.open(QIODevice::ReadOnly)){
         qDebug() << "Open input \'" << fileName << "\' failed";
+        readFile.close();
         return false;
     }
     QFile writeFile(outputFile);
     if (!writeFile.open(QIODevice::WriteOnly)){
         qDebug() << "Open output \'" << outputFile << "\' failed";
+        writeFile.close();
         return false;
     }
     
@@ -84,15 +87,15 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
         QCA::SecureArray bufRegion;
         QCA::SecureArray bufWrite;
         bufRegion = QCA::SecureArray(buf);
-        qDebug() << "Changing buffer : " << bufRegion.constData();
+        qDebug() << "Changing buffer : " << bufRegion.toByteArray();
         cipher.setup(QCA::Encode,key,iv);
         bufWrite = cipher.process(bufRegion);
         if (!cipher.ok()){
             qDebug() << "Error while encrypting";
             return false;
         }
-        qDebug() << "Writing data : " << bufWrite.constData();
-        writeFile.write(bufWrite.constData());
+        qDebug() << "Writing data : " << bufWrite.toByteArray();
+        writeFile.write(bufWrite.toByteArray());
         buf = readFile.read(BUF_SIZE);
         //qDebug() << "Read buffer : " << buf;
     }
@@ -109,15 +112,18 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
     QFile readFile(fileName);
     if (!readFile.exists()){
         qDebug() << "Input file \'" << fileName << "\' Not found";
+        readFile.close();
         return false;
     }
     if (!readFile.open(QIODevice::ReadOnly)){
         qDebug() << "Open input \'" << fileName << "\' failed";
+        readFile.close();
         return false;
     }
     QFile writeFile(outputFile);
     if (!writeFile.open(QIODevice::WriteOnly)){
         qDebug() << "Open output \'" << outputFile << "\' failed";
+        writeFile.close();
         return false;
     }
     
@@ -137,10 +143,10 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
         bufRegion = QCA::SecureArray(buf);
         bufWrite = cipher.process(bufRegion);
         if (!cipher.ok()){
-            qDebug() << "Error while encrypting";
+            qDebug() << "Error while decrypting";
             return false;
         }
-        writeFile.write(bufWrite.constData());
+        writeFile.write(bufWrite.toByteArray());
         buf = readFile.read(BUF_SIZE);
         //qDebug() << "Reading buffer : " << buf;
     }
