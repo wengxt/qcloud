@@ -17,7 +17,7 @@ int main(int argc,char **argv)
     qDebug() << "Decrypt output : " << argv[3];
     KWalletStore *storage = new KWalletStore;
     Encrypter *encrypter = new Encrypter(storage);
-    qDebug() << "Starting to encryt" << argv[1] << "to " << argv[2];
+    //qDebug() << "Starting to encryt" << argv[1] << "to " << argv[2];
     encrypter->encrypt(argv[1],argv[2]);
     //qDebug() << "Starting to decrypt" << argv[2] << "to " << argv[3];
     encrypter->decrypt(argv[2],argv[3]);

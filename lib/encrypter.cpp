@@ -54,6 +54,7 @@ Encrypter::~Encrypter()
 
 bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
 {
+    qDebug() << "Encrypting " << fileName << " to " << outputFile;
     if (!init())
         return false;
     QFile readFile(fileName);
@@ -82,31 +83,36 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
     
     QByteArray buf;
     buf = readFile.read(BUF_SIZE);
-    qDebug() << "Reading First buffer : " << buf;
+    //qDebug() << "Reading First buffer : " << buf;
     while (buf.size()>0){
         QCA::SecureArray bufRegion;
         QCA::SecureArray bufWrite;
         bufRegion = QCA::SecureArray(buf);
-        qDebug() << "Changing buffer : " << bufRegion.toByteArray();
+        //qDebug() << "Changing buffer : " << bufRegion.toByteArray();
         cipher.setup(QCA::Encode,key,iv);
         bufWrite = cipher.process(bufRegion);
         if (!cipher.ok()){
-            qDebug() << "Error while encrypting";
+            qDebug() << "Error with cipher.process while encrypting";
             return false;
         }
-        qDebug() << "Writing data : " << bufWrite.toByteArray();
-        writeFile.write(bufWrite.toByteArray());
+        //qDebug() << "Writing data : " << bufWrite.toByteArray();
+        if (writeFile.write(bufWrite.toByteArray())==-1){
+            qDebug() << "Error while writing encrypted data";
+            return false;
+        }
         buf = readFile.read(BUF_SIZE);
         //qDebug() << "Read buffer : " << buf;
     }
     
     readFile.close();
     writeFile.close();
+    qDebug() << "Finished encrypting";
     return true;
 }
 
 bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
 {
+    qDebug() << "Decrypting " << fileName << " to " << outputFile;
     if (!init())
         return false;
     QFile readFile(fileName);
@@ -135,7 +141,7 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
     
     QByteArray buf;
     buf = readFile.read(BUF_SIZE);
-    qDebug() << "Reading First buffer : " << buf;
+    //qDebug() << "Reading First buffer : " << buf;
     while (buf.size()>0){
         QCA::SecureArray bufRegion;
         QCA::SecureArray bufWrite;
@@ -143,16 +149,20 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
         bufRegion = QCA::SecureArray(buf);
         bufWrite = cipher.process(bufRegion);
         if (!cipher.ok()){
-            qDebug() << "Error while decrypting";
+            qDebug() << "Error with cipher.process while decrypting";
             return false;
         }
-        writeFile.write(bufWrite.toByteArray());
+        if (writeFile.write(bufWrite.toByteArray())==-1){
+            qDebug() << "Error while writing decrypted data";
+            return false;
+        }
         buf = readFile.read(BUF_SIZE);
         //qDebug() << "Reading buffer : " << buf;
     }
     
     readFile.close();
     writeFile.close();
+    qDebug() << "Finished decrypting";
     return true;
 }
 
