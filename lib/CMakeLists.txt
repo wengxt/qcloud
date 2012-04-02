@@ -77,7 +77,7 @@ target_link_libraries(qcloud
                       ${QT_QTDBUS_LIBRARY}
                       ${QTOAUTH_LIBRARY}
                       ${LibArchive_LIBRARIES}
-                      /usr/lib/libqca.so
+                      ${QCA2_LIBRARIES}
                       )
 
 set_target_properties(qcloud
