@@ -13,6 +13,13 @@
 
 namespace QCloud{
     
+inline static void clearString(QString& st)
+{
+    for (QString::Iterator it=st.begin();it!=st.end();it++)
+        (*it) = '\0';
+    st = "";
+}
+    
 inline bool Encrypter::init()
 {
    if (!hasKey){
@@ -32,8 +39,8 @@ inline bool Encrypter::init()
             }
             /*Clear the QString values to prevent them from being stolen by other program , 
             even if it might not help at all.*/
-            key_value = "";
-            iv_value = "";
+            clearString(key_value);
+            clearString(iv_value);
         }
         else{
             key = QCA::SymmetricKey(key_value.toLocal8Bit());
