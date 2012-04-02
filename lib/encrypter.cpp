@@ -7,7 +7,7 @@
 #define IV_NAME "Qcloud_Encrypter_Initiazation_Vector"
 #define KEY_LEN 16
 #define IV_LEN 16
-#define BUF_SIZE 16
+#define BUF_SIZE 8192
 #define PADDING NoPadding
 #define ENC_TYPE CFB
 
@@ -30,6 +30,10 @@ inline bool Encrypter::init()
                 qDebug() << "Failed setting one of the items";
                 return false;
             }
+            /*Clear the QString values to prevent them from being stolen by other program , 
+            even if it might not help at all.*/
+            key_value = "";
+            iv_value = "";
         }
         else{
             key = QCA::SymmetricKey(key_value.toLocal8Bit());

@@ -11,7 +11,7 @@ int main(int argc,char **argv)
     if (argc<4)
         return 1;
     QCoreApplication app(argc,argv);
-    QCA::Initializer init;
+    //QCA::Initializer init;
     qDebug() << "File to encrypt : " << argv[1];
     qDebug() << "Encrypt output : " << argv[2];
     qDebug() << "Decrypt output : " << argv[3];
@@ -21,5 +21,9 @@ int main(int argc,char **argv)
     encrypter->encrypt(argv[1],argv[2]);
     //qDebug() << "Starting to decrypt" << argv[2] << "to " << argv[3];
     encrypter->decrypt(argv[2],argv[3]);
+    if (argc>4)
+        encrypter->encrypt(argv[1],argv[4]);
+    if (argc>5)
+        encrypter->decrypt(argv[2],argv[5]);
     return 0;
 }
