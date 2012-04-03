@@ -6,6 +6,8 @@
 #include "isecurestore.h"
 #include <QtCrypto/QtCrypto>
 #include "qcloud_global.h"
+#define KEY_NAME "QCloud_Encrypter_Key"
+#define IV_NAME "QCloud_Encrypter_Initiazation_Vector"
 
 namespace QCloud{
     
@@ -24,7 +26,7 @@ private:
     ISecureStore *m_storage;
     QCA::SymmetricKey key;
     QCA::InitializationVector iv;
-    QCA::Initializer initer;
+    QCA::Initializer initQCA;
 };
 
 }
