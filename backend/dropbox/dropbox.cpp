@@ -35,7 +35,8 @@ bool Dropbox::authorize (QWidget* parent)
         return false;
 
     QCloud::AuthDialog dialog (new QCloud::OAuthWidget (this), parent);
-    dialog.setWindowState (Qt::WindowMinimized);
+    dialog.setWindowTitle(tr("Dropbox Authentication"));
+    dialog.setWindowState (Qt::WindowMaximized);
     int result = dialog.exec();
     return result == QDialog::Accepted;
 }
