@@ -3,6 +3,7 @@
 #include "factory.h"
 #include "ibackend.h"
 #include "ui_tool.h"
+#include "appmanager.h"
 
 namespace QCloud
 {
@@ -18,6 +19,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
 
     m_addAccountButton->setIcon (QIcon::fromTheme ("list-add"));
     m_deleteAccountButton->setIcon (QIcon::fromTheme ("list-remove"));
+    m_networkAccessManager = Factory::instance()->createNetwork ("general");
 
     setWindowTitle (tr ("QCloud"));
     setWindowIcon (QIcon::fromTheme ("qcloud"));
@@ -36,6 +38,9 @@ void MainWindow::addAccountButtonClicked()
     int result = dialog.exec();
     if (result == QDialog::Accepted && !dialog.accountType().isEmpty()) {
         IBackend* account = QCloud::Factory::instance()->createBackend (dialog.accountType());
+        App* app = AppManager::instance()->app (dialog.appName());
+        account->setApp (app);
+        account->setNetworkAccessManager (m_networkAccessManager);
         if (account) {
             account->authorize();
         }

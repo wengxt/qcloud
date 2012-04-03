@@ -1,5 +1,6 @@
 #ifndef QCLOUD_APPMANAGER_P_H
 #define QCLOUD_APPMANAGER_P_H
+#include <QtCore/QMap>
 #include <QtCloud/AppManager>
 
 namespace QCloud
@@ -13,7 +14,7 @@ public:
 
 private:
     void scan();
-    QList<App*> m_appList;
+    QMap<QString, App*> m_appMap;
     static AppManager* inst;
 };
 }

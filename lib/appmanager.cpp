@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QDir>
 
+#include "app.h"
 #include "appmanager.h"
 #include "appmanager_p.h"
 #include "config.h"
@@ -32,10 +33,11 @@ void AppManager::Private::scan()
         QFileInfo fi (dir.filePath (maybeFile));
 
         QString filePath = fi.filePath(); // file name with path
-        App* app = App::parseAppFile (filePath);
-        if (app) {
-            m_appList.append (app);
-        }
+        App* app = new App (filePath);
+        if (app->isValid())
+            m_appMap[app->name()] = app;
+        else
+            delete app;
     }
 }
 
@@ -45,9 +47,17 @@ AppManager::AppManager() : QObject()
 
 }
 
+App* AppManager::app (const QString& name)
+{
+    if (d->m_appMap.contains (name))
+        return d->m_appMap[name];
+    else
+        return NULL;
+}
+
 QList<App*> AppManager::appList()
 {
-    return d->m_appList;
+    return d->m_appMap.values();
 }
 
 AppManager* AppManager::instance()

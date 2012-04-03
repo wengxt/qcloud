@@ -18,8 +18,8 @@ class QCLOUD_EXPORT SecureStoreWidget : public QDialog
 {
     Q_OBJECT
 public:
-    SecureStoreWidget (ISecureStore* storage);
-    ~SecureStoreWidget();
+    ISecureStoreWidget (ISecureStore* storage);
+    ~ISecureStoreWidget();
 
 protected slots:
     bool SetItem();

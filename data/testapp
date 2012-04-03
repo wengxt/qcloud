@@ -1,4 +1,8 @@
 [QCloud App]
 Name=Test App
-IconName=
+IconName=qcloud
 Description=Test App
+
+[Dropbox]
+AppKey=d2anwsztkcu1upz
+AppSecret=kt9a7tuph615hzs

@@ -4,39 +4,38 @@
 
 namespace QCloud
 {
-App::App (const QSettings& settings)
+App::App (const QString& appFile)
 {
-    m_name = settings.value ("Name").toString();
-    m_iconName = settings.value ("IconName").toString();
-    m_description = settings.value ("Description").toString();
+    QSettings* settings = new QSettings (appFile, QSettings::IniFormat);
+    m_settings.reset (settings);
+    m_name = m_settings->value ("QCloud App/Name").toString();
+    m_iconName = m_settings->value ("QCloud App/IconName").toString();
+    m_description = m_settings->value ("QCloud App/Description").toString();
 }
 
-const QString& App::name()
+bool App::isValid() const
+{
+    return !m_name.isEmpty();
+}
+
+const QSettings& App::settings() const
+{
+    return *m_settings;
+}
+
+const QString& App::name() const
 {
     return m_name;
 }
 
-const QString& App::iconName()
+const QString& App::iconName() const
 {
     return m_iconName;
 }
 
-const QString& App::description()
+const QString& App::description() const
 {
     return m_description;
-}
-
-App* App::parseAppFile (const QString& appFile)
-{
-    QSettings settings (appFile, QSettings::IniFormat);
-    settings.beginGroup ("QCloud App");
-    if (settings.contains ("Name")
-            && settings.contains ("IconName")
-            && settings.contains ("Description")) {
-        App* app = new App (settings);
-        return app;
-    }
-    return NULL;
 }
 
 }

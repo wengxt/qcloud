@@ -124,9 +124,12 @@ AccountDialog::~AccountDialog()
 
 void AccountDialog::okClicked()
 {
-    if (m_ui->backendView->currentIndex().isValid()) {
-        QModelIndex idx = m_ui->backendView->currentIndex();
+    if (m_ui->backendView->currentIndex().isValid() && m_ui->appView->currentIndex().isValid()) {
+        QModelIndex idx;
+        idx = m_ui->backendView->currentIndex();
         m_accountType = static_cast<IPlugin*> (idx.internalPointer())->name();
+        idx = m_ui->appView->currentIndex();
+        m_appName = static_cast<App*> (idx.internalPointer())->name();
         accept();
     } else
         reject();
@@ -145,5 +148,9 @@ const QString& AccountDialog::accountType()
     return m_accountType;
 }
 
+const QString& AccountDialog::appName()
+{
+    return m_appName;
+}
 
 }

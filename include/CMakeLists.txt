@@ -9,7 +9,6 @@ set(qcloud_HEADER
     reply.h
     factory.h
     isecurestore.h
-    isecurestorewidget.h
     server.h
     client.h
     authdialog.h

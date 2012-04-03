@@ -1,5 +1,6 @@
 #include <QMainWindow>
 
+class QNetworkAccessManager;
 class QPushButton;
 namespace Ui
 {
@@ -23,5 +24,6 @@ private:
     Ui::Tool* m_ui;
     QPushButton* m_addAccountButton;
     QPushButton* m_deleteAccountButton;
+    QNetworkAccessManager* m_networkAccessManager;
 };
 }

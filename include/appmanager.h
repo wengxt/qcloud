@@ -12,9 +12,10 @@ class QCLOUD_EXPORT AppManager : public QObject
 public:
     static AppManager* instance();
     QList< App* > appList();
+    App* app (const QString& name);
 
 private:
-    explicit AppManager ();
+    explicit AppManager();
     class Private;
     Private* d;
 };
