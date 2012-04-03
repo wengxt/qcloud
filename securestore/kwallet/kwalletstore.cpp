@@ -1,11 +1,11 @@
-#include "kwallet.h"
+#include "kwalletstore.h"
 
 using KWallet::Wallet;
 
 KWalletStore::KWalletStore()
 {
     m_wallet = Wallet::openWallet (Wallet::LocalWallet(), 0,
-                                   Wallet::Asynchronous);
+                                   Wallet::Synchronous);
     stat = NOT_SET;
     if (m_wallet == NULL) {
         stat = NOT_AVAILABLE;
@@ -50,10 +50,12 @@ bool KWalletStore::GetItem (const QString& key, QString& value)
 {
     if (stat == NOT_AVAILABLE)
         return false;
+    stat = FAILED;
     if (m_wallet->readPassword (key, value) != 0) {
-        stat = FAILED;
         return false;
     }
+    if (value=="")
+        return false;
     stat = SUCCEEDED;
     return true;
 }

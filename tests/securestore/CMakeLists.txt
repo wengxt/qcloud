@@ -3,13 +3,13 @@ include_directories(${PROJECT_SOURCE_DIR}/securestore/kwallet/
 qt4_wrap_cpp(
     kwallet_test_MOC_SRCS
     securestorewidget.h
-    ${PROJECT_SOURCE_DIR}/securestore/kwallet/kwallet.h
+    ${PROJECT_SOURCE_DIR}/securestore/kwallet/kwalletstore.h
 )
 
 add_executable(kwallet_test
                kwallet_test.cpp
                securestorewidget.cpp
-               ${PROJECT_SOURCE_DIR}/securestore/kwallet/kwallet.cpp
+               ${PROJECT_SOURCE_DIR}/securestore/kwallet/kwalletstore.cpp
                ${kwallet_test_MOC_SRCS}
                )
 

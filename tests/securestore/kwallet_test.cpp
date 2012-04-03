@@ -1,4 +1,4 @@
-#include "kwallet.h"
+#include "kwalletstore.h"
 #include "securestorewidget.h"
 #include <QtCore/QIODevice>
 #include <QtCore/QDataStream>
