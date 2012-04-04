@@ -2,12 +2,14 @@
 
 #include "daemon.h"
 #include "service.h"
+#include "dbmanager.h"
 #include "factory.h"
 
 Daemon::Daemon (int& argc, char** argv) : QApplication (argc, argv)
     ,m_service(new Service(this))
 {
     setQuitOnLastWindowClosed(false);
+    DBManager::instance();
     m_networkAccessManager = QCloud::Factory::instance()->createNetwork("general");
     m_networkAccessManager->setParent(this);
     m_service->setNetworkAccessManager(m_networkAccessManager);
