@@ -22,29 +22,25 @@ inline bool Encrypter::init()
 {
     if (!hasKey) {
         qDebug() << "Key not found , assume it is the first time to run encrypt/decrypt";
-        QString key_value,iv_value;
-        if ((!m_storage->GetItem(KEY_NAME,key_value)) || (!m_storage->GetItem(IV_NAME,iv_value))) {
-            qDebug() << "Failed getting key or iv , generating new value and new iv";
+        QString key_value;
+        if (!m_storage->GetItem(KEY_NAME,key_value)) {
+            qDebug() << "Failed getting key , generating new value";
             key = QCA::SymmetricKey(KEY_LEN);
-            iv = QCA::InitializationVector(IV_LEN);
             qDebug() << "Finished generating.";
             bool flag = m_storage->SetItem(KEY_NAME,key.data());
-            flag &= m_storage->SetItem(IV_NAME,iv.data());
-            qDebug() << "Finished Writing key and iv";
+            qDebug() << "Finished Writing key";
             if (!flag) {
                 qDebug() << "Failed setting one of the items";
                 return false;
             }
         }
         else {
-            qDebug() << "Successfully got key and iv from SecureStore";
+            qDebug() << "Successfully got key from SecureStore";
             key = QCA::SymmetricKey(key_value.toLocal8Bit());
-            iv = QCA::InitializationVector(iv_value.toLocal8Bit());
         }
         /*Clear the QString values to prevent them from being stolen by other program ,
          *    even if it might not help at all.*/
         clearString(key_value);
-        clearString(iv_value);
         hasKey = true;
         qDebug() << "Set hasKey to True";
     }
@@ -67,6 +63,7 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
     qDebug() << "Encrypting " << fileName << " to " << outputFile;
     if (!init())
         return false;
+    iv = QCA::InitializationVector(IV_LEN);
     QFile readFile(fileName);
     if (!readFile.exists()) {
         qDebug() << "Input file \'" << fileName << "\' Not found";
@@ -91,6 +88,7 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
                        QCA::Encode,
                        key,iv);
 
+    writeFile.write(iv.toByteArray());
     QByteArray buf;
     buf = readFile.read(BUF_SIZE);
     //qDebug() << "Reading First buffer : " << buf;
@@ -139,6 +137,12 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
     if (!writeFile.open(QIODevice::WriteOnly)) {
         qDebug() << "Open output \'" << outputFile << "\' failed";
         writeFile.close();
+        return false;
+    }
+    
+    iv = QCA::InitializationVector(readFile.read(IV_LEN));
+    if (iv.size()!=IV_LEN) {
+        qDebug() << "Error while reading IV from file!";
         return false;
     }
 
