@@ -5,12 +5,12 @@
 #include "kwalletstore.h"
 #include "plugin.h"
 
-QString KWalletStorePlugin::name()
+QString KWalletStorePlugin::name() const
 {
     return "kwallet";
 }
 
-QString KWalletStorePlugin::displayName()
+QString KWalletStorePlugin::displayName() const
 {
     return tr ("KWallet");
 }

@@ -1,6 +1,6 @@
-install(DIRECTORY QtCloud DESTINATION include
-         PATTERN .* EXCLUDE
-         PATTERN *~ EXCLUDE)
+#install(DIRECTORY QtCloud DESTINATION include
+#         PATTERN .* EXCLUDE
+#         PATTERN *~ EXCLUDE)
 
 set(qcloud_HEADER
     ibackend.h
@@ -17,4 +17,4 @@ set(qcloud_HEADER
     encrypter.h
     )
 
-install(FILES ${qcloud_HEADER} DESTINATION include)
+#install(FILES ${qcloud_HEADER} DESTINATION include)

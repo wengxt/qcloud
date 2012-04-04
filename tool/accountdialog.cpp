@@ -1,46 +1,40 @@
-#include "factory.h"
-#include "ibackend.h"
-#include "iplugin.h"
-#include "app.h"
-#include "appmanager.h"
+#include "client.h"
 #include "accountdialog.h"
+#include "clientapp.h"
+#include "info.h"
 #include "ui_accountdialog.h"
 
-namespace QCloud
-{
-
-
-class AppModel : public QAbstractListModel
+class InfoModel : public QAbstractListModel
 {
 public:
-    explicit AppModel (QObject* parent = 0);
+    explicit InfoModel (QObject* parent = 0);
     virtual QModelIndex index (int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
     virtual int rowCount (const QModelIndex& parent = QModelIndex()) const;
     virtual QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;
-
+    void setInfoList(QCloud::InfoList infoList);
 private:
-    QList<App*> m_appList;
+    QCloud::InfoList m_infoList;
 };
 
-AppModel::AppModel (QObject* parent) : QAbstractListModel (parent)
-    , m_appList (AppManager::instance()->appList())
+InfoModel::InfoModel (QObject* parent) : QAbstractListModel (parent)
 {
 }
 
-QModelIndex AppModel::index (int row, int column, const QModelIndex& parent) const
+QModelIndex InfoModel::index (int row, int column, const QModelIndex& parent) const
 {
-    return createIndex (row, column, (row >= 0 && row < m_appList.count() ? (void*) m_appList.at (row) : 0));
+    return createIndex (row, column, (row >= 0 && row < m_infoList.count() ? (void*) &m_infoList.at (row) : 0));
 }
 
 
-QVariant AppModel::data (const QModelIndex& index, int role) const
+QVariant InfoModel::data (const QModelIndex& index, int role) const
 {
-    App* app = (App*) index.internalPointer();
+    const QCloud::Info* app = (QCloud::Info*) index.internalPointer();
     if (!app)
         return QVariant();
+
     switch (role) {
     case Qt::DisplayRole:
-        return app->name();
+        return app->displayName();
     case Qt::DecorationRole:
         return QIcon::fromTheme (app->iconName());
     default:
@@ -48,52 +42,19 @@ QVariant AppModel::data (const QModelIndex& index, int role) const
     }
 }
 
-int AppModel::rowCount (const QModelIndex& parent) const
+int InfoModel::rowCount (const QModelIndex& parent) const
 {
-    return m_appList.size();
+    return m_infoList.size();
 }
 
-class BackendModel : public QAbstractListModel
+void InfoModel::setInfoList (QCloud::InfoList infoList)
 {
-public:
-    explicit BackendModel (QObject* parent = 0);
-    virtual QModelIndex index (int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
-    virtual int rowCount (const QModelIndex& parent = QModelIndex()) const;
-    virtual QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;
-
-private:
-    QList<IPlugin*> m_backendList;
-};
-
-BackendModel::BackendModel (QObject* parent) : QAbstractListModel (parent)
-    , m_backendList (Factory::instance()->backendList())
-{
-}
-
-QModelIndex BackendModel::index (int row, int column, const QModelIndex& parent) const
-{
-    return createIndex (row, column, (row >= 0 && row < m_backendList.count() ? (void*) m_backendList.at (row) : 0));
-}
-
-
-QVariant BackendModel::data (const QModelIndex& index, int role) const
-{
-    IPlugin* backend = (IPlugin*) index.internalPointer();
-    if (!backend)
-        return QVariant();
-    switch (role) {
-    case Qt::DisplayRole:
-        return backend->name();
-    case Qt::DecorationRole:
-        return QIcon::fromTheme (backend->iconName());
-    default:
-        return QVariant();
-    }
-}
-
-int BackendModel::rowCount (const QModelIndex& parent) const
-{
-    return m_backendList.size();
+    beginRemoveRows(QModelIndex(), 0, m_infoList.size());
+    m_infoList.clear();
+    endRemoveRows();
+    beginInsertRows(QModelIndex(), 0, infoList.count() - 1);
+    m_infoList = infoList;
+    endInsertRows();
 }
 
 
@@ -102,8 +63,8 @@ AccountDialog::AccountDialog (QWidget* parent, Qt::WindowFlags f) : QDialog (par
 {
     m_ui->setupUi (this);
 
-    m_appModel = new AppModel (this);
-    m_backendModel = new BackendModel (this);
+    m_appModel = new InfoModel (this);
+    m_backendModel = new InfoModel (this);
     m_ui->backendView->setModel (m_backendModel);
     m_ui->backendView->setSelectionMode (QAbstractItemView::SingleSelection);
     m_ui->appView->setModel (m_appModel);
@@ -115,6 +76,7 @@ AccountDialog::AccountDialog (QWidget* parent, Qt::WindowFlags f) : QDialog (par
     connect (m_ui->cancelButton, SIGNAL (clicked (bool)), this, SLOT (reject()));
 
     currentBackendChanged();
+    fillData();
 }
 
 AccountDialog::~AccountDialog()
@@ -127,9 +89,9 @@ void AccountDialog::okClicked()
     if (m_ui->backendView->currentIndex().isValid() && m_ui->appView->currentIndex().isValid()) {
         QModelIndex idx;
         idx = m_ui->backendView->currentIndex();
-        m_accountType = static_cast<IPlugin*> (idx.internalPointer())->name();
+        m_accountType = static_cast<QCloud::Info*> (idx.internalPointer())->name();
         idx = m_ui->appView->currentIndex();
-        m_appName = static_cast<App*> (idx.internalPointer())->name();
+        m_appName = static_cast<QCloud::Info*> (idx.internalPointer())->name();
         accept();
     } else
         reject();
@@ -143,6 +105,29 @@ void AccountDialog::currentBackendChanged()
         m_ui->okButton->setEnabled (false);
 }
 
+void AccountDialog::fillData()
+{
+    QDBusPendingReply< QCloud::InfoList > apps = ClientApp::instance()->client()->listApps();
+    QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(apps);
+    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(appsFinished(QDBusPendingCallWatcher*)));
+    QDBusPendingReply< QCloud::InfoList > backends = ClientApp::instance()->client()->listBackends();
+    QDBusPendingCallWatcher* backendsWatcher = new QDBusPendingCallWatcher(backends);
+    connect(backendsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(backendsFinished(QDBusPendingCallWatcher*)));
+}
+
+void AccountDialog::appsFinished (QDBusPendingCallWatcher* watcher)
+{
+    QDBusPendingReply< QCloud::InfoList > apps(*watcher);
+    m_appModel->setInfoList(apps.value());
+}
+
+void AccountDialog::backendsFinished (QDBusPendingCallWatcher* watcher)
+{
+    QDBusPendingReply< QCloud::InfoList > backends(*watcher);
+    m_backendModel->setInfoList(backends.value());
+}
+
+
 const QString& AccountDialog::accountType()
 {
     return m_accountType;
@@ -151,6 +136,4 @@ const QString& AccountDialog::accountType()
 const QString& AccountDialog::appName()
 {
     return m_appName;
-}
-
 }

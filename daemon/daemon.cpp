@@ -1,8 +1,8 @@
 #include "daemon.h"
+#include "service.h"
 
-namespace QCloud
-{
 Daemon::Daemon (int& argc, char** argv) : QCoreApplication (argc, argv)
+    ,m_service(new Service(this))
 {
 
 }
@@ -10,5 +10,4 @@ Daemon::Daemon (int& argc, char** argv) : QCoreApplication (argc, argv)
 Daemon::~Daemon()
 {
 
-}
 }

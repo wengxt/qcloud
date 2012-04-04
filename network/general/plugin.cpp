@@ -5,12 +5,12 @@
 #include "networkaccessmanager.h"
 #include "plugin.h"
 
-QString GeneralNetworkPlugin::name()
+QString GeneralNetworkPlugin::name() const
 {
     return "general";
 }
 
-QString GeneralNetworkPlugin::displayName()
+QString GeneralNetworkPlugin::displayName() const
 {
     return tr ("General");
 }

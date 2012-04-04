@@ -7,8 +7,6 @@ namespace Ui
 class Tool;
 }
 
-namespace QCloud
-{
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -24,6 +22,4 @@ private:
     Ui::Tool* m_ui;
     QPushButton* m_addAccountButton;
     QPushButton* m_deleteAccountButton;
-    QNetworkAccessManager* m_networkAccessManager;
 };
-}

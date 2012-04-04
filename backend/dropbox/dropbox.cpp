@@ -21,8 +21,8 @@ Dropbox::~Dropbox()
 
 void Dropbox::setApp (QCloud::App* app)
 {
-    QString key = app->settings().value ("Dropbox/AppKey").toString();
-    QString secret = app->settings().value ("Dropbox/AppSecret").toString();
+    QString key = app->settings()->value ("Dropbox/AppKey").toString();
+    QString secret = app->settings()->value ("Dropbox/AppSecret").toString();
     if (!key.isEmpty() && !secret.isEmpty()) {
         setAppKey (key);
         setAppSecret (secret);

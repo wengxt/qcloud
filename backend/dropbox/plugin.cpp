@@ -5,12 +5,12 @@
 #include "plugin.h"
 #include "dropbox.h"
 
-QString DropboxPlugin::name()
+QString DropboxPlugin::name() const
 {
     return "dropbox";
 }
 
-QString DropboxPlugin::displayName()
+QString DropboxPlugin::displayName() const
 {
     return tr ("Dropbox");
 }
@@ -25,7 +25,7 @@ QCloud::IPlugin::PluginCategory DropboxPlugin::category()
     return QCloud::IPlugin::Backend;
 }
 
-QString DropboxPlugin::iconName()
+QString DropboxPlugin::iconName() const
 {
     return "qcloud-dropbox";
 }

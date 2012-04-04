@@ -5,12 +5,12 @@
 #include "kdenetworkaccessmanager.h"
 #include "plugin.h"
 
-QString KDENetworkPlugin::name()
+QString KDENetworkPlugin::name() const
 {
     return "kde";
 }
 
-QString KDENetworkPlugin::displayName()
+QString KDENetworkPlugin::displayName() const
 {
     return tr ("KDE");
 }

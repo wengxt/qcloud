@@ -17,6 +17,13 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Account:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QListView" name="accountView">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -135,13 +142,6 @@
          <widget class="QListView" name="listView_2"/>
         </item>
        </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
       </widget>
      </item>
     </layout>

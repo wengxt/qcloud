@@ -1,6 +1,14 @@
 <!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
 <node>
     <interface name="org.qcloud.Daemon">
+        <method name="listBackends">
+            <arg name="backends" type="a(sss)" direction="out" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
+        </method>
+        <method name="listApps">
+            <arg name="apps" type="a(sss)" direction="out" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
+        </method>
         <method name="uploadFile">
             <arg name="app_name" type="s" direction="in" />
             <arg name="file_list" type="a(s)" direction="in" />

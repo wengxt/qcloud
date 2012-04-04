@@ -17,9 +17,10 @@ public:
         SecureStore = 2
     };
     virtual ~IPlugin();
-    virtual QString name() = 0;
-    virtual QString iconName();
-    virtual QString displayName() = 0;
+    virtual QString name() const = 0;
+    virtual QString iconName() const;
+    virtual QString displayName() const = 0;
+    virtual QString description() const;
     virtual QObject* create() = 0;
     virtual PluginCategory category() = 0;
 };

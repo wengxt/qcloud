@@ -7,7 +7,12 @@ IPlugin::~IPlugin()
 
 }
 
-QString IPlugin::iconName()
+QString IPlugin::iconName() const
+{
+    return "";
+}
+
+QString IPlugin::description() const
 {
     return "";
 }

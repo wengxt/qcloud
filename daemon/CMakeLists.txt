@@ -5,10 +5,12 @@ _pkgconfig_invoke("dbus-1" DBUS SESSION_BUS_SERVICES_DIR "" "--variable=session_
 set(daemon_SRCS
     daemon.cpp
     main.cpp
+    service.cpp
     )
 
 set(daemon_MOC_HDRS
     daemon.h
+    service.h
     )
 
 qt4_wrap_cpp(
@@ -20,6 +22,7 @@ add_executable(qcloud_daemon ${daemon_SRCS} ${daemon_MOC_SRCS})
 
 target_link_libraries(qcloud_daemon
                       ${QT_QTCORE_LIBRARY}
+                      qcloud
                       )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/org.qcloud.daemon.service.in ${CMAKE_CURRENT_BINARY_DIR}/org.qcloud.daemon.service)

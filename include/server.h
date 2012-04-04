@@ -4,6 +4,8 @@
 #include <QtCore/QStringList>
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusVariant>
+#include <QtCloud/App>
+#include <QtCloud/Info>
 #include "qcloud_global.h"
 
 class DaemonAdaptor;
@@ -16,6 +18,8 @@ class QCLOUD_EXPORT Server : public QObject
 public:
     explicit Server (QObject* parent = 0);
     virtual ~Server();
+    virtual InfoList listApps() = 0;
+    virtual InfoList listBackends() = 0;
     virtual int uploadFile (const QString& app_name, const QStringList& file_list) = 0;
     virtual int addAccount (const QString& backend_name, const QString& user_name, const QDBusVariant& account_specific_data) = 0;
     virtual int sync (const QString& app_name) = 0;

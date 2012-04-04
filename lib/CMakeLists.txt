@@ -23,6 +23,7 @@ set(qcloud_SRCS
     appmanager.cpp
     packager.cpp
     encrypter.cpp
+    info.cpp
     )
 
 set(qcloud_HDRS
@@ -62,6 +63,12 @@ qt4_add_dbus_adaptor(qcloud_SRCS
     daemon.xml
     server.h
     QCloud::Server)
+
+
+set_property(
+    SOURCE daemon.xml
+    PROPERTY INCLUDE info.h
+)
 
 qt4_add_dbus_interface(qcloud_SRCS
     daemon.xml

@@ -5,12 +5,12 @@
 #include "plainstore.h"
 #include "plugin.h"
 
-QString PlainStorePlugin::name()
+QString PlainStorePlugin::name() const
 {
     return "plain";
 }
 
-QString PlainStorePlugin::displayName()
+QString PlainStorePlugin::displayName() const
 {
     return tr ("Plain");
 }

@@ -32,6 +32,16 @@ bool Client::isValid()
     return d->m_daemon->isValid();
 }
 
+QDBusPendingReply<InfoList> Client::listApps()
+{
+    return d->m_daemon->listApps();
+}
+
+QDBusPendingReply<InfoList> Client::listBackends()
+{
+    return d->m_daemon->listBackends();
+}
+
 QDBusPendingReply< bool > Client::addAccount (const QString& backend_name, const QString& user_name, const QDBusVariant& account_specific_data)
 {
     return d->m_daemon->addAccount (backend_name, user_name, account_specific_data);
