@@ -24,5 +24,6 @@ int main(int argc,char **argv)
         qDebug() << "Starting to decrypt" << argv[2] << "to " << argv[3];
         encrypter->decrypt(argv[2],argv[3]);
     }
+    delete storage;
     return 0;
 }

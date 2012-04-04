@@ -20,6 +20,10 @@ inline static void clearString(QString& st)
 
 inline bool Encrypter::init()
 {
+    if (m_storage==NULL || (!m_storage->isAvailable())){
+        qDebug() << "SecureStore is not available";
+        return false;
+    }
     if (!hasKey) {
         qDebug() << "Key not found , assume it is the first time to run encrypt/decrypt";
         QString key_value;

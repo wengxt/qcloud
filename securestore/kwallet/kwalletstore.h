@@ -3,6 +3,7 @@
 
 #include "isecurestore.h"
 #include <KWallet/Wallet>
+#define QCLOUD_KWALLET_FOLDER_NAME "QCloud"
 
 enum KWALLET_STAT {
     NOT_SET,
@@ -17,14 +18,12 @@ class KWalletStore :  public QCloud::ISecureStore
 public:
 
     explicit KWalletStore (QObject* parent = 0);
+    virtual ~KWalletStore();
 
     bool isAvailable();
 
     bool GetItem (const QString& key, QString& value);
     bool SetItem (const QString& key, const QString& value);
-
-private slots:
-    void walletOpened (bool success);
 
 private:
     KWallet::Wallet* m_wallet;
