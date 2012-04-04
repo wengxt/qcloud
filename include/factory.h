@@ -21,9 +21,9 @@ class QCLOUD_EXPORT Factory : public QObject
     Q_OBJECT
 public:
     static Factory* instance();
-    QNetworkAccessManager* createNetwork (const QString& name);
-    IBackend* createBackend (const QString& name);
-    ISecureStore* createSecureStore (const QString& name);
+    QNetworkAccessManager* createNetwork (const QString& name, QObject* parent = 0);
+    IBackend* createBackend (const QString& name, QObject* parent = 0);
+    ISecureStore* createSecureStore (const QString& name, QObject* parent = 0);
     const QList< IPlugin* >& backendList();
 private:
     Factory();

@@ -20,7 +20,7 @@ public:
 
     QDBusPendingReply<InfoList> listApps();
     QDBusPendingReply<InfoList> listBackends();
-    QDBusPendingReply<bool> addAccount (const QString& backend_name, const QString& user_name, const QDBusVariant& account_specific_data);
+    QDBusPendingReply<bool> addAccount (const QString& backend_name, const QString& user_name);
     QDBusPendingReply<int> sync (const QString& app_name);
     QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
 protected:

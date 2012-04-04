@@ -35,6 +35,7 @@ public:
     QString oauthTokenSecret() const;
     QString requestTokenUrl() const;
     uint timeout() const;
+    void setAuthUrl (const QUrl& url);
 protected:
     QString m_appKey;
     QString m_appSecret;
@@ -43,6 +44,7 @@ protected:
     QString m_requestTokenUrl;
     QString m_authorizeUrl;
     QString m_accessTokenUrl;
+    QUrl m_authUrl;
     QOAuth::Interface* m_oauth;
 };
 

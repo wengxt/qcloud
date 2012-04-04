@@ -9,6 +9,10 @@
             <arg name="apps" type="a(sss)" direction="out" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
         </method>
+        <method name="listAccounts">
+            <arg name="accounts" type="a(sss)" direction="out" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
+        </method>
         <method name="uploadFile">
             <arg name="app_name" type="s" direction="in" />
             <arg name="file_list" type="a(s)" direction="in" />
@@ -20,10 +24,10 @@
             <arg name="sequence_number" type="i" direction="out" />
         </method>
         <method name="addAccount">
-            <arg name="backend_name" type="s" direction="in" />
-            <arg name="user_name" type="s" direction="in" />
-            <arg name="account_specific_data" type="v" direction="in" />
-            <arg name="success" type="b" direction="out" />
+            <arg name="backendName" type="s" direction="in" />
+            <arg name="appName" type="s" direction="in" />
         </method>
+        <signal name="accountUpdated">
+        </signal>
     </interface>
 </node>

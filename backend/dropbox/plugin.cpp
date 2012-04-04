@@ -15,9 +15,9 @@ QString DropboxPlugin::displayName() const
     return tr ("Dropbox");
 }
 
-QObject* DropboxPlugin::create()
+QObject* DropboxPlugin::create(QObject* parent)
 {
-    return new Dropbox;
+    return new Dropbox(parent);
 }
 
 QCloud::IPlugin::PluginCategory DropboxPlugin::category()

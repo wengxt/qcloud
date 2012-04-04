@@ -13,6 +13,7 @@ class QCLOUD_EXPORT ISecureStore : public QObject
 {
     Q_OBJECT
 public:
+    explicit ISecureStore (QObject* parent = 0);
     virtual ~ISecureStore();
 
     virtual bool isAvailable() = 0;

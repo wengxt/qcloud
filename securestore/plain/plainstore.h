@@ -7,7 +7,7 @@ class PlainStore : public QCloud::ISecureStore
 {
     Q_OBJECT
 public:
-    PlainStore();
+    explicit PlainStore(QObject* parent);
     virtual ~PlainStore();
 
     virtual bool isAvailable();

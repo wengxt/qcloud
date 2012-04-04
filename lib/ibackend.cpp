@@ -5,8 +5,11 @@
 namespace QCloud
 {
 
-IBackend::IBackend (QObject* parent)
+IBackend::IBackend (QObject* parent) : QObject(parent)
+    ,m_networkAccessManager(0)
+    ,m_app(0)
 {
+
 }
 
 IBackend::~IBackend()

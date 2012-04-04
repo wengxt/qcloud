@@ -2,7 +2,7 @@
 
 #include "networkaccessmanager.h"
 #include "reply.h"
-#include "utils.h"
+#include "qcloud_utils.h"
 
 NetworkAccessManager::NetworkAccessManager (QObject* parent) : QNetworkAccessManager (parent)
 {

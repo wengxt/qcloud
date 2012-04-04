@@ -16,7 +16,7 @@ class KWalletStore :  public QCloud::ISecureStore
     Q_OBJECT;
 public:
 
-    KWalletStore();
+    explicit KWalletStore (QObject* parent = 0);
 
     bool isAvailable();
 

@@ -42,9 +42,9 @@ QDBusPendingReply<InfoList> Client::listBackends()
     return d->m_daemon->listBackends();
 }
 
-QDBusPendingReply< bool > Client::addAccount (const QString& backend_name, const QString& user_name, const QDBusVariant& account_specific_data)
+QDBusPendingReply< bool > Client::addAccount (const QString& backend_name, const QString& user_name)
 {
-    return d->m_daemon->addAccount (backend_name, user_name, account_specific_data);
+    return d->m_daemon->addAccount (backend_name, user_name);
 }
 
 QDBusPendingReply< int > Client::sync (const QString& app_name)

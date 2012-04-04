@@ -18,6 +18,8 @@ public:
     virtual bool authorize (QWidget* parent = 0);
     virtual bool uploadFile (const QString& filename);
     virtual void startAuth (QCloud::OAuthWidget* widget);
+    virtual void loadAccountInfo();
+    virtual void saveAccountInfo();
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "accountdialog.h"
+#include "clientapp.h"
 #include "factory.h"
 #include "ibackend.h"
 #include "client.h"
@@ -35,6 +36,7 @@ void MainWindow::addAccountButtonClicked()
     AccountDialog dialog;
     int result = dialog.exec();
     if (result == QDialog::Accepted && !dialog.accountType().isEmpty()) {
+        ClientApp::instance()->client()->addAccount(dialog.accountType(), dialog.appName());
     }
 }
 

@@ -108,27 +108,27 @@ Factory* Factory::instance()
 }
 
 
-IBackend* Factory::createBackend (const QString& name)
+IBackend* Factory::createBackend (const QString& name, QObject* parent)
 {
     IPlugin* plugin = d->loadPlugin ("backend", name);
     if (plugin)
-        return qobject_cast<IBackend*> (plugin->create());
+        return qobject_cast<IBackend*> (plugin->create(parent));
     return NULL;
 }
 
-QNetworkAccessManager* Factory::createNetwork (const QString& name)
+QNetworkAccessManager* Factory::createNetwork (const QString& name, QObject* parent)
 {
     IPlugin* plugin = d->loadPlugin ("network", name);
     if (plugin)
-        return qobject_cast<QNetworkAccessManager*> (plugin->create());
+        return qobject_cast<QNetworkAccessManager*> (plugin->create(parent));
     return NULL;
 }
 
-ISecureStore* Factory::createSecureStore (const QString& name)
+ISecureStore* Factory::createSecureStore (const QString& name, QObject* parent)
 {
     IPlugin* plugin = d->loadPlugin ("securestore", name);
     if (plugin)
-        return qobject_cast<ISecureStore*> (plugin->create());
+        return qobject_cast<ISecureStore*> (plugin->create(parent));
     return NULL;
 }
 

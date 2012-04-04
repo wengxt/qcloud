@@ -4,15 +4,15 @@
 #include "app.h"
 #include "oauthwidget.h"
 #include "authdialog.h"
-#include "utils.h"
+#include "qcloud_utils.h"
 
 Dropbox::Dropbox (QObject* parent) : OAuthBackend (parent)
 {
     m_requestTokenUrl = "https://api.dropbox.com/1/oauth/request_token";
     m_authorizeUrl = "https://www.dropbox.com/1/oauth/authorize";
     m_accessTokenUrl = "https://api.dropbox.com/1/oauth/access_token";
-    // setAppKey("d2anwsztkcu1upz");
-    // setAppSecret("kt9a7tuph615hzs");
+    setAppKey("d2anwsztkcu1upz");
+    setAppSecret("kt9a7tuph615hzs");
 }
 
 Dropbox::~Dropbox()
@@ -21,6 +21,7 @@ Dropbox::~Dropbox()
 
 void Dropbox::setApp (QCloud::App* app)
 {
+    m_app = app;
     QString key = app->settings()->value ("Dropbox/AppKey").toString();
     QString secret = app->settings()->value ("Dropbox/AppSecret").toString();
     if (!key.isEmpty() && !secret.isEmpty()) {
@@ -31,6 +32,9 @@ void Dropbox::setApp (QCloud::App* app)
 
 bool Dropbox::authorize (QWidget* parent)
 {
+    if (!m_app)
+        return false;
+
     if (!prepare())
         return false;
 
@@ -54,4 +58,14 @@ void Dropbox::startAuth (QCloud::OAuthWidget* widget)
 bool Dropbox::uploadFile (const QString& filename)
 {
     return false;
+}
+
+void Dropbox::loadAccountInfo()
+{
+
+}
+
+void Dropbox::saveAccountInfo()
+{
+
 }

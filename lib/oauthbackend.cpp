@@ -96,5 +96,9 @@ bool OAuthBackend::prepare()
     return requestToken();
 }
 
+void OAuthBackend::setAuthUrl(const QUrl& url)
+{
+    m_authUrl = url;
+}
 
 }

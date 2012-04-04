@@ -23,7 +23,7 @@ public:
     virtual ~Private();
 protected slots:
     void urlChanged (const QUrl& url);
-    void authorizeSuccess();
+    void authorizeSuccess(const QUrl& url);
     void loadStarted();
     void loadProgress (int);
     void loadFinished (bool suc);

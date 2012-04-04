@@ -7,6 +7,8 @@
 class QNetworkAccessManager;
 namespace QCloud
 {
+
+class App;
 class App;
 
 class QCLOUD_EXPORT IBackend : public QObject
@@ -20,9 +22,12 @@ public:
     virtual bool authorize (QWidget* widget = 0) = 0;
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
     virtual bool uploadFile (const QString& filename) = 0;
+    virtual void saveAccountInfo () = 0;
+    virtual void loadAccountInfo () = 0;
     QNetworkAccessManager* networkAccessManager();
 protected:
     QNetworkAccessManager* m_networkAccessManager;
+    App* m_app;
 };
 
 }

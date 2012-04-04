@@ -15,9 +15,9 @@ QString GeneralNetworkPlugin::displayName() const
     return tr ("General");
 }
 
-QObject* GeneralNetworkPlugin::create()
+QObject* GeneralNetworkPlugin::create(QObject* parent)
 {
-    return new NetworkAccessManager;
+    return new NetworkAccessManager(parent);
 }
 
 QCloud::IPlugin::PluginCategory GeneralNetworkPlugin::category()

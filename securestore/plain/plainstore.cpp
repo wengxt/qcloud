@@ -1,7 +1,7 @@
 #include <QtCore/QtPlugin>
 #include "plainstore.h"
 
-PlainStore::PlainStore()
+PlainStore::PlainStore(QObject* parent) : ISecureStore(parent)
 {
 }
 

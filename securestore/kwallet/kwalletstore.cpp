@@ -2,7 +2,7 @@
 
 using KWallet::Wallet;
 
-KWalletStore::KWalletStore()
+KWalletStore::KWalletStore(QObject* parent) : ISecureStore(parent)
 {
     m_wallet = Wallet::openWallet (Wallet::LocalWallet(), 0,
                                    Wallet::Synchronous);

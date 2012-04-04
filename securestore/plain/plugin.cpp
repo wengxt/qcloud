@@ -15,9 +15,9 @@ QString PlainStorePlugin::displayName() const
     return tr ("Plain");
 }
 
-QObject* PlainStorePlugin::create()
+QObject* PlainStorePlugin::create(QObject* parent)
 {
-    return new PlainStore;
+    return new PlainStore(parent);
 }
 
 QCloud::IPlugin::PluginCategory PlainStorePlugin::category()

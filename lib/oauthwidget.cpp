@@ -4,7 +4,7 @@
 
 #include "oauthwidget.h"
 #include "ibackend.h"
-#include "utils.h"
+#include "qcloud_utils.h"
 #include "oauthwidget_p.h"
 #include "oauthbackend.h"
 #include "ui_oauthwidget.h"
@@ -28,7 +28,7 @@ void OAuthWidget::Private::urlChanged (const QUrl& url)
 {
     qDebug() << url;
     if (QCloud::isCustomCallbackUrl (url)) {
-        authorizeSuccess();
+        authorizeSuccess(url);
     }
 }
 
@@ -48,8 +48,9 @@ void OAuthWidget::Private::loadFinished (bool suc)
     m_ui->progressBar->hide();
 }
 
-void OAuthWidget::Private::authorizeSuccess()
+void OAuthWidget::Private::authorizeSuccess(const QUrl& url)
 {
+    m_backend->setAuthUrl(url);
     m_ui->webView->disconnect (SIGNAL (urlChanged (QUrl)));
     emit p->authFinished (true);
 }

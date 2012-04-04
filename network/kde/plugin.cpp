@@ -15,9 +15,9 @@ QString KDENetworkPlugin::displayName() const
     return tr ("KDE");
 }
 
-QObject* KDENetworkPlugin::create()
+QObject* KDENetworkPlugin::create(QObject* parent)
 {
-    return new KDENetworkAccessManager;
+    return new KDENetworkAccessManager(parent);
 }
 
 QCloud::IPlugin::PluginCategory KDENetworkPlugin::category()

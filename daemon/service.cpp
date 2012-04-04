@@ -1,20 +1,34 @@
 #include "service.h"
 #include "appmanager.h"
-#include <factory.h>
+#include "factory.h"
+#include "ibackend.h"
 
 Service::Service (QObject* parent) : Server (parent)
+    ,m_networkAccessManager(0)
 {
 
 }
+
+void Service::setNetworkAccessManager (QNetworkAccessManager* networkAccessManager)
+{
+    m_networkAccessManager = networkAccessManager;
+}
+
 
 Service::~Service()
 {
 
 }
 
-int Service::addAccount (const QString& backend_name, const QString& user_name, const QDBusVariant& account_specific_data)
+void Service::addAccount (const QString& backendName, const QString& appName)
 {
-    return 0;
+    QCloud::IBackend* backend = QCloud::Factory::instance()->createBackend(backendName);
+    QCloud::App* app = QCloud::AppManager::instance()->app(appName);
+    if (backend && app) {
+        backend->setApp(app);
+        backend->setNetworkAccessManager(m_networkAccessManager);
+        backend->authorize();
+    }
 }
 
 QCloud::InfoList Service::listApps()
@@ -50,3 +64,7 @@ int Service::uploadFile (const QString& app_name, const QStringList& file_list)
     return 0;
 }
 
+QCloud::InfoList Service::listAccounts()
+{
+    return QCloud::InfoList();
+}

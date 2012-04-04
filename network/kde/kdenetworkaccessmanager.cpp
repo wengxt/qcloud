@@ -4,7 +4,7 @@
 #include <QDebug>
 #include "kdenetworkaccessmanager.h"
 #include "reply.h"
-#include "utils.h"
+#include "qcloud_utils.h"
 
 KDENetworkAccessManager::KDENetworkAccessManager (QObject* parent) : KIO::Integration::AccessManager (parent)
 {

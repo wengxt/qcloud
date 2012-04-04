@@ -15,9 +15,9 @@ QString KWalletStorePlugin::displayName() const
     return tr ("KWallet");
 }
 
-QObject* KWalletStorePlugin::create()
+QObject* KWalletStorePlugin::create(QObject* parent)
 {
-    return new KWalletStore;
+    return new KWalletStore(parent);
 }
 
 QCloud::IPlugin::PluginCategory KWalletStorePlugin::category()

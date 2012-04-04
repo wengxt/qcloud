@@ -7,6 +7,6 @@ class PlainStorePlugin: public QObject, public QCloud::IPlugin
 public:
     virtual QString name() const;
     virtual QString displayName() const;
-    virtual QObject* create();
+    virtual QObject* create(QObject* parent);
     virtual PluginCategory category();
 };

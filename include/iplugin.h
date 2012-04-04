@@ -21,7 +21,7 @@ public:
     virtual QString iconName() const;
     virtual QString displayName() const = 0;
     virtual QString description() const;
-    virtual QObject* create() = 0;
+    virtual QObject* create(QObject* parent = 0) = 0;
     virtual PluginCategory category() = 0;
 };
 
