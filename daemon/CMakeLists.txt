@@ -6,11 +6,13 @@ set(daemon_SRCS
     daemon.cpp
     main.cpp
     service.cpp
+    dbmanager.cpp
     )
 
 set(daemon_MOC_HDRS
     daemon.h
     service.h
+    dbmanager.h
     )
 
 qt4_wrap_cpp(
@@ -22,6 +24,9 @@ add_executable(qcloud_daemon ${daemon_SRCS} ${daemon_MOC_SRCS})
 
 target_link_libraries(qcloud_daemon
                       ${QT_QTCORE_LIBRARY}
+                      ${QT_QTGUI_LIBRARY}
+                      ${QT_QTNETWORK_LIBRARY}
+                      ${QT_QTSQL_LIBRARY}
                       qcloud
                       )
 
