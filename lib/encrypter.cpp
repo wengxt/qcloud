@@ -29,7 +29,7 @@ void Encrypter::generateKey(QCA::SymmetricKey& key)
         QCA::SecureArray(QInputDialog::getText(NULL,tr("Input Password"),
                               tr("Password"),
                               QLineEdit::PasswordEchoOnEdit).toLocal8Bit()),
-        QCA::InitializationVector(),KEY_LEN,100);
+        QCA::InitializationVector(),KEY_LEN,10000);
 }
 
 inline bool Encrypter::init()
