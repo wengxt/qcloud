@@ -20,6 +20,7 @@ public:
     bool decrypt(const QString& fileName,const QString& outputFile);
 private:
     bool init();
+    void generateKey(QCA::SymmetricKey& key);
     
     bool hasKey;
     ISecureStore *m_storage;

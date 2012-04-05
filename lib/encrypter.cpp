@@ -3,6 +3,7 @@
 #include <QtCrypto/QtCrypto>
 #include <QFile>
 #include <QDebug>
+#include <QInputDialog>
 #define KEY_LEN 16
 #define IV_LEN 16
 #define BUF_SIZE 8192
@@ -18,9 +19,22 @@ inline static void clearString(QString& st)
     st = "";
 }
 
+void Encrypter::generateKey(QCA::SymmetricKey& key)
+{
+    //key = QCA::SymmetricKey(KEY_LEN);
+    qDebug() << "Setting generator";
+    QCA::PBKDF2 generator("sha1");
+    qDebug() << "Set generator";
+    key = generator.makeKey(
+        QCA::SecureArray(QInputDialog::getText(NULL,tr("Input Password"),
+                              tr("Password"),
+                              QLineEdit::PasswordEchoOnEdit).toLocal8Bit()),
+        QCA::InitializationVector(),KEY_LEN,100);
+}
+
 inline bool Encrypter::init()
 {
-    if (m_storage==NULL || (!m_storage->isAvailable())){
+    if (m_storage==NULL || (!m_storage->isAvailable())) {
         qDebug() << "SecureStore is not available";
         return false;
     }
@@ -28,8 +42,8 @@ inline bool Encrypter::init()
         qDebug() << "Key not found , assume it is the first time to run encrypt/decrypt";
         QString key_value;
         if (!m_storage->GetItem(KEY_NAME,key_value)) {
-            qDebug() << "Failed getting key , generating new value";
-            key = QCA::SymmetricKey(KEY_LEN);
+            qDebug() << "Failed getting key , generating new value from user input";
+            generateKey(key);
             qDebug() << "Finished generating.";
             bool flag = m_storage->SetItem(KEY_NAME,key.data());
             qDebug() << "Finished Writing key";
@@ -143,7 +157,7 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
         writeFile.close();
         return false;
     }
-    
+
     iv = QCA::InitializationVector(readFile.read(IV_LEN));
     if (iv.size()!=IV_LEN) {
         qDebug() << "Error while reading IV from file!";
@@ -183,3 +197,4 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
 }
 
 }
+
