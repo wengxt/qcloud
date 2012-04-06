@@ -176,10 +176,10 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
     buf = readFile.read(sizeof(ENCRYPTER_TEST_CONTENT) - 1);
     int cnt = 0;
     while (cnt<3){
-        m_storage->SetItem(KEY_NAME,"");
         if (!init())
             return false;
         hasKey = false;
+        m_storage->SetItem(KEY_NAME,"");
         cipher.setup(QCA::Decode,key,iv);
         bufRegion = cipher.process(QCA::SecureArray(buf));
         if ((bufRegion.toByteArray())==ENCRYPTER_TEST_CONTENT)
