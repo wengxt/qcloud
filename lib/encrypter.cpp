@@ -9,6 +9,7 @@
 #define BUF_SIZE 8192
 #define PADDING NoPadding
 #define ENC_TYPE CFB
+#define ENCRYPTER_TEST_CONTENT "abcdefghijklmnopqrstuvwxyz0123456789"
 
 namespace QCloud {
 
@@ -28,7 +29,7 @@ void Encrypter::generateKey(QCA::SymmetricKey& key)
     key = generator.makeKey(
         QCA::SecureArray(QInputDialog::getText(NULL,tr("Input Password"),
                               tr("Password"),
-                              QLineEdit::PasswordEchoOnEdit).toLocal8Bit()),
+                              QLineEdit::PasswordEchoOnEdit).toAscii()),
         QCA::InitializationVector(),KEY_LEN,10000);
 }
 
@@ -45,7 +46,7 @@ inline bool Encrypter::init()
             qDebug() << "Failed getting key , generating new value from user input";
             generateKey(key);
             qDebug() << "Finished generating.";
-            bool flag = m_storage->SetItem(KEY_NAME,key.data());
+            bool flag = m_storage->SetItem(KEY_NAME,key.toByteArray());
             qDebug() << "Finished Writing key";
             if (!flag) {
                 qDebug() << "Failed setting one of the items";
@@ -54,7 +55,7 @@ inline bool Encrypter::init()
         }
         else {
             qDebug() << "Successfully got key from SecureStore";
-            key = QCA::SymmetricKey(key_value.toLocal8Bit());
+            key = QCA::SymmetricKey(key_value.toAscii());
         }
         /*Clear the QString values to prevent them from being stolen by other program ,
          *    even if it might not help at all.*/
@@ -79,9 +80,6 @@ Encrypter::~Encrypter()
 bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
 {
     qDebug() << "Encrypting " << fileName << " to " << outputFile;
-    if (!init())
-        return false;
-    iv = QCA::InitializationVector(IV_LEN);
     QFile readFile(fileName);
     if (!readFile.exists()) {
         qDebug() << "Input file \'" << fileName << "\' Not found";
@@ -99,6 +97,10 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
         writeFile.close();
         return false;
     }
+    iv = QCA::InitializationVector(IV_LEN);
+    writeFile.write(iv.toByteArray());
+    if (!init())
+        return false;
 
     QCA::Cipher cipher("aes128",QCA::Cipher::ENC_TYPE,
                        //NoPadding with CFB or DefaultPadding with CBC
@@ -106,8 +108,8 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
                        QCA::Encode,
                        key,iv);
 
-    writeFile.write(iv.toByteArray());
     QByteArray buf;
+    writeFile.write(cipher.process(QCA::SecureArray(ENCRYPTER_TEST_CONTENT)).toByteArray());
     buf = readFile.read(BUF_SIZE);
     //qDebug() << "Reading First buffer : " << buf;
     while (buf.size()>0) {
@@ -138,8 +140,6 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
 bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
 {
     qDebug() << "Decrypting " << fileName << " to " << outputFile;
-    if (!init())
-        return false;
     QFile readFile(fileName);
     if (!readFile.exists()) {
         qDebug() << "Input file \'" << fileName << "\' Not found";
@@ -159,6 +159,7 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
     }
 
     iv = QCA::InitializationVector(readFile.read(IV_LEN));
+    qDebug() << "Read IV " << QCA::arrayToHex(iv.toByteArray());
     if (iv.size()!=IV_LEN) {
         qDebug() << "Error while reading IV from file!";
         return false;
@@ -169,12 +170,31 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
                        QCA::Cipher::PADDING,
                        QCA::Decode,
                        key,iv);
-
+    
     QByteArray buf;
+    QCA::SecureArray bufRegion;
+    buf = readFile.read(sizeof(ENCRYPTER_TEST_CONTENT) - 1);
+    int cnt = 0;
+    while (cnt<3){
+        m_storage->SetItem(KEY_NAME,"");
+        if (!init())
+            return false;
+        hasKey = false;
+        cipher.setup(QCA::Decode,key,iv);
+        bufRegion = cipher.process(QCA::SecureArray(buf));
+        if ((bufRegion.toByteArray())==ENCRYPTER_TEST_CONTENT)
+            break;
+        qDebug() << "Password incorrect! Decrypted content is " << (bufRegion.toByteArray());
+        cnt ++;
+    }
+    if (cnt>=3){
+        qDebug() << "Got wrong key for 3 times , return";
+        return false;
+    }
+
     buf = readFile.read(BUF_SIZE);
     //qDebug() << "Reading First buffer : " << buf;
     while (buf.size()>0) {
-        QCA::SecureArray bufRegion;
         QCA::SecureArray bufWrite;
         bufRegion = QCA::SecureArray(buf);
         bufWrite = cipher.process(bufRegion);
