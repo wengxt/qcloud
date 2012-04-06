@@ -27,10 +27,10 @@ void Encrypter::generateKey(QCA::SymmetricKey& key)
     QCA::PBKDF2 generator("sha1");
     qDebug() << "Set generator";
     key = generator.makeKey(
-        QCA::SecureArray(QInputDialog::getText(NULL,tr("Input Password"),
-                              tr("Password"),
-                              QLineEdit::PasswordEchoOnEdit).toAscii()),
-        QCA::InitializationVector(),KEY_LEN,10000);
+              QCA::SecureArray(QInputDialog::getText(NULL,tr("Input Password"),
+                               tr("Password"),
+                               QLineEdit::PasswordEchoOnEdit).toAscii()),
+              QCA::InitializationVector(),KEY_LEN,10000);
 }
 
 inline bool Encrypter::init()
@@ -170,25 +170,33 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
                        QCA::Cipher::PADDING,
                        QCA::Decode,
                        key,iv);
-    
+
     QByteArray buf;
     QCA::SecureArray bufRegion;
     buf = readFile.read(sizeof(ENCRYPTER_TEST_CONTENT) - 1);
     int cnt = 0;
-    while (cnt<3){
-        if (!init())
+    qDebug() << "Checking password , original content is " << QCA::arrayToHex(ENCRYPTER_TEST_CONTENT);
+    while (cnt<3) {
+        if (!init()) {
+            readFile.close();
+            writeFile.close();
             return false;
-        hasKey = false;
-        m_storage->SetItem(KEY_NAME,"");
+        }
         cipher.setup(QCA::Decode,key,iv);
         bufRegion = cipher.process(QCA::SecureArray(buf));
-        if ((bufRegion.toByteArray())==ENCRYPTER_TEST_CONTENT)
+        if ((bufRegion.toByteArray())==ENCRYPTER_TEST_CONTENT) {
+            qDebug() << "Password checked ok!";
             break;
-        qDebug() << "Password incorrect! Decrypted content is " << (bufRegion.toByteArray());
+        }
+        hasKey = false;
+        m_storage->SetItem(KEY_NAME,"");
+        qDebug() << "Password incorrect! Decrypted content is " << QCA::arrayToHex(bufRegion.toByteArray());
         cnt ++;
     }
-    if (cnt>=3){
+    if (cnt>=3) {
         qDebug() << "Got wrong key for 3 times , return";
+        readFile.close();
+        writeFile.close();
         return false;
     }
 
