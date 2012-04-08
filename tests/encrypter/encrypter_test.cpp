@@ -1,5 +1,5 @@
 #include <QDebug>
-#include <QCoreApplication>
+#include <QApplication>
 
 #include "encrypter.h"
 #include "kwalletstore.h"
@@ -12,7 +12,7 @@ int main(int argc,char **argv)
         qDebug() << "Usage : encrypt/decrypt inputFile outputFile";
         return 1;
     }
-    QCoreApplication app(argc,argv);
+    QApplication app(argc,argv);
     //QCA::Initializer init;
     KWalletStore *storage = new KWalletStore;
     Encrypter *encrypter = new Encrypter(storage);
