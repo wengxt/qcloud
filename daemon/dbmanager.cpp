@@ -7,6 +7,7 @@
 #include <QSqlQuery>
 
 #include "dbmanager.h"
+#include "accountinfo.h"
 
 DBManager* DBManager::m_instance = NULL;
 
@@ -73,5 +74,10 @@ bool DBManager::connectDB()
         return false;
     }
     return true;
+
+}
+
+void DBManager::addAccount(const QCloud::AccountInfo& account)
+{
 
 }

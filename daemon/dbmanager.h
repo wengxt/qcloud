@@ -3,11 +3,14 @@
 
 #include <QObject>
 #include <QSqlDatabase>
+#include "accountinfo.h"
+
 class DBManager : public QObject
 {
     Q_OBJECT
 public:
     static DBManager* instance();
+    void addAccount(const QCloud::AccountInfo& account);
 private:
     bool createDB();
     bool connectDB();
