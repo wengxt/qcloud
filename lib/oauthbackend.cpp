@@ -34,12 +34,12 @@ int OAuthBackend::error() const
     return 0;
 }
 
-QString OAuthBackend::oauthToken() const
+QByteArray OAuthBackend::oauthToken() const
 {
     return m_oauthToken;
 }
 
-QString OAuthBackend::oauthTokenSecret() const
+QByteArray OAuthBackend::oauthTokenSecret() const
 {
     return m_oauthTokenSecret;
 }
@@ -99,6 +99,11 @@ bool OAuthBackend::prepare()
 void OAuthBackend::setAuthUrl(const QUrl& url)
 {
     m_authUrl = url;
+}
+
+QByteArray OAuthBackend::authorizationHeader(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params)
+{
+    return m_oauth->createParametersString(url.toString(), method, m_oauthToken, m_oauthTokenSecret, QOAuth::HMAC_SHA1, params, QOAuth::ParseForHeaderArguments);
 }
 
 }

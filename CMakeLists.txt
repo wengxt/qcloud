@@ -15,6 +15,7 @@ add_definitions(${KDE4_DEFINITIONS})
 find_package(QCA2 REQUIRED)
 find_package(QOAuth REQUIRED)
 find_package(LibArchive REQUIRED)
+find_package(QJson REQUIRED)
 
 set(CMAKE_C_FLAGS "-Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -fvisibility=hidden ${CMAKE_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-sign-compare -Wno-unused-parameter -fvisibility=hidden ${CMAKE_CXX_FLAGS}")

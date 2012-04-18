@@ -3,6 +3,11 @@
 
 #include "oauthbackend.h"
 
+namespace QJson
+{
+class Parser;
+}
+
 namespace QCloud
 {
 class App;
@@ -16,10 +21,15 @@ public:
     virtual ~Dropbox();
     virtual void setApp (QCloud::App* app);
     virtual bool authorize (QWidget* parent = 0);
-    virtual bool uploadFile (const QString& filename);
+    virtual bool uploadFile (const QString& filename, const QString& filepath);
     virtual void startAuth (QCloud::OAuthWidget* widget);
     virtual void loadAccountInfo();
     virtual void saveAccountInfo();
+
+private:
+    QJson::Parser* m_parser;
+    QByteArray m_uid;
+    bool m_globalAccess;
 };
 
 #endif

@@ -31,16 +31,19 @@ public:
     void setAppKey (const QString& appkey);
     QString appSecret() const;
     void setAppSecret (const QString& appsecret);
-    QString oauthToken() const;
-    QString oauthTokenSecret() const;
+    QByteArray oauthToken() const;
+    QByteArray oauthTokenSecret() const;
     QString requestTokenUrl() const;
     uint timeout() const;
     void setAuthUrl (const QUrl& url);
+
 protected:
+    QByteArray authorizationHeader(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params = QOAuth::ParamMap());
+
     QString m_appKey;
     QString m_appSecret;
-    QString m_oauthToken;
-    QString m_oauthTokenSecret;
+    QByteArray m_oauthToken;
+    QByteArray m_oauthTokenSecret;
     QString m_requestTokenUrl;
     QString m_authorizeUrl;
     QString m_accessTokenUrl;

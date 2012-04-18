@@ -2,6 +2,7 @@ include_directories(${QT_QTCORE_INCLUDE_DIR}
                     ${QOAuth_INCLUDE_DIR}
                     ${QT_QTGUI_INCLUDE_DIR}
                     ${QCA2_INCLUDE_DIR}
+                    ${QJSON_INCLUDE_DIR}
                     )
 
 set(dropbox_SRCS dropbox.cpp plugin.cpp)
@@ -20,6 +21,7 @@ add_library(qcloud_dropbox MODULE ${dropbox_SRCS} ${dropbox_MOC_SRCS})
 target_link_libraries(qcloud_dropbox
                       ${QT_QTCORE_LIBRARY}
                       ${QT_QTGUI_LIBRARY}
+                      ${QJSON_LIBRARY}
                       qcloud
                       )
 

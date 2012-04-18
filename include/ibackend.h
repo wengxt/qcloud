@@ -21,7 +21,7 @@ public:
     virtual void setApp (App* app) = 0;
     virtual bool authorize (QWidget* widget = 0) = 0;
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
-    virtual bool uploadFile (const QString& filename) = 0;
+    virtual bool uploadFile (const QString& filename, const QString& filepath) = 0;
     virtual void saveAccountInfo () = 0;
     virtual void loadAccountInfo () = 0;
     QNetworkAccessManager* networkAccessManager();
