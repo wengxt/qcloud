@@ -10,7 +10,8 @@ int main (int argc, char* argv[])
 {
     QApplication app (argc, argv);
 
-    if (argc <= 2) {
+    if (argc <= 4) {
+        printf("Usage : download/upload [source] [destination]\n");
         return 0;
     }
     Dropbox* dropbox = new Dropbox;
@@ -27,7 +28,16 @@ int main (int argc, char* argv[])
 
     if (result) {
         dropbox->loadAccountInfo();
-        dropbox->uploadFile(argv[2], "test_file");
+        if (strcmp(argv[2],"upload")==0){
+            dropbox->uploadFile(argv[3],argv[4]);
+        }
+        else if (strcmp(argv[2],"download")==0){
+            dropbox->downloadFile(argv[3],argv[4]);
+        }
+        else{
+            qDebug() << "Invalid operation " << argv[2];
+            return 1;
+        }
     }
     return 0;
 }

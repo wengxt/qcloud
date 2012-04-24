@@ -22,6 +22,7 @@ public:
     virtual void setApp (QCloud::App* app);
     virtual bool authorize (QWidget* parent = 0);
     virtual bool uploadFile (const QString& filename, const QString& filepath);
+    virtual bool downloadFile (const QString& remoteFilePath,const QString& localFileName);
     virtual void startAuth (QCloud::OAuthWidget* widget);
     virtual void loadAccountInfo();
     virtual void saveAccountInfo();
