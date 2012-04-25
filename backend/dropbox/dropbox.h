@@ -1,6 +1,7 @@
 #ifndef DROPBOX_H
 #define DROPBOX_H
 
+#include <QFile>
 #include "oauthbackend.h"
 
 namespace QJson
@@ -26,8 +27,13 @@ public:
     virtual void startAuth (QCloud::OAuthWidget* widget);
     virtual void loadAccountInfo();
     virtual void saveAccountInfo();
+    
+private slots:
+    void httpGetReadyRead();
 
 private:
+    QFile* file;
+    QNetworkReply* reply;
     QJson::Parser* m_parser;
     QByteArray m_uid;
     bool m_globalAccess;

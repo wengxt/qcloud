@@ -78,8 +78,8 @@ void Dropbox::startAuth (QCloud::OAuthWidget* widget)
 
 bool Dropbox::uploadFile (const QString& localFileName, const QString& remoteFilePath)
 {
-    QFile file(localFileName);
-    if (!file.open(QIODevice::ReadOnly))
+    file = new QFile(localFileName);
+    if (!file->open(QIODevice::ReadOnly))
         return false;
 
     QString surl;
@@ -90,7 +90,7 @@ bool Dropbox::uploadFile (const QString& localFileName, const QString& remoteFil
     QUrl url(surl.arg(remoteFilePath));
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", authorizationHeader(url, QOAuth::PUT));
-    QNetworkReply* reply = m_networkAccessManager->put(request, &file);
+    reply = m_networkAccessManager->put(request, file);
 
     QEventLoop loop;
     QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
@@ -107,13 +107,15 @@ bool Dropbox::uploadFile (const QString& localFileName, const QString& remoteFil
     // Lets print the HTTP PUT response.
     QVariant result = m_parser->parse(reply->readAll());
     qDebug() << result;
+    file->close();
+    delete file;
     return true;
 }
 
 bool Dropbox::downloadFile (const QString& remoteFilePath,const QString& localFileName)
 {
-    QFile file(localFileName);
-    if (!file.open(QIODevice::WriteOnly)){
+    file = new QFile(localFileName);
+    if (!file->open(QIODevice::WriteOnly)){
         qDebug() << "Failed opening file for writing!";
         return false;
     }
@@ -125,9 +127,10 @@ bool Dropbox::downloadFile (const QString& remoteFilePath,const QString& localFi
     QUrl url(urlString.arg(remoteFilePath));
     QNetworkRequest request(url);
     request.setRawHeader("Authorization",authorizationHeader(url,QOAuth::GET));
-    QNetworkReply* reply = m_networkAccessManager->get(request);
+    reply = m_networkAccessManager->get(request);
     QEventLoop loop;
-    QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
+    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    QObject::connect(reply, SIGNAL(readyRead()), this, SLOT(httpGetReadyRead()));
     
     // Execute the event loop here, now we will wait here until readyRead() signal is emitted
     // which in turn will trigger event loop quit.
@@ -136,17 +139,8 @@ bool Dropbox::downloadFile (const QString& remoteFilePath,const QString& localFi
         qDebug() << "Reponse error " << reply->errorString();
         return false;
     }
-    /*
-    QByteArray buff;
-    buff = reply->read(BUFF_SIZE);
-    do{
-        file.write(buff);
-        buff = reply->read(BUFF_SIZE);
-    }
-    while (buff.size()!=0);
-    */
-    file.write(reply->readAll());
-    file.close();
+    file->close();
+    delete file;
     
     return true;
 }
@@ -156,7 +150,7 @@ void Dropbox::loadAccountInfo()
     QUrl url("https://api.dropbox.com/1/account/info");
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", authorizationHeader(url, QOAuth::GET));
-    QNetworkReply* reply = m_networkAccessManager->get(request);
+    reply = m_networkAccessManager->get(request);
     
     QEventLoop loop;
     QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
@@ -173,3 +167,10 @@ void Dropbox::saveAccountInfo()
 {
     
 }
+
+void Dropbox::httpGetReadyRead()
+{
+    //write to file when the reply updated.
+    file->write(reply->readAll());
+}
+
