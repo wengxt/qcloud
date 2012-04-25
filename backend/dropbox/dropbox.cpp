@@ -14,7 +14,6 @@
 #include "authdialog.h"
 #include "qcloud_utils.h"
 #include "request.h"
-#define BUFF_SIZE 10
 
 Dropbox::Dropbox (QObject* parent) : OAuthBackend (parent)
     ,m_globalAccess(false)
