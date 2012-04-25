@@ -33,7 +33,7 @@ else (QJSON_INCLUDE_DIR AND QJSON_LIBRARY)
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(QJson DEFAULT_MSG QJSON_LIBRARY QJSON_INCLUDE_DIR)
-  
+
   mark_as_advanced(QJSON_INCLUDE_DIR QJSON_LIBRARY)
 
 endif (QJSON_INCLUDE_DIR AND QJSON_LIBRARY)

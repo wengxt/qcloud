@@ -9,11 +9,13 @@ include_directories(${QT_QTCORE_INCLUDE_DIR}
 qt4_wrap_cpp(
     dropbox_test_MOC_SRCS
     ${PROJECT_SOURCE_DIR}/backend/dropbox/dropbox.h
+    ${PROJECT_SOURCE_DIR}/backend/dropbox/dropboxrequest.h
 )
 
 add_executable(qcloud_dropbox_test
                dropbox_test.cpp
                ${PROJECT_SOURCE_DIR}/backend/dropbox/dropbox.cpp
+               ${PROJECT_SOURCE_DIR}/backend/dropbox/dropboxrequest.cpp
                ${dropbox_test_MOC_SRCS}
                )
 target_link_libraries(qcloud_dropbox_test

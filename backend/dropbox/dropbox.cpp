@@ -7,16 +7,16 @@
 #include <QNetworkReply>
 #include <QDebug>
 #include <QFile>
-#include <qjson/parser.h>
 #include "dropbox.h"
+#include "dropboxrequest.h"
 #include "app.h"
 #include "oauthwidget.h"
 #include "authdialog.h"
 #include "qcloud_utils.h"
+#include "request.h"
 #define BUFF_SIZE 10
 
 Dropbox::Dropbox (QObject* parent) : OAuthBackend (parent)
-    ,m_parser(new QJson::Parser)
     ,m_globalAccess(false)
 {
     m_requestTokenUrl = "https://api.dropbox.com/1/oauth/request_token";
@@ -76,73 +76,14 @@ void Dropbox::startAuth (QCloud::OAuthWidget* widget)
 }
 
 
-bool Dropbox::uploadFile (const QString& localFileName, const QString& remoteFilePath)
+QCloud::Request* Dropbox::uploadFile (const QString& localFileName, const QString& remoteFilePath)
 {
-    file = new QFile(localFileName);
-    if (!file->open(QIODevice::ReadOnly))
-        return false;
-
-    QString surl;
-    if (m_globalAccess)
-        surl = "https://api-content.dropbox.com/1/files_put/dropbox/%1";
-    else
-        surl = "https://api-content.dropbox.com/1/files_put/sandbox/%1";
-    QUrl url(surl.arg(remoteFilePath));
-    QNetworkRequest request(url);
-    request.setRawHeader("Authorization", authorizationHeader(url, QOAuth::PUT));
-    reply = m_networkAccessManager->put(request, file);
-
-    QEventLoop loop;
-    QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
-
-    // Execute the event loop here, now we will wait here until readyRead() signal is emitted
-    // which in turn will trigger event loop quit.
-    loop.exec();
-
-    if (reply->error()!=QNetworkReply::NoError){
-        qDebug() << "Reponse error " << reply->errorString();
-        return false;
-    }
-
-    // Lets print the HTTP PUT response.
-    QVariant result = m_parser->parse(reply->readAll());
-    qDebug() << result;
-    file->close();
-    delete file;
-    return true;
+    return new DropboxUploadRequest(this, localFileName, remoteFilePath);
 }
 
-bool Dropbox::downloadFile (const QString& remoteFilePath,const QString& localFileName)
+QCloud::Request* Dropbox::downloadFile (const QString& remoteFilePath,const QString& localFileName)
 {
-    file = new QFile(localFileName);
-    if (!file->open(QIODevice::WriteOnly)){
-        qDebug() << "Failed opening file for writing!";
-        return false;
-    }
-    QString urlString;
-    if (m_globalAccess)
-        urlString = "https://api-content.dropbox.com/1/files/dropbox/%1";
-    else
-        urlString = "https://api-content.dropbox.com/1/files/sandbox/%1";
-    QUrl url(urlString.arg(remoteFilePath));
-    QNetworkRequest request(url);
-    request.setRawHeader("Authorization",authorizationHeader(url,QOAuth::GET));
-    reply = m_networkAccessManager->get(request);
-    QEventLoop loop;
-    QObject::connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
-    QObject::connect(reply, SIGNAL(readyRead()), this, SLOT(httpGetReadyRead()));
-    
-    // Execute the event loop here, now we will wait here until readyRead() signal is emitted
-    // which in turn will trigger event loop quit.
-    loop.exec();
-    if (reply->error()!=QNetworkReply::NoError){
-        qDebug() << "Reponse error " << reply->errorString();
-        return false;
-    }
-    file->close();
-    delete file;
-    
-    return true;
+    return new DropboxDownloadRequest(this, remoteFilePath, localFileName);
 }
 
 void Dropbox::loadAccountInfo()
@@ -150,27 +91,20 @@ void Dropbox::loadAccountInfo()
     QUrl url("https://api.dropbox.com/1/account/info");
     QNetworkRequest request(url);
     request.setRawHeader("Authorization", authorizationHeader(url, QOAuth::GET));
-    reply = m_networkAccessManager->get(request);
-    
+    QNetworkReply* reply = m_networkAccessManager->get(request);
+
     QEventLoop loop;
     QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));
-    
+
     // Execute the event loop here, now we will wait here until readyRead() signal is emitted
     // which in turn will trigger event loop quit.
     loop.exec();
-    
+
     // Lets print the HTTP GET response.
     qDebug() << QString::fromUtf8(reply->readAll());
 }
 
 void Dropbox::saveAccountInfo()
 {
-    
-}
 
-void Dropbox::httpGetReadyRead()
-{
-    //write to file when the reply updated.
-    file->write(reply->readAll());
 }
-

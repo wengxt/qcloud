@@ -5,22 +5,21 @@
 #include "oauthwidget.h"
 #include "factory.h"
 #include "app.h"
+#include "request.h"
 
 int main (int argc, char* argv[])
 {
     QApplication app (argc, argv);
 
     if (argc <= 4) {
-        printf("Usage : download/upload [source] [destination]\n");
+        printf ("Usage : appfile download/upload [source] [destination]\n");
         return 0;
     }
     Dropbox* dropbox = new Dropbox;
-    dropbox->setAppKey ("d2anwsztkcu1upz");
-    dropbox->setAppSecret ("kt9a7tuph615hzs");
     dropbox->setNetworkAccessManager (QCloud::Factory::instance()->createNetwork ("kde"));
-    QCloud::App a(argv[1]);
+    QCloud::App a (argv[1]);
 
-    dropbox->setApp(&a);
+    dropbox->setApp (&a);
 
     bool result = dropbox->authorize();
 
@@ -28,13 +27,13 @@ int main (int argc, char* argv[])
 
     if (result) {
         dropbox->loadAccountInfo();
-        if (strcmp(argv[2],"upload")==0){
-            dropbox->uploadFile(argv[3],argv[4]);
-        }
-        else if (strcmp(argv[2],"download")==0){
-            dropbox->downloadFile(argv[3],argv[4]);
-        }
-        else{
+        if (strcmp (argv[2], "upload") == 0) {
+            QCloud::Request* request = dropbox->uploadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
+            request->waitForFinished();
+        } else if (strcmp (argv[2], "download") == 0) {
+            QCloud::Request* request = dropbox->downloadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
+            request->waitForFinished();
+        } else {
             qDebug() << "Invalid operation " << argv[2];
             return 1;
         }

@@ -24,6 +24,7 @@ set(qcloud_SRCS
     packager.cpp
     encrypter.cpp
     info.cpp
+    request.cpp
     )
 
 set(qcloud_HDRS
@@ -40,6 +41,7 @@ set(qcloud_HDRS
     ../include/appmanager.h
     ../include/packager.h
     ../include/encrypter.h
+    ../include/request.h
     )
 
 set(qcloud_MOC_HDRS ${qcloud_HDRS}
