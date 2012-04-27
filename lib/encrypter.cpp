@@ -97,7 +97,7 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
         writeFile.close();
         return false;
     }
-    iv = QCA::InitializationVector(IV_LEN);
+    QCA::InitializationVector iv = QCA::InitializationVector(IV_LEN);
     writeFile.write(iv.toByteArray());
     if (!init())
         return false;
@@ -158,7 +158,7 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
         return false;
     }
 
-    iv = QCA::InitializationVector(readFile.read(IV_LEN));
+    QCA::InitializationVector iv = QCA::InitializationVector(readFile.read(IV_LEN));
     qDebug() << "Read IV " << QCA::arrayToHex(iv.toByteArray());
     if (iv.size()!=IV_LEN) {
         qDebug() << "Error while reading IV from file!";
