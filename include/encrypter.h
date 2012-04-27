@@ -25,7 +25,6 @@ private:
     bool hasKey;
     ISecureStore *m_storage;
     QCA::SymmetricKey key;
-    QCA::InitializationVector iv;
     QCA::Initializer initQCA;
 };
 
