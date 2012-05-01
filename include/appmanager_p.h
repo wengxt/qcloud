@@ -14,7 +14,7 @@ public:
 
 private:
     void scan();
-    QMap<QString, App*> m_appMap;
+    QMap<QString, App*> appMap;
     static AppManager* inst;
 };
 }

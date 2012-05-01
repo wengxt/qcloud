@@ -111,8 +111,19 @@ Factory* Factory::instance()
 IBackend* Factory::createBackend (const QString& name, QObject* parent)
 {
     IPlugin* plugin = d->loadPlugin ("backend", name);
-    if (plugin)
-        return qobject_cast<IBackend*> (plugin->create(parent));
+    if (plugin) {
+        QObject* obj = plugin->create(parent);
+        IBackend* backend = qobject_cast<IBackend*> (obj);
+
+        do {
+            if (obj && !backend) {
+                delete obj;
+            }
+
+            backend->setInfo(*plugin);
+            return backend;
+        } while(0);
+    }
     return NULL;
 }
 

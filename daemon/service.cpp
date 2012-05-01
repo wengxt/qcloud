@@ -2,18 +2,15 @@
 #include "appmanager.h"
 #include "factory.h"
 #include "ibackend.h"
+#include "daemon.h"
+#include "accountmanager.h"
+#include "account.h"
 
-Service::Service (QObject* parent) : Server (parent)
-    ,m_networkAccessManager(0)
+Service::Service (Daemon* daemon) : Server (daemon)
+    ,m_daemon(daemon)
 {
 
 }
-
-void Service::setNetworkAccessManager (QNetworkAccessManager* networkAccessManager)
-{
-    m_networkAccessManager = networkAccessManager;
-}
-
 
 Service::~Service()
 {
@@ -22,12 +19,19 @@ Service::~Service()
 
 void Service::addAccount (const QString& backendName, const QString& appName)
 {
-    QCloud::IBackend* backend = QCloud::Factory::instance()->createBackend(backendName);
     QCloud::App* app = QCloud::AppManager::instance()->app(appName);
-    if (backend && app) {
+    if (!app)
+        return;
+    QCloud::IBackend* backend = QCloud::Factory::instance()->createBackend(backendName);
+    if (backend) {
         backend->setApp(app);
-        backend->setNetworkAccessManager(m_networkAccessManager);
-        backend->authorize();
+        backend->setNetworkAccessManager(m_daemon->networkAccessManager());
+        if (backend->authorize()) {
+            m_daemon->accountManager()->addAccount(backend);
+            notifyAccountUpdated();
+        }
+        else
+            delete backend;
     }
 }
 
@@ -66,5 +70,16 @@ int Service::uploadFile (const QString& app_name, const QStringList& file_list)
 
 QCloud::InfoList Service::listAccounts()
 {
-    return QCloud::InfoList();
+    QCloud::InfoList infoList;
+    QList< Account* > list = m_daemon->accountManager()->listAccounts();
+    foreach(Account* account, list) {
+        QCloud::Info info;
+        info.setName(account->uuid());
+        info.setDescription(QString("%1 - %2").arg(account->backend()->info().description()).arg(account->app()->description()));
+        info.setIconName("user");
+        info.setDisplayName(account->userName());
+
+        infoList << info;
+    }
+    return infoList;
 }

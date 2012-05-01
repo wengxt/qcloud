@@ -18,6 +18,9 @@ public:
 
     QCloud::Client* client();
 
+private slots:
+    void accountUpdated();
+
 private:
     QCloud::Client* m_client;
     MainWindow* m_mainWindow;

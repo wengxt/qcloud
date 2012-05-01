@@ -9,6 +9,7 @@ Client::Private::Private (Client* client) : QObject (client)
     , m_connection (QDBusConnection::sessionBus())
     , m_daemon (new org::qcloud::Daemon ("org.qcloud.Daemon", "/daemon", m_connection, this))
 {
+    connect(m_daemon, SIGNAL(accountUpdated()), client, SIGNAL(accountUpdated()));
 }
 
 
@@ -40,6 +41,11 @@ QDBusPendingReply<InfoList> Client::listApps()
 QDBusPendingReply<InfoList> Client::listBackends()
 {
     return d->m_daemon->listBackends();
+}
+
+QDBusPendingReply<InfoList> Client::listAccounts()
+{
+    return d->m_daemon->listAccounts();
 }
 
 QDBusPendingReply< bool > Client::addAccount (const QString& backend_name, const QString& user_name)

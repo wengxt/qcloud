@@ -26,7 +26,7 @@ int main (int argc, char* argv[])
     qDebug() << "Authorize result" << result;
 
     if (result) {
-        dropbox->loadAccountInfo();
+        qDebug() << "User Name" << dropbox->userName();
         if (strcmp (argv[2], "upload") == 0) {
             QCloud::Request* request = dropbox->uploadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();

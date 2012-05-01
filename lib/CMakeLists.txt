@@ -49,6 +49,7 @@ set(qcloud_MOC_HDRS ${qcloud_HDRS}
     ../include/factory_p.h
     ../include/oauthwidget_p.h
     ../include/appmanager_p.h
+    ../include/oauthbackend_p.h
     )
 
 qt4_wrap_cpp(

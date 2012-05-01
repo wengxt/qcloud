@@ -6,13 +6,15 @@ set(daemon_SRCS
     daemon.cpp
     main.cpp
     service.cpp
-    dbmanager.cpp
+    account.cpp
+    accountmanager.cpp
     )
 
 set(daemon_MOC_HDRS
     daemon.h
     service.h
-    dbmanager.h
+    account.h
+    accountmanager.h
     )
 
 qt4_wrap_cpp(

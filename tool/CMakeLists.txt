@@ -5,12 +5,14 @@ set(tool_SRCS
     mainwindow.cpp
     main.cpp
     clientapp.cpp
+    infomodel.cpp
     )
 
 set(tool_MOC_HDRS
     accountdialog.h
     mainwindow.h
     clientapp.h
+    infomodel.h
     )
 
 qt4_wrap_cpp(

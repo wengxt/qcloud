@@ -37,10 +37,10 @@ SecureStoreWidget::SecureStoreWidget (ISecureStore* storage)
 
 bool SecureStoreWidget::GetItem()
 {
-    QString value;
-    bool ret = m_storage->GetItem (m_keyInput->text(), value);
+    QByteArray value;
+    bool ret = m_storage->readItem ("test", m_keyInput->text(), value);
     if (ret) {
-        m_valueInput->setText (value);
+        m_valueInput->setText (QString::fromUtf8(value));
         m_statLabel->setText ("Succeeded in getting value!");
     } else
         m_statLabel->setText ("Failed getting value!");
@@ -49,7 +49,7 @@ bool SecureStoreWidget::GetItem()
 
 bool SecureStoreWidget::SetItem()
 {
-    bool ret = m_storage->SetItem (m_keyInput->text(), m_valueInput->text());
+    bool ret = m_storage->writeItem ("test", m_keyInput->text(), m_valueInput->text().toUtf8());
     if (ret)
         m_statLabel->setText ("Succeed in setting value!");
     else

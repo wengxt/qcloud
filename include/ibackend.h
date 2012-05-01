@@ -3,10 +3,13 @@
 
 #include <QtCore/QtPlugin>
 #include "qcloud_global.h"
+#include "info.h"
 
 class QNetworkAccessManager;
 namespace QCloud
 {
+
+class ISecureStore;
 
 class Request;
 
@@ -24,10 +27,15 @@ public:
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
     virtual Request* uploadFile (const QString& localFileName, const QString& remoteFilePath) = 0;
     virtual Request* downloadFile(const QString& remoteFilePath,const QString& localFileName) = 0;
-    virtual void saveAccountInfo () = 0;
-    virtual void loadAccountInfo () = 0;
+    virtual void saveAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* secureStore) = 0;
+    virtual void loadAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* secureStore) = 0;
+    virtual QString userName() = 0;
     QNetworkAccessManager* networkAccessManager();
+    App* app();
+    void setInfo(const Info& info);
+    const Info& info();
 protected:
+    Info m_info;
     QNetworkAccessManager* m_networkAccessManager;
     App* m_app;
 };

@@ -6,10 +6,11 @@
 #include "isecurestore.h"
 #include <QtCrypto/QtCrypto>
 #include "qcloud_global.h"
-#define KEY_NAME "QCloud_Encrypter_Key"
+#define GROUP_NAME "QCloud_Encrypter"
+#define KEY_NAME "Key"
 
 namespace QCloud{
-    
+
 class QCLOUD_EXPORT Encrypter : public QObject
 {
     Q_OBJECT;
@@ -21,7 +22,7 @@ public:
 private:
     bool init();
     void generateKey(QCA::SymmetricKey& key);
-    
+
     bool hasKey;
     ISecureStore *m_storage;
     QCA::SymmetricKey key;

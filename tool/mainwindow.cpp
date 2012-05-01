@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "accountdialog.h"
 #include "clientapp.h"
+#include "infomodel.h"
 #include "factory.h"
 #include "ibackend.h"
 #include "client.h"
@@ -10,9 +11,12 @@
 MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (parent, flags)
     , m_widget (new QWidget (this))
     , m_ui (new Ui::Tool)
+    , m_accountModel (new InfoModel(this))
 {
     setCentralWidget (m_widget);
     m_ui->setupUi (m_widget);
+    m_ui->accountView->setModel(m_accountModel);
+    m_ui->accountView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     m_addAccountButton = m_ui->addAccountButton;
     m_deleteAccountButton = m_ui->deleteAccountButton;
@@ -43,4 +47,18 @@ void MainWindow::addAccountButtonClicked()
 void MainWindow::deleteAccountButtonClicked()
 {
 
+}
+
+void MainWindow::accountsFinished(QDBusPendingCallWatcher* watcher)
+{
+    QDBusPendingReply< QCloud::InfoList > backends(*watcher);
+    m_accountModel->setInfoList(backends.value());
+}
+
+
+void MainWindow::loadAccount()
+{
+    QDBusPendingReply< QCloud::InfoList > accounts = ClientApp::instance()->client()->listAccounts();
+    QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(accounts);
+    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(accountsFinished(QDBusPendingCallWatcher*)));
 }

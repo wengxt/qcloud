@@ -20,9 +20,12 @@ public:
 
     QDBusPendingReply<InfoList> listApps();
     QDBusPendingReply<InfoList> listBackends();
+    QDBusPendingReply<InfoList> listAccounts();
     QDBusPendingReply<bool> addAccount (const QString& backend_name, const QString& user_name);
     QDBusPendingReply<int> sync (const QString& app_name);
     QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
+signals:
+    void accountUpdated();
 protected:
     class Private;
     Private* d;

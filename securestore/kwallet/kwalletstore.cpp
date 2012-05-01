@@ -33,34 +33,52 @@ bool KWalletStore::isAvailable()
     return stat != NOT_AVAILABLE;
 }
 
-bool KWalletStore::SetItem (const QString& key, const QString& value)
+bool KWalletStore::writeItem (const QString& group, const QString& key, const QByteArray& value)
 {
     if (stat == NOT_AVAILABLE) {
         qDebug() << "SecureStore is not available , so cannot set";
         return false;
     }
-    if (m_wallet->hasEntry (key))
-        m_wallet->removeEntry (key);
-    if (m_wallet->writePassword (key, value) != 0) {
-        stat = FAILED;
-        return false;
-    }
-    stat = SUCCEEDED;
-    return true;
+
+    do {
+        QString kwalletKey = QString("%1_%2").arg(group).arg(key);
+        if (m_wallet->hasEntry (kwalletKey))
+            m_wallet->removeEntry (kwalletKey);
+        if (m_wallet->writeEntry (kwalletKey, value) != 0)
+            break;
+        stat = SUCCEEDED;
+        return true;
+    } while(0);
+    stat = FAILED;
+    return false;
 }
 
-bool KWalletStore::GetItem (const QString& key, QString& value)
+bool KWalletStore::readItem (const QString& group, const QString& key, QByteArray& value)
 {
     if (stat == NOT_AVAILABLE){
         qDebug() << "SecureStore is not available , so cannot get";
         return false;
     }
     stat = FAILED;
-    if (m_wallet->readPassword (key, value) != 0) {
+    QString kwalletKey = QString("%1_%2").arg(group).arg(key);
+    if (m_wallet->readEntry (kwalletKey, value) != 0) {
         return false;
     }
-    if (value=="")
+    stat = SUCCEEDED;
+    return true;
+}
+
+bool KWalletStore::deleteItem (const QString& group, const QString& key)
+{
+    if (stat == NOT_AVAILABLE){
+        qDebug() << "SecureStore is not available , so cannot get";
         return false;
+    }
+    stat = FAILED;
+    QString kwalletKey = QString("%1_%2").arg(group).arg(key);
+    if (m_wallet->removeEntry (kwalletKey) != 0) {
+        return false;
+    }
     stat = SUCCEEDED;
     return true;
 }

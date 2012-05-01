@@ -18,8 +18,9 @@ public:
 
     virtual bool isAvailable() = 0;
 
-    virtual bool GetItem (const QString& key, QString& value) = 0;
-    virtual bool SetItem (const QString& key, const QString& value) = 0;
+    virtual bool readItem (const QString& group, const QString& key, QByteArray& value) = 0;
+    virtual bool writeItem (const QString& group, const QString& key, const QByteArray& value) = 0;
+    virtual bool deleteItem (const QString& group, const QString& key) = 0;
 
 };
 

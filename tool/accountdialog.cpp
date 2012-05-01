@@ -1,62 +1,9 @@
 #include "client.h"
 #include "accountdialog.h"
 #include "clientapp.h"
+#include "infomodel.h"
 #include "info.h"
 #include "ui_accountdialog.h"
-
-class InfoModel : public QAbstractListModel
-{
-public:
-    explicit InfoModel (QObject* parent = 0);
-    virtual QModelIndex index (int row, int column = 0, const QModelIndex& parent = QModelIndex()) const;
-    virtual int rowCount (const QModelIndex& parent = QModelIndex()) const;
-    virtual QVariant data (const QModelIndex& index, int role = Qt::DisplayRole) const;
-    void setInfoList(QCloud::InfoList infoList);
-private:
-    QCloud::InfoList m_infoList;
-};
-
-InfoModel::InfoModel (QObject* parent) : QAbstractListModel (parent)
-{
-}
-
-QModelIndex InfoModel::index (int row, int column, const QModelIndex& parent) const
-{
-    return createIndex (row, column, (row >= 0 && row < m_infoList.count() ? (void*) &m_infoList.at (row) : 0));
-}
-
-
-QVariant InfoModel::data (const QModelIndex& index, int role) const
-{
-    const QCloud::Info* app = (QCloud::Info*) index.internalPointer();
-    if (!app)
-        return QVariant();
-
-    switch (role) {
-    case Qt::DisplayRole:
-        return app->displayName();
-    case Qt::DecorationRole:
-        return QIcon::fromTheme (app->iconName());
-    default:
-        return QVariant();
-    }
-}
-
-int InfoModel::rowCount (const QModelIndex& parent) const
-{
-    return m_infoList.size();
-}
-
-void InfoModel::setInfoList (QCloud::InfoList infoList)
-{
-    beginRemoveRows(QModelIndex(), 0, m_infoList.size());
-    m_infoList.clear();
-    endRemoveRows();
-    beginInsertRows(QModelIndex(), 0, infoList.count() - 1);
-    m_infoList = infoList;
-    endInsertRows();
-}
-
 
 AccountDialog::AccountDialog (QWidget* parent, Qt::WindowFlags f) : QDialog (parent, f),
     m_ui (new Ui::AccountDialog)

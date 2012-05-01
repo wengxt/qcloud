@@ -11,15 +11,21 @@ PlainStore::~PlainStore()
 
 }
 
-bool PlainStore::GetItem (const QString& key, QString& value)
+bool PlainStore::readItem (const QString& group, const QString& key, QByteArray& value)
 {
     return false;
 }
 
-bool PlainStore::SetItem (const QString& key, const QString& value)
+bool PlainStore::writeItem (const QString& group, const QString& key, const QByteArray& value)
 {
     return false;
 }
+
+bool PlainStore::deleteItem (const QString& group, const QString& key)
+{
+    return false;
+}
+
 
 bool PlainStore::isAvailable()
 {

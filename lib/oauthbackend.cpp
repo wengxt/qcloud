@@ -1,61 +1,56 @@
 #include <QtCore/QDebug>
 #include "oauthbackend.h"
+#include "oauthbackend_p.h"
+#include "isecurestore.h"
 
 namespace QCloud
 {
 
+OAuthBackend::Private::Private(OAuthBackend* parent) : QObject(parent)
+{
+    oauth = new QOAuth::Interface(this);
+}
+
 OAuthBackend::OAuthBackend (QObject* parent) : IBackend (parent)
-    , m_oauth (new QOAuth::Interface (this))
+    , d (new Private(this))
 {
 }
 
 OAuthBackend::~OAuthBackend()
 {
-
-}
-
-bool OAuthBackend::accessToken()
-{
-    return false;
+    delete d;
 }
 
 QString OAuthBackend::appKey() const
 {
-    return m_appKey;
+    return d->appKey;
 }
 
 QString OAuthBackend::appSecret() const
 {
-    return m_appSecret;
-}
-
-int OAuthBackend::error() const
-{
-    return 0;
+    return d->appSecret;
 }
 
 QByteArray OAuthBackend::oauthToken() const
 {
-    return m_oauthToken;
+    return d->oauthToken;
 }
 
 QByteArray OAuthBackend::oauthTokenSecret() const
 {
-    return m_oauthTokenSecret;
+    return d->oauthTokenSecret;
 }
 
 bool OAuthBackend::requestToken()
 {
-    m_oauth->setRequestTimeout (timeout());
-    m_oauth->setConsumerKey (appKey().toAscii());
-    m_oauth->setConsumerSecret (appSecret().toAscii());
+    d->oauth->setRequestTimeout (timeout());
 
-    QOAuth::ParamMap map = m_oauth->requestToken (requestTokenUrl(), QOAuth::POST, QOAuth::HMAC_SHA1);
+    QOAuth::ParamMap map = d->oauth->requestToken (d->requestTokenUrl, QOAuth::POST, QOAuth::HMAC_SHA1);
 
-    if (m_oauth->error() == 200) {
+    if (d->oauth->error() == 200) {
         qDebug() << map;
-        m_oauthToken = map.value (QOAuth::tokenParameterName());
-        m_oauthTokenSecret = map.value (QOAuth::tokenSecretParameterName());
+        d->oauthToken = map.value (QOAuth::tokenParameterName());
+        d->oauthTokenSecret = map.value (QOAuth::tokenSecretParameterName());
         return true;
     }
 
@@ -64,19 +59,46 @@ bool OAuthBackend::requestToken()
     }
 }
 
-QString OAuthBackend::requestTokenUrl() const
+QOAuth::ParamMap OAuthBackend::accessToken(bool *ok)
 {
-    return m_requestTokenUrl;
+    d->oauth->setRequestTimeout (timeout());
+
+    QOAuth::ParamMap map = d->oauth->requestToken (d->accessTokenUrl, QOAuth::POST, QOAuth::HMAC_SHA1);
+
+    if (d->oauth->error() == QOAuth::NoError) {
+        d->oauthToken = map.value (QOAuth::tokenParameterName());
+        d->oauthTokenSecret = map.value (QOAuth::tokenSecretParameterName());
+        if (ok)
+            *ok = true;
+    }
+    else {
+        if (ok)
+            *ok = false;
+    }
+    return map;
+}
+
+
+void OAuthBackend::setRequestTokenUrl (const QString& url)
+{
+    d->requestTokenUrl = url;
+}
+
+void OAuthBackend::setAccessTokenUrl (const QString& url)
+{
+    d->accessTokenUrl = url;
 }
 
 void OAuthBackend::setAppKey (const QString& appkey)
 {
-    m_appKey = appkey;
+    d->appKey = appkey;
+    d->oauth->setConsumerKey (d->appKey.toAscii());
 }
 
 void OAuthBackend::setAppSecret (const QString& appsecret)
 {
-    m_appSecret = appsecret;
+    d->appSecret = appsecret;
+    d->oauth->setConsumerSecret (d->appSecret.toAscii());
 }
 
 
@@ -88,22 +110,30 @@ uint OAuthBackend::timeout() const
 void OAuthBackend::setNetworkAccessManager (QNetworkAccessManager* manager)
 {
     IBackend::setNetworkAccessManager (manager);
-    m_oauth->setNetworkAccessManager (manager);
-}
-
-bool OAuthBackend::prepare()
-{
-    return requestToken();
+    d->oauth->setNetworkAccessManager (manager);
 }
 
 void OAuthBackend::setAuthUrl(const QUrl& url)
 {
-    m_authUrl = url;
+    d->authUrl = url;
 }
 
 QByteArray OAuthBackend::authorizationHeader(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params)
 {
-    return m_oauth->createParametersString(url.toString(), method, m_oauthToken, m_oauthTokenSecret, QOAuth::HMAC_SHA1, params, QOAuth::ParseForHeaderArguments);
+    return d->oauth->createParametersString(url.toString(), method, d->oauthToken, d->oauthTokenSecret, QOAuth::HMAC_SHA1, params, QOAuth::ParseForHeaderArguments);
 }
+
+void OAuthBackend::loadAccountInfo(const QString& key, QSettings& settings, QCloud::ISecureStore* securestore)
+{
+    d->oauthToken = settings.value("Token").toByteArray();
+    securestore->readItem(key, "TokenSecret", d->oauthTokenSecret);
+}
+
+void OAuthBackend::saveAccountInfo(const QString& key, QSettings& settings, QCloud::ISecureStore* securestore)
+{
+    settings.setValue("Token", d->oauthToken);
+    securestore->writeItem(key, "TokenSecret", d->oauthTokenSecret);
+}
+
 
 }

@@ -35,7 +35,7 @@ void AppManager::Private::scan()
         QString filePath = fi.filePath(); // file name with path
         App* app = new App (filePath);
         if (app->isValid())
-            m_appMap[app->name()] = app;
+            appMap[app->name()] = app;
         else
             delete app;
     }
@@ -49,15 +49,15 @@ AppManager::AppManager() : QObject()
 
 App* AppManager::app (const QString& name)
 {
-    if (d->m_appMap.contains (name))
-        return d->m_appMap[name];
+    if (d->appMap.contains (name))
+        return d->appMap[name];
     else
         return NULL;
 }
 
 QList<App*> AppManager::appList()
 {
-    return d->m_appMap.values();
+    return d->appMap.values();
 }
 
 AppManager* AppManager::instance()

@@ -26,12 +26,14 @@ public:
     virtual QCloud::Request* uploadFile (const QString& localFileName, const QString& remoteFilePath);
     virtual QCloud::Request* downloadFile (const QString& remoteFilePath,const QString& localFileName);
     virtual void startAuth (QCloud::OAuthWidget* widget);
-    virtual void loadAccountInfo();
-    virtual void saveAccountInfo();
+    virtual void loadAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* securestore);
+    virtual void saveAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* securestore);
+    virtual QString userName();
 
 protected:
     QByteArray m_uid;
     bool m_globalAccess;
+    QString m_userName;
 };
 
 #endif

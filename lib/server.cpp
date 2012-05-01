@@ -19,4 +19,9 @@ Server::~Server()
     m_session.unregisterObject ("/daemon");
 }
 
+void Server::notifyAccountUpdated()
+{
+    emit accountUpdated();
+}
+
 }

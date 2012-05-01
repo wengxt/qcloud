@@ -13,9 +13,9 @@
 
 namespace QCloud {
 
-inline static void clearString(QString& st)
+inline static void clearString(QByteArray& st)
 {
-    for (QString::Iterator it=st.begin(); it!=st.end(); it++)
+    for (QByteArray::Iterator it=st.begin(); it!=st.end(); it++)
         (*it) = '\0';
     st = "";
 }
@@ -41,12 +41,12 @@ inline bool Encrypter::init()
     }
     if (!hasKey) {
         qDebug() << "Key not found , assume it is the first time to run encrypt/decrypt";
-        QString key_value;
-        if (!m_storage->GetItem(KEY_NAME,key_value)) {
+        QByteArray key_value;
+        if (!m_storage->readItem(GROUP_NAME, KEY_NAME, key_value)) {
             qDebug() << "Failed getting key , generating new value from user input";
             generateKey(key);
             qDebug() << "Finished generating.";
-            bool flag = m_storage->SetItem(KEY_NAME,key.toByteArray());
+            bool flag = m_storage->writeItem(GROUP_NAME, KEY_NAME, key.toByteArray());
             qDebug() << "Finished Writing key";
             if (!flag) {
                 qDebug() << "Failed setting one of the items";
@@ -55,7 +55,7 @@ inline bool Encrypter::init()
         }
         else {
             qDebug() << "Successfully got key from SecureStore";
-            key = QCA::SymmetricKey(key_value.toAscii());
+            key = QCA::SymmetricKey(key_value);
         }
         /*Clear the QString values to prevent them from being stolen by other program ,
          *    even if it might not help at all.*/
@@ -189,7 +189,7 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
             break;
         }
         hasKey = false;
-        m_storage->SetItem(KEY_NAME,"");
+        m_storage->deleteItem(GROUP_NAME, KEY_NAME);
         qDebug() << "Password incorrect! Decrypted content is " << QCA::arrayToHex(bufRegion.toByteArray());
         cnt ++;
     }

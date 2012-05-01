@@ -24,6 +24,9 @@ public:
     virtual int uploadFile (const QString& app_name, const QStringList& file_list) = 0;
     virtual void addAccount (const QString& backend_name, const QString& user_name) = 0;
     virtual int sync (const QString& app_name) = 0;
+    void notifyAccountUpdated();
+signals:
+    void accountUpdated();
 private:
     Q_DISABLE_COPY (Server)
     QDBusConnection m_session;

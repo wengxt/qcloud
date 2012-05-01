@@ -4,12 +4,13 @@
 #include <QCoreApplication>
 #include "server.h"
 
+class Daemon;
 class QNetworkAccessManager;
 class Service : public QCloud::Server
 {
     Q_OBJECT
 public:
-    explicit Service (QObject* parent = 0);
+    explicit Service (Daemon* daemon);
     virtual ~Service();
 
     virtual QCloud::InfoList listApps();
@@ -18,11 +19,9 @@ public:
     virtual void addAccount (const QString& backendName, const QString& appName);
     virtual int uploadFile (const QString& app_name, const QStringList& file_list);
     virtual int sync (const QString& app_name);
-    void setNetworkAccessManager(QNetworkAccessManager* networkAccessManager);
 
 private:
-    QNetworkAccessManager* m_networkAccessManager;
-
+    Daemon* m_daemon;
 };
 
 
