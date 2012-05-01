@@ -11,6 +11,11 @@ OAuthBackend::Private::Private(OAuthBackend* parent) : QObject(parent)
     oauth = new QOAuth::Interface(this);
 }
 
+OAuthBackend::Private::~Private()
+{
+    oauth->setNetworkAccessManager(NULL);
+}
+
 OAuthBackend::OAuthBackend (QObject* parent) : IBackend (parent)
     , d (new Private(this))
 {
@@ -59,12 +64,13 @@ bool OAuthBackend::requestToken()
     }
 }
 
-QOAuth::ParamMap OAuthBackend::accessToken(bool *ok)
+QOAuth::ParamMap OAuthBackend::accessToken(bool* ok, QOAuth::ParamMap params)
 {
     d->oauth->setRequestTimeout (timeout());
 
-    QOAuth::ParamMap map = d->oauth->requestToken (d->accessTokenUrl, QOAuth::POST, QOAuth::HMAC_SHA1);
+    QOAuth::ParamMap map = d->oauth->accessToken (d->accessTokenUrl, QOAuth::POST, d->oauthToken, d->oauthTokenSecret, QOAuth::HMAC_SHA1, params);
 
+    qDebug() << d->oauth->error();
     if (d->oauth->error() == QOAuth::NoError) {
         d->oauthToken = map.value (QOAuth::tokenParameterName());
         d->oauthTokenSecret = map.value (QOAuth::tokenSecretParameterName());

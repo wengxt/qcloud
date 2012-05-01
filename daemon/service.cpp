@@ -25,7 +25,7 @@ void Service::addAccount (const QString& backendName, const QString& appName)
     QCloud::IBackend* backend = QCloud::Factory::instance()->createBackend(backendName);
     if (backend) {
         backend->setApp(app);
-        backend->setNetworkAccessManager(m_daemon->networkAccessManager());
+        backend->setNetworkAccessManager(m_daemon->createNetwork());
         if (backend->authorize()) {
             m_daemon->accountManager()->addAccount(backend);
             notifyAccountUpdated();

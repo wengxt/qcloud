@@ -64,7 +64,7 @@ Account* AccountManager::parseConfig (const QString& id)
         if (!backend)
             break;
         backend->setApp(app);
-        backend->setNetworkAccessManager(m_daemon->networkAccessManager());
+        backend->setNetworkAccessManager(m_daemon->createNetwork());
         backend->loadAccountInfo(uuid.toString(), m_settings, m_daemon->secureStore());
         account = new Account(backend, this);
     } while(0);

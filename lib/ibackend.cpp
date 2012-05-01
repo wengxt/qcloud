@@ -1,4 +1,5 @@
 #include <QtCore/QDebug>
+#include <QNetworkAccessManager>
 
 #include "ibackend.h"
 
@@ -19,6 +20,7 @@ IBackend::~IBackend()
 void IBackend::setNetworkAccessManager (QNetworkAccessManager* manager)
 {
     m_networkAccessManager = manager;
+    manager->setParent(this);
 }
 
 QNetworkAccessManager* IBackend::networkAccessManager()

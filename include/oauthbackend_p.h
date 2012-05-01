@@ -9,6 +9,7 @@ class OAuthBackend::Private : public QObject {
     Q_OBJECT
 public:
     Private(OAuthBackend* backend);
+    virtual ~Private();
     QByteArray oauthToken;
     QByteArray oauthTokenSecret;
     QString requestTokenUrl;

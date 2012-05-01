@@ -1,4 +1,5 @@
 #include <QNetworkAccessManager>
+#include <QTimer>
 
 #include "daemon.h"
 #include "service.h"
@@ -6,11 +7,15 @@
 #include "factory.h"
 
 Daemon::Daemon (int& argc, char** argv) : QApplication (argc, argv)
-    ,m_networkAccessManager(QCloud::Factory::instance()->createNetwork("general", this))
     ,m_secureStore(QCloud::Factory::instance()->createSecureStore("kwallet", this))
     ,m_accountManager(new AccountManager(this))
     ,m_service(new Service(this))
+    ,m_networkPluginName("general")
 {
+    if (!m_service->isValid()) {
+        QTimer::singleShot(0, this, SLOT(quit()));
+        return;
+    }
     setQuitOnLastWindowClosed(false);
     m_accountManager->loadAccounts();
     m_service->notifyAccountUpdated();
@@ -21,9 +26,9 @@ Daemon::~Daemon()
 
 }
 
-QNetworkAccessManager* Daemon::networkAccessManager()
+QNetworkAccessManager* Daemon::createNetwork()
 {
-    return m_networkAccessManager;
+    return QCloud::Factory::instance()->createNetwork(m_networkPluginName);
 }
 
 AccountManager* Daemon::accountManager()

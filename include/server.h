@@ -25,12 +25,14 @@ public:
     virtual void addAccount (const QString& backend_name, const QString& user_name) = 0;
     virtual int sync (const QString& app_name) = 0;
     void notifyAccountUpdated();
+    bool isValid() const;
 signals:
     void accountUpdated();
 private:
     Q_DISABLE_COPY (Server)
     QDBusConnection m_session;
     DaemonAdaptor* m_adaptor;
+    bool m_valid;
 };
 }
 

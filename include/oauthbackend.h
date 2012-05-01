@@ -29,7 +29,7 @@ public:
 
 protected:
     virtual bool requestToken();
-    virtual QOAuth::ParamMap accessToken(bool* ok);
+    virtual QOAuth::ParamMap accessToken(bool* ok = 0, QOAuth::ParamMap params = QOAuth::ParamMap());
 
     void setRequestTokenUrl(const QString& url);
     void setAccessTokenUrl(const QString& url);

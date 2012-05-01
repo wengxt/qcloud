@@ -17,14 +17,14 @@ class Daemon : public QApplication
 public:
     Daemon (int& argc, char** argv);
     virtual ~Daemon();
-    QNetworkAccessManager* networkAccessManager();
+    QNetworkAccessManager* createNetwork();
     AccountManager* accountManager();
     QCloud::ISecureStore* secureStore();
 private:
-    QNetworkAccessManager* m_networkAccessManager;
     QCloud::ISecureStore* m_secureStore;
     AccountManager* m_accountManager;
     Service* m_service;
+    QString m_networkPluginName;
 };
 
 #endif // DAEMON_H
