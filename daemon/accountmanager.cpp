@@ -43,16 +43,22 @@ void AccountManager::addAccount(QCloud::IBackend* backend)
     m_settings.endGroup();
     m_settings.endGroup();
     m_accounts[account->uuid()] = account;
+    qDebug() << account->uuid();
 }
 
 void AccountManager::deleteAccount (const QUuid& uuid)
 {
     int ret = m_accounts.remove(uuid);
-    if (ret==1)
+    if (ret!=0)
         qDebug() << "manager successfully deleted : " << uuid.toString();
     else{
-        qDebug() << "manager failed deleting " << uuid.toString();
-        qDebug() << "error code : " << ret;
+        qDebug() << "UUID not found : " << uuid.toString();
+        qDebug() << "Valid UUID : ";
+        QHash<QUuid, Account* >::iterator it;
+        for (it=m_accounts.begin();it!=m_accounts.end();it++) {
+            qDebug() << (it.key().toString()) << it.value();
+        }
+        qDebug() << "\n";
     }
 }
 

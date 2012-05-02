@@ -49,6 +49,10 @@ void MainWindow::addAccountButtonClicked()
 
 void MainWindow::deleteAccountButtonClicked()
 {
+    if (!m_ui->accountView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
     QModelIndex index;
     index = m_ui->accountView->currentIndex();
     QString uuid = static_cast<QCloud::Info*> (index.internalPointer())->name();
@@ -56,6 +60,7 @@ void MainWindow::deleteAccountButtonClicked()
         return ;
     }
     qDebug() << "Deteting account with ID : "<< uuid;
+    qDebug() << "userName : " << static_cast<QCloud::Info*> (index.internalPointer())->displayName();
     if (!ClientApp::instance()->client()->deleteAccount(uuid))
         qDebug() << "Deletion operation failed!";
     else

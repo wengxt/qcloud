@@ -89,6 +89,7 @@ QCloud::InfoList Service::listAccounts()
         info.setDisplayName(account->userName());
 
         infoList << info;
+        qDebug() << "UUID : " << account->uuid() << "userName : " << account->userName();
     }
     return infoList;
 }
