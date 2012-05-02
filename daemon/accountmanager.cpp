@@ -6,6 +6,8 @@
 #include "factory.h"
 #include "appmanager.h"
 
+#include <QDebug>
+
 AccountManager::AccountManager(Daemon* daemon) : QObject(daemon)
     ,m_daemon(daemon)
     ,m_settings("qcloud", "account")
@@ -45,7 +47,13 @@ void AccountManager::addAccount(QCloud::IBackend* backend)
 
 void AccountManager::deleteAccount (const QUuid& uuid)
 {
-
+    int ret = m_accounts.remove(uuid);
+    if (ret==1)
+        qDebug() << "manager successfully deleted : " << uuid.toString();
+    else{
+        qDebug() << "manager failed deleting " << uuid.toString();
+        qDebug() << "error code : " << ret;
+    }
 }
 
 Account* AccountManager::parseConfig (const QString& id)

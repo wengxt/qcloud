@@ -27,6 +27,9 @@
             <arg name="backendName" type="s" direction="in" />
             <arg name="appName" type="s" direction="in" />
         </method>
+        <method name="deleteAccount">
+            <arg name="uuid" type="s" direction="in" />
+        </method>
         <signal name="accountUpdated">
         </signal>
     </interface>

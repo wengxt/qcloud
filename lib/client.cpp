@@ -53,6 +53,11 @@ QDBusPendingReply< bool > Client::addAccount (const QString& backend_name, const
     return d->m_daemon->addAccount (backend_name, user_name);
 }
 
+QDBusPendingReply< bool > Client::deleteAccount (const QString& uuid)
+{
+    return d->m_daemon->deleteAccount(uuid);
+}
+
 QDBusPendingReply< int > Client::sync (const QString& app_name)
 {
     return d->m_daemon->sync (app_name);

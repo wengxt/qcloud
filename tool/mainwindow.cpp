@@ -8,6 +8,8 @@
 #include "appmanager.h"
 #include "ui_tool.h"
 
+#include <QDebug>
+
 MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (parent, flags)
     , m_widget (new QWidget (this))
     , m_ui (new Ui::Tool)
@@ -28,6 +30,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     setWindowIcon (QIcon::fromTheme ("qcloud"));
 
     connect (m_addAccountButton, SIGNAL (clicked (bool)), this, SLOT (addAccountButtonClicked()));
+    connect (m_deleteAccountButton, SIGNAL(clicked(bool)), this, SLOT(deleteAccountButtonClicked()));
 }
 
 MainWindow::~MainWindow()
@@ -46,7 +49,17 @@ void MainWindow::addAccountButtonClicked()
 
 void MainWindow::deleteAccountButtonClicked()
 {
-
+    QModelIndex index;
+    index = m_ui->accountView->currentIndex();
+    QString uuid = static_cast<QCloud::Info*> (index.internalPointer())->name();
+    if (uuid.isEmpty()){
+        return ;
+    }
+    qDebug() << "Deteting account with ID : "<< uuid;
+    if (!ClientApp::instance()->client()->deleteAccount(uuid))
+        qDebug() << "Deletion operation failed!";
+    else
+        qDebug() << "Deletion operation succeeded!";
 }
 
 void MainWindow::accountsFinished(QDBusPendingCallWatcher* watcher)

@@ -6,6 +6,8 @@
 #include "accountmanager.h"
 #include "account.h"
 
+#include <QDebug>
+
 Service::Service (Daemon* daemon) : Server (daemon)
     ,m_daemon(daemon)
 {
@@ -33,6 +35,13 @@ void Service::addAccount (const QString& backendName, const QString& appName)
         else
             delete backend;
     }
+}
+
+void Service::deleteAccount(const QString& uuid)
+{
+    qDebug() << "Ask accountManager to delete uuid : " << uuid;
+    m_daemon->accountManager()->deleteAccount(QUuid(uuid));
+    qDebug() << uuid << " deleted";
 }
 
 QCloud::InfoList Service::listApps()
