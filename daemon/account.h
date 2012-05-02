@@ -11,10 +11,11 @@ class App;
 class Account : public QObject {
     Q_OBJECT
 public:
-    Account(QCloud::IBackend* backend, QObject* parent);
+    Account(QCloud::IBackend* backend, const QUuid& uuid = QUuid::createUuid(), QObject* parent = NULL);
     QCloud::IBackend* backend();
     QCloud::App* app();
-    const QUuid& uuid();
+    void setUuid(const QUuid& uuid);
+    const QUuid& uuid() const;
     QString userName();
 private:
     QCloud::IBackend* m_backend;

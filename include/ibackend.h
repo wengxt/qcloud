@@ -27,8 +27,9 @@ public:
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
     virtual Request* uploadFile (const QString& localFileName, const QString& remoteFilePath) = 0;
     virtual Request* downloadFile(const QString& remoteFilePath,const QString& localFileName) = 0;
-    virtual void saveAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* secureStore) = 0;
-    virtual void loadAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* secureStore) = 0;
+    virtual void saveAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore) = 0;
+    virtual void loadAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore) = 0;
+    virtual void deleteSecretInfo (const QString& key, ISecureStore* securestore) = 0;
     virtual QString userName() = 0;
     QNetworkAccessManager* networkAccessManager();
     App* app();

@@ -61,10 +61,7 @@ void MainWindow::deleteAccountButtonClicked()
     }
     qDebug() << "Deteting account with ID : "<< uuid;
     qDebug() << "userName : " << static_cast<QCloud::Info*> (index.internalPointer())->displayName();
-    if (!ClientApp::instance()->client()->deleteAccount(uuid))
-        qDebug() << "Deletion operation failed!";
-    else
-        qDebug() << "Deletion operation succeeded!";
+    ClientApp::instance()->client()->deleteAccount(uuid);
 }
 
 void MainWindow::accountsFinished(QDBusPendingCallWatcher* watcher)

@@ -23,6 +23,7 @@ public:
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
     virtual void loadAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore);
     virtual void saveAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore);
+    virtual void deleteSecretInfo (const QString& key, ISecureStore* securestore);
 
     virtual void startAuth (QCloud::OAuthWidget* oauthWidget) = 0;
     void setAuthUrl (const QUrl& url);

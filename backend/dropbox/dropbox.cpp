@@ -125,6 +125,4 @@ void Dropbox::saveAccountInfo(const QString& key, QSettings& settings, QCloud::I
 {
     OAuthBackend::saveAccountInfo(key, settings, securestore);
     settings.setValue("UserName", m_userName);
-    settings.setValue("Token", oauthToken());
-    securestore->writeItem(key, "TokenSecret", oauthTokenSecret());
 }

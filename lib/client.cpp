@@ -48,12 +48,12 @@ QDBusPendingReply<InfoList> Client::listAccounts()
     return d->m_daemon->listAccounts();
 }
 
-QDBusPendingReply< bool > Client::addAccount (const QString& backend_name, const QString& user_name)
+QDBusPendingReply< void > Client::addAccount (const QString& backend_name, const QString& user_name)
 {
     return d->m_daemon->addAccount (backend_name, user_name);
 }
 
-QDBusPendingReply< bool > Client::deleteAccount (const QString& uuid)
+QDBusPendingReply< void > Client::deleteAccount (const QString& uuid)
 {
     return d->m_daemon->deleteAccount(uuid);
 }

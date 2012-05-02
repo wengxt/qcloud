@@ -141,5 +141,9 @@ void OAuthBackend::saveAccountInfo(const QString& key, QSettings& settings, QClo
     securestore->writeItem(key, "TokenSecret", d->oauthTokenSecret);
 }
 
+void OAuthBackend::deleteSecretInfo (const QString& key, QCloud::ISecureStore* securestore)
+{
+    securestore->deleteItem(key, "TokenSecret");
+}
 
 }

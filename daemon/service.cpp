@@ -37,11 +37,14 @@ void Service::addAccount (const QString& backendName, const QString& appName)
     }
 }
 
-void Service::deleteAccount(const QString& uuid)
+void Service::deleteAccount(const QString& strid)
 {
+    QUuid uuid(strid);
     qDebug() << "Ask accountManager to delete uuid : " << uuid;
-    m_daemon->accountManager()->deleteAccount(QUuid(uuid));
-    qDebug() << uuid << " deleted";
+    if (m_daemon->accountManager()->deleteAccount(uuid)) {
+        qDebug() << uuid << " deleted";
+        notifyAccountUpdated();
+    }
 }
 
 QCloud::InfoList Service::listApps()

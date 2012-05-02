@@ -20,7 +20,7 @@ void AccountManager::loadAccounts()
     QStringList uuidList = m_settings.childGroups();
     foreach(const QString& uuid, uuidList) {
         Account* account;
-        if (m_accounts.count(uuid) > 0) {
+        if (m_accounts.contains(uuid)) {
             account = m_accounts[uuid];
         }
         else {
@@ -34,7 +34,7 @@ void AccountManager::loadAccounts()
 
 void AccountManager::addAccount(QCloud::IBackend* backend)
 {
-    Account* account = new Account(backend, this);
+    Account* account = new Account(backend, QUuid::createUuid(), this);
     m_settings.beginGroup("account");
     m_settings.beginGroup(account->uuid().toString());
     m_settings.setValue("App", account->app()->name());
@@ -46,26 +46,33 @@ void AccountManager::addAccount(QCloud::IBackend* backend)
     qDebug() << account->uuid();
 }
 
-void AccountManager::deleteAccount (const QUuid& uuid)
+bool AccountManager::deleteAccount (const QUuid& uuid)
 {
+    qDebug() << "accout number before delete: " << m_accounts.count() << m_accounts.keys();
+    if (!m_accounts.contains(uuid))
+        return false;
+    Account* accounts = m_accounts[uuid];
+    m_settings.beginGroup("account");
+    m_settings.remove(uuid.toString());
+    m_settings.endGroup();
+    qDebug() << m_settings.allKeys();
+    accounts->backend()->deleteSecretInfo(uuid.toString(), m_daemon->secureStore());
+    delete accounts;
     int ret = m_accounts.remove(uuid);
-    if (ret!=0)
+    if (ret != 0) {
+        qDebug() << "accout number: " << m_accounts.count();
         qDebug() << "manager successfully deleted : " << uuid.toString();
-    else{
-        qDebug() << "UUID not found : " << uuid.toString();
-        qDebug() << "Valid UUID : ";
-        QHash<QUuid, Account* >::iterator it;
-        for (it=m_accounts.begin();it!=m_accounts.end();it++) {
-            qDebug() << (it.key().toString()) << it.value();
-        }
-        qDebug() << "\n";
+        return true;
     }
+    return false;
 }
 
 Account* AccountManager::parseConfig (const QString& id)
 {
     m_settings.beginGroup(id);
     QUuid uuid(id);
+    if (uuid.isNull())
+        return NULL;
     QString appName = m_settings.value("App").toString();
     QString backendName= m_settings.value("Backend").toString();
 
@@ -80,7 +87,7 @@ Account* AccountManager::parseConfig (const QString& id)
         backend->setApp(app);
         backend->setNetworkAccessManager(m_daemon->createNetwork());
         backend->loadAccountInfo(uuid.toString(), m_settings, m_daemon->secureStore());
-        account = new Account(backend, this);
+        account = new Account(backend, uuid, this);
     } while(0);
     m_settings.endGroup();
     return account;

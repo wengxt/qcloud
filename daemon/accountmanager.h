@@ -19,7 +19,7 @@ public:
     void loadAccounts();
     void addAccount(QCloud::IBackend* backend);
     Account* findAccount(const QUuid& uuid);
-    void deleteAccount(const QUuid& uuid);
+    bool deleteAccount(const QUuid& uuid);
     QList<Account*> listAccounts();
 private:
     Account* parseConfig(const QString& id);
