@@ -17,6 +17,7 @@ class Daemon : public QApplication
 public:
     Daemon (int& argc, char** argv);
     virtual ~Daemon();
+    virtual void saveState (QSessionManager& sm);
     QNetworkAccessManager* createNetwork();
     AccountManager* accountManager();
     QCloud::ISecureStore* secureStore();

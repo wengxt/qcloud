@@ -1,5 +1,6 @@
 #include <QNetworkAccessManager>
 #include <QTimer>
+#include <QSessionManager>
 
 #include "daemon.h"
 #include "service.h"
@@ -25,6 +26,12 @@ Daemon::~Daemon()
 {
 
 }
+
+void Daemon::saveState (QSessionManager& sm)
+{
+    sm.setRestartHint(QSessionManager::RestartNever);
+}
+
 
 QNetworkAccessManager* Daemon::createNetwork()
 {
