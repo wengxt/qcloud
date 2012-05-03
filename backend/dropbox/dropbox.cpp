@@ -86,6 +86,11 @@ QCloud::Request* Dropbox::downloadFile (const QString& remoteFilePath,const QStr
     return new DropboxDownloadRequest(this, remoteFilePath, localFileName);
 }
 
+QCloud::Request* Dropbox::copyFile(const QString& fromPath, const QString& toPath)
+{
+    return new DropboxCopyRequest(this, fromPath,toPath);
+}
+
 QString Dropbox::userName() {
     if (m_userName.isEmpty()) {
         QUrl url("https://api.dropbox.com/1/account/info");

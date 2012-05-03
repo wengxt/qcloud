@@ -33,7 +33,11 @@ int main (int argc, char* argv[])
         } else if (strcmp (argv[2], "download") == 0) {
             QCloud::Request* request = dropbox->downloadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();
-        } else {
+        } else if (strcmp(argv[2], "copy") == 0){
+            QCloud::Request* request = dropbox->copyFile (QString::fromLocal8Bit(argv[3]),QString::fromLocal8Bit(argv[4]));
+            request->waitForFinished();
+        }
+        else {
             qDebug() << "Invalid operation " << argv[2];
             return 1;
         }

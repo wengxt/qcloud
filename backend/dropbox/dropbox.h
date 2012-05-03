@@ -6,6 +6,8 @@
 
 class DropboxDownloadRequest;
 class DropboxUploadRequest;
+class DropboxCopyRequest;
+class DropboxRequest;
 
 namespace QCloud
 {
@@ -15,8 +17,10 @@ class Request;
 
 class Dropbox : public QCloud::OAuthBackend
 {
+    friend class DropboxRequest;
     friend class DropboxUploadRequest;
     friend class DropboxDownloadRequest;
+    friend class DropboxCopyRequest;
     Q_OBJECT
 public:
     explicit Dropbox (QObject* parent = 0);
@@ -25,6 +29,7 @@ public:
     virtual bool authorize (QWidget* parent = 0);
     virtual QCloud::Request* uploadFile (const QString& localFileName, const QString& remoteFilePath);
     virtual QCloud::Request* downloadFile (const QString& remoteFilePath,const QString& localFileName);
+    virtual QCloud::Request* copyFile (const QString& fromPath,const QString& toPath);
     virtual void startAuth (QCloud::OAuthWidget* widget);
     virtual void loadAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* securestore);
     virtual void saveAccountInfo (const QString& key, QSettings& settings, QCloud::ISecureStore* securestore);
