@@ -88,7 +88,22 @@ QCloud::Request* Dropbox::downloadFile (const QString& remoteFilePath,const QStr
 
 QCloud::Request* Dropbox::copyFile(const QString& fromPath, const QString& toPath)
 {
-    return new DropboxCopyRequest(this, fromPath,toPath);
+    return new DropboxCopyRequest(this, fromPath, toPath);
+}
+
+QCloud::Request* Dropbox::moveFile(const QString& fromPath, const QString& toPath)
+{
+    return new DropboxMoveRequest(this, fromPath, toPath);
+}
+
+QCloud::Request* Dropbox::createFolder(const QString& path)
+{
+    return new DropboxCreateFolderRequest(this, path);
+}
+
+QCloud::Request* Dropbox::deleteFile(const QString& path)
+{
+    return new DropboxDeleteRequest(this, path);
 }
 
 QString Dropbox::userName() {

@@ -7,12 +7,18 @@
 #include "app.h"
 #include "request.h"
 
+void printUsage(char **argv)
+{
+    printf ("Usage : %s appfile download/upload/move/copy [source] [destination]\n",argv[0]);
+    printf ("or    : %s appfile create_folder/delete [path]\n",argv[0]);
+}
+
 int main (int argc, char* argv[])
 {
     QApplication app (argc, argv);
 
-    if (argc <= 4) {
-        printf ("Usage : appfile download/upload [source] [destination]\n");
+    if (argc <= 3) {
+        printUsage(argv);
         return 0;
     }
     Dropbox* dropbox = new Dropbox;
@@ -28,14 +34,41 @@ int main (int argc, char* argv[])
     if (result) {
         qDebug() << "User Name" << dropbox->userName();
         if (strcmp (argv[2], "upload") == 0) {
+            if (argc <= 4) {
+                printUsage(argv);
+                return 0;
+            }
             QCloud::Request* request = dropbox->uploadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();
         } else if (strcmp (argv[2], "download") == 0) {
+            if (argc <= 4) {
+                printUsage(argv);
+                return 0;
+            }
             QCloud::Request* request = dropbox->downloadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();
         } else if (strcmp(argv[2], "copy") == 0){
-            qDebug() << "copy " << argv[3] << " to " << argv[4];
+            if (argc <= 4) {
+                printUsage(argv);
+                return 0;
+            }
             QCloud::Request* request = dropbox->copyFile (QString::fromLocal8Bit(argv[3]),QString::fromLocal8Bit(argv[4]));
+            request->waitForFinished();
+        }
+        else if (strcmp(argv[2], "move") == 0){
+            if (argc <= 4) {
+                printUsage(argv);
+                return 0;
+            }
+            QCloud::Request* request = dropbox->moveFile(QString::fromLocal8Bit(argv[3]),QString::fromLocal8Bit(argv[4]));
+            request->waitForFinished();
+        }
+        else if (strcmp(argv[2], "create_folder") == 0){
+            QCloud::Request* request = dropbox->createFolder(QString::fromLocal8Bit(argv[3]));
+            request->waitForFinished();
+        }
+        else if (strcmp(argv[2], "delete") == 0){
+            QCloud::Request* request = dropbox->deleteFile(QString::fromLocal8Bit(argv[3]));
             request->waitForFinished();
         }
         else {

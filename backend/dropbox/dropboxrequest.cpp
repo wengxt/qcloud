@@ -158,7 +158,6 @@ DropboxCopyRequest::DropboxCopyRequest(Dropbox* dropbox, const QString& fromPath
     paramMap.insert("root",getRootType().toLocal8Bit());
     QUrl url("https://api.dropbox.com/1/fileops/copy");
     m_buffer.open(QIODevice::ReadWrite);
-    qDebug() << "Starting sending request...";
     sendRequest(url,QOAuth::POST,&paramMap);
 }
 
@@ -183,4 +182,106 @@ DropboxCopyRequest::~DropboxCopyRequest()
 {
     m_buffer.close();
 }
+
+DropboxMoveRequest::DropboxMoveRequest(Dropbox* dropbox, const QString& fromPath, const QString& toPath)
+{
+    m_dropbox = dropbox;
+    QOAuth::ParamMap paramMap;
+    paramMap.clear();
+    paramMap.insert("from_path",fromPath.toLocal8Bit());
+    paramMap.insert("to_path",toPath.toLocal8Bit());
+    paramMap.insert("root",getRootType().toLocal8Bit());
+    QUrl url("https://api.dropbox.com/1/fileops/move");
+    m_buffer.open(QIODevice::ReadWrite);
+    sendRequest(url,QOAuth::POST,&paramMap);
+}
+
+void DropboxMoveRequest::readyForRead()
+{
+    m_buffer.write(m_reply->readAll());
+}
+
+void DropboxMoveRequest::replyFinished()
+{
+    if (m_reply->error() != QNetworkReply::NoError){
+        m_error = NetworkError;
+        qDebug() << "Reponse error " << m_reply->errorString();
+        return ;
+    }
+    QVariant result = m_parser.parse(m_buffer.data());
+    qDebug() << result;
+    emit finished();
+}
+
+DropboxMoveRequest::~DropboxMoveRequest()
+{
+    m_buffer.close();
+}
+
+DropboxCreateFolderRequest::DropboxCreateFolderRequest(Dropbox* dropbox, const QString& path)
+{
+    m_dropbox = dropbox;
+    QOAuth::ParamMap paramMap;
+    paramMap.clear();
+    paramMap.insert("root",getRootType().toLocal8Bit());
+    paramMap.insert("path",path.toLocal8Bit());
+    QUrl url("https://api.dropbox.com/1/fileops/create_folder");
+    m_buffer.open(QIODevice::ReadWrite);
+    sendRequest(url,QOAuth::POST,&paramMap);
+}
+
+void DropboxCreateFolderRequest::readyForRead()
+{
+    m_buffer.write(m_reply->readAll());
+}
+
+void DropboxCreateFolderRequest::replyFinished()
+{
+    if (m_reply->error() != QNetworkReply::NoError){
+        m_error = NetworkError;
+        qDebug() << "Reponse error " << m_reply->errorString();
+    }
+    QVariant result = m_parser.parse(m_buffer.data());
+    qDebug() << result;
+    emit finished();
+}
+
+DropboxCreateFolderRequest::~DropboxCreateFolderRequest()
+{
+    m_buffer.close();
+}
+
+DropboxDeleteRequest::DropboxDeleteRequest(Dropbox* dropbox, const QString& path)
+{
+    m_dropbox = dropbox;
+    QOAuth::ParamMap paramMap;
+    paramMap.clear();
+    paramMap.insert("root",getRootType().toLocal8Bit());
+    paramMap.insert("path",path.toLocal8Bit());
+    QUrl url("https://api.dropbox.com/1/fileops/delete");
+    m_buffer.open(QIODevice::ReadWrite);
+    sendRequest(url,QOAuth::POST,&paramMap);
+}
+
+void DropboxDeleteRequest::readyForRead()
+{
+    m_buffer.write(m_reply->readAll());
+}
+
+void DropboxDeleteRequest::replyFinished()
+{
+    if (m_reply->error() != QNetworkReply::NoError){
+        m_error = NetworkError;
+        qDebug() << "Reponse error " << m_reply->errorString();
+    }
+    QVariant result = m_parser.parse(m_buffer.data());
+    qDebug() << result;
+    emit finished();
+}
+
+DropboxDeleteRequest::~DropboxDeleteRequest()
+{
+    m_buffer.close();
+}
+
 

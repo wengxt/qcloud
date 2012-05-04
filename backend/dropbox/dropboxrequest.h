@@ -5,7 +5,6 @@
 #include <QBuffer>
 #include <qjson/parser.h>
 #include <QtOAuth/QtOAuth>
-#include <QNetworkRequest>
 #include "request.h"
 
 class QNetworkReply;
@@ -16,7 +15,6 @@ class DropboxRequest : public QCloud::Request
 {
     Q_OBJECT
 public:
-    //virtual DropboxRequest(Dropbox* dropbox,const QString& ,const QString& );
     virtual ~DropboxRequest();
     virtual QCloud::Request::Error error();
     
@@ -54,10 +52,10 @@ class DropboxDownloadRequest : public DropboxRequest
 public:
     DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName);
     virtual ~DropboxDownloadRequest();
-private slots:
+protected slots:
     virtual void readyForRead();
     virtual void replyFinished();
-private:
+protected:
     QJson::Parser m_parser;
     QFile m_file;
 };
@@ -68,10 +66,52 @@ class DropboxCopyRequest : public DropboxRequest
 public:
     DropboxCopyRequest (Dropbox* dropbox, const QString& fromPath,const QString& toPath);
     virtual ~DropboxCopyRequest();
-private slots:
+protected slots:
     virtual void readyForRead();
     virtual void replyFinished();
-private:
+protected:
+    QJson::Parser m_parser;
+    QBuffer m_buffer;
+};
+
+class DropboxMoveRequest : public DropboxRequest
+{
+    Q_OBJECT
+public:
+    DropboxMoveRequest (Dropbox* dropbox, const QString& fromPath,const QString& toPath);
+    virtual ~DropboxMoveRequest();
+protected slots:
+    virtual void readyForRead();
+    virtual void replyFinished();
+protected:
+    QJson::Parser m_parser;
+    QBuffer m_buffer;
+};
+
+class DropboxCreateFolderRequest : public DropboxRequest
+{
+    Q_OBJECT
+public:
+    DropboxCreateFolderRequest (Dropbox* dropbox, const QString& path);
+    virtual ~DropboxCreateFolderRequest();
+protected slots:
+    virtual void readyForRead();
+    virtual void replyFinished();
+protected:
+    QJson::Parser m_parser;
+    QBuffer m_buffer;
+};
+
+class DropboxDeleteRequest : public DropboxRequest
+{
+    Q_OBJECT
+public:
+    DropboxDeleteRequest (Dropbox* dropbox, const QString& path);
+    virtual ~DropboxDeleteRequest();
+protected slots:
+    virtual void readyForRead();
+    virtual void replyFinished();
+protected:
     QJson::Parser m_parser;
     QBuffer m_buffer;
 };
