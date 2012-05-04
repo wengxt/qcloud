@@ -16,7 +16,7 @@ class DropboxRequest : public QCloud::Request
 {
     Q_OBJECT
 public:
-    //virtual DropboxRequest(Dropbox* dropbox,const QString& ,const QString& ) = 0;
+    //virtual DropboxRequest(Dropbox* dropbox,const QString& ,const QString& );
     virtual ~DropboxRequest();
     virtual QCloud::Request::Error error();
     
@@ -26,7 +26,7 @@ protected slots:
 protected:
     void sendRequest(const QUrl& url,const QOAuth::HttpMethod& method,const QOAuth::ParamMap* paramMap,QIODevice* device);
     QString getRootType();
-    Dropbox* dropbox;
+    Dropbox* m_dropbox;
     QCloud::Request::Error m_error;
     QNetworkReply* m_reply;
 };

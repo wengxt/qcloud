@@ -24,19 +24,19 @@ void DropboxRequest::sendRequest(const QUrl& url,const QOAuth::HttpMethod& metho
     m_reply = 0;
     QNetworkRequest request(url);
     if (paramMap){
-        request.setRawHeader("Authorization",dropbox->authorizationHeader(url,method,(*paramMap)));
+        request.setRawHeader("Authorization",m_dropbox->authorizationHeader(url,method,(*paramMap)));
         QUrl params;
         for (QOAuth::ParamMap::iterator it=
             QOAuth::ParamMap::iterator(paramMap->begin());it!=paramMap->end();it++)
             params.addQueryItem(it.key(),it.value());
-        m_reply = dropbox->networkAccessManager()->post(request,params.encodedQuery());
+        m_reply = m_dropbox->networkAccessManager()->post(request,params.encodedQuery());
     }
     else{
-        request.setRawHeader("Authorization",dropbox->authorizationHeader(url,method));
+        request.setRawHeader("Authorization",m_dropbox->authorizationHeader(url,method));
         if (method==QOAuth::GET)
-            m_reply = dropbox->networkAccessManager()->get(request);
+            m_reply = m_dropbox->networkAccessManager()->get(request);
         else if (method==QOAuth::PUT)
-            m_reply = dropbox->networkAccessManager()->put(request,device);
+            m_reply = m_dropbox->networkAccessManager()->put(request,device);
         else{
             m_error = Request::NetworkError;
             qDebug() << "Not supported method";
@@ -49,7 +49,7 @@ void DropboxRequest::sendRequest(const QUrl& url,const QOAuth::HttpMethod& metho
 
 QString DropboxRequest::getRootType()
 {
-    if (dropbox->m_globalAccess)
+    if (m_dropbox->m_globalAccess)
         return "root";
     else
         return "sandbox";
@@ -73,6 +73,7 @@ DropboxRequest::~DropboxRequest()
 DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, const QString& remoteFilePath) : 
     m_file (localFileName)
 {
+    m_dropbox = dropbox;
     if (!m_file.open (QIODevice::ReadOnly)) {
         m_error = FileError;
         QTimer::singleShot (0, this, SIGNAL (finished()));
@@ -115,6 +116,7 @@ void DropboxUploadRequest::replyFinished()
 DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName):
      m_file (localFileName)
 {
+    m_dropbox = dropbox;
     if (!m_file.open (QIODevice::WriteOnly)) {
         m_error = FileError;
         qDebug() << "Failed opening file for writing!";
@@ -148,6 +150,7 @@ void DropboxDownloadRequest::replyFinished()
 
 DropboxCopyRequest::DropboxCopyRequest(Dropbox* dropbox, const QString& fromPath, const QString& toPath)
 {
+    m_dropbox = dropbox;
     QOAuth::ParamMap paramMap;
     paramMap.clear();
     paramMap.insert("from_path",fromPath.toLocal8Bit());
@@ -155,6 +158,7 @@ DropboxCopyRequest::DropboxCopyRequest(Dropbox* dropbox, const QString& fromPath
     paramMap.insert("root",getRootType().toLocal8Bit());
     QUrl url("https://api.dropbox.com/1/fileops/copy");
     m_buffer.open(QIODevice::ReadWrite);
+    qDebug() << "Starting sending request...";
     sendRequest(url,QOAuth::POST,&paramMap);
 }
 

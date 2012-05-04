@@ -34,6 +34,7 @@ int main (int argc, char* argv[])
             QCloud::Request* request = dropbox->downloadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();
         } else if (strcmp(argv[2], "copy") == 0){
+            qDebug() << "copy " << argv[3] << " to " << argv[4];
             QCloud::Request* request = dropbox->copyFile (QString::fromLocal8Bit(argv[3]),QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();
         }
