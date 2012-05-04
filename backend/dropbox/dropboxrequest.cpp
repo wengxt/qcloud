@@ -24,9 +24,10 @@ void DropboxRequest::sendRequest (const QUrl& url, const QOAuth::HttpMethod& met
     m_reply = 0;
     QNetworkRequest request (url);
     if (method == QOAuth::POST) {
-        for (QOAuth::ParamMap::iterator it =
-                    QOAuth::ParamMap::iterator (paramMap.begin()); it != paramMap.end(); it++)
-            it.value().replace ("/", "%2F");
+        for (QOAuth::ParamMap::iterator it = paramMap.begin(); it != paramMap.end(); it++) {
+            it.value() = QUrl::toPercentEncoding(QString::fromUtf8(it.value()));
+        }
+        qDebug() << paramMap;
         request.setRawHeader ("Authorization", m_dropbox->authorizationString (url, method, paramMap));
         qDebug() << m_dropbox->authorizationString (url, method, paramMap, QOAuth::ParseForRequestContent);
         m_reply = m_dropbox->networkAccessManager()->post (request, m_dropbox->inlineString (paramMap, QOAuth::ParseForRequestContent));
