@@ -17,12 +17,12 @@ class DropboxRequest : public QCloud::Request
 public:
     virtual ~DropboxRequest();
     virtual QCloud::Request::Error error();
-    
+
 protected slots:
     virtual void readyForRead();
     virtual void replyFinished();
 protected:
-    void sendRequest(const QUrl& url,const QOAuth::HttpMethod& method,const QOAuth::ParamMap* paramMap,QIODevice* device);
+    void sendRequest(const QUrl& url, const QOAuth::HttpMethod& method, QIODevice* device = 0, QOAuth::ParamMap paramMap = QOAuth::ParamMap());
     QString getRootType();
     Dropbox* m_dropbox;
     QCloud::Request::Error m_error;

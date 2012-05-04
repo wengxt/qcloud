@@ -110,8 +110,7 @@ QString Dropbox::userName() {
     if (m_userName.isEmpty()) {
         QUrl url("https://api.dropbox.com/1/account/info");
         QNetworkRequest request(url);
-        qDebug() << authorizationHeader(url, QOAuth::GET);
-        request.setRawHeader("Authorization", authorizationHeader(url, QOAuth::GET));
+        request.setRawHeader("Authorization", authorizationString(url, QOAuth::GET));
         QNetworkReply* reply = m_networkAccessManager->get(request);
 
         QEventLoop loop;

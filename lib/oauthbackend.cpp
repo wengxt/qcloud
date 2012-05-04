@@ -124,9 +124,14 @@ void OAuthBackend::setAuthUrl(const QUrl& url)
     d->authUrl = url;
 }
 
-QByteArray OAuthBackend::authorizationHeader(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params)
+QByteArray OAuthBackend::authorizationString(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params, QOAuth::ParsingMode mode)
 {
-    return d->oauth->createParametersString(url.toString(), method, d->oauthToken, d->oauthTokenSecret, QOAuth::HMAC_SHA1, params, QOAuth::ParseForHeaderArguments);
+    return d->oauth->createParametersString(url.toString(), method, d->oauthToken, d->oauthTokenSecret, QOAuth::HMAC_SHA1, params, mode);
+}
+
+QByteArray OAuthBackend::inlineString(QOAuth::ParamMap params, QOAuth::ParsingMode mode)
+{
+    return d->oauth->inlineParameters(params, mode);
 }
 
 void OAuthBackend::loadAccountInfo(const QString& key, QSettings& settings, QCloud::ISecureStore* securestore)

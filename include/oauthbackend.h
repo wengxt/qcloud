@@ -44,7 +44,8 @@ protected:
     uint timeout() const;
 
 protected:
-    QByteArray authorizationHeader(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params = QOAuth::ParamMap());
+    QByteArray authorizationString(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params = QOAuth::ParamMap(), QOAuth::ParsingMode mode = QOAuth::ParseForHeaderArguments);
+    QByteArray inlineString(QOAuth::ParamMap params = QOAuth::ParamMap(), QOAuth::ParsingMode mode = QOAuth::ParseForHeaderArguments);
 
 private:
     class Private;
