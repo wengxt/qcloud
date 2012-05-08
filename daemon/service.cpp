@@ -51,7 +51,7 @@ QCloud::InfoList Service::listApps()
 {
     QCloud::InfoList list;
     QList<QCloud::App*> appList(QCloud::AppManager::instance()->appList());
-    Q_FOREACH(QCloud::App* app, appList)
+    foreach(QCloud::App* app, appList)
     {
         list << *app;
     }
@@ -62,7 +62,7 @@ QCloud::InfoList Service::listBackends()
 {
     QCloud::InfoList list;
     QList<QCloud::IPlugin*> backenList(QCloud::Factory::instance()->backendList());
-    Q_FOREACH(QCloud::IPlugin* backend, backenList)
+    foreach(QCloud::IPlugin* backend, backenList)
     {
         list << *backend;
     }

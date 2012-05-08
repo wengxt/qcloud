@@ -32,7 +32,7 @@ Dropbox::~Dropbox()
 
 void Dropbox::setApp (QCloud::App* app)
 {
-    m_app = app;
+    IBackend::setApp(app);
     QString key = app->settings()->value ("Dropbox/AppKey").toString();
     QString secret = app->settings()->value ("Dropbox/AppSecret").toString();
     m_globalAccess = app->settings()->value("Dropbox/GlobalAccess").toBool();
@@ -44,7 +44,7 @@ void Dropbox::setApp (QCloud::App* app)
 
 bool Dropbox::authorize (QWidget* parent)
 {
-    if (!m_app)
+    if (!app())
         return false;
 
     if (!requestToken())
@@ -111,7 +111,7 @@ QString Dropbox::userName() {
         QUrl url("https://api.dropbox.com/1/account/info");
         QNetworkRequest request(url);
         request.setRawHeader("Authorization", authorizationString(url, QOAuth::GET));
-        QNetworkReply* reply = m_networkAccessManager->get(request);
+        QNetworkReply* reply = networkAccessManager()->get(request);
 
         QEventLoop loop;
         QObject::connect(reply, SIGNAL(readyRead()), &loop, SLOT(quit()));

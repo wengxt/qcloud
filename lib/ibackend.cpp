@@ -2,45 +2,62 @@
 #include <QNetworkAccessManager>
 
 #include "ibackend.h"
+#include "ibackend_p.h"
 
 namespace QCloud
 {
 
+
+IBackendPrivate::IBackendPrivate () :
+    networkAccessManager(0)
+    ,app(0)
+{
+
+}
+
+IBackendPrivate::~IBackendPrivate () {
+}
+
 IBackend::IBackend (QObject* parent) : QObject(parent)
-    ,m_networkAccessManager(0)
-    ,m_app(0)
+    ,d(new IBackendPrivate)
 {
 
 }
 
 IBackend::~IBackend()
 {
+    delete d;
 }
 
 void IBackend::setNetworkAccessManager (QNetworkAccessManager* manager)
 {
-    m_networkAccessManager = manager;
+    d->networkAccessManager = manager;
     manager->setParent(this);
 }
 
 QNetworkAccessManager* IBackend::networkAccessManager()
 {
-    return m_networkAccessManager;
+    return d->networkAccessManager;
 }
 
 App* IBackend::app()
 {
-    return m_app;
+    return d->app;
+}
+
+void IBackend::setApp(App* app)
+{
+    d->app = app;
 }
 
 void IBackend::setInfo(const Info& info)
 {
-    m_info = info;
+    d->info = info;
 }
 
 const Info& IBackend::info()
 {
-    return m_info;
+    return d->info;
 }
 
 }

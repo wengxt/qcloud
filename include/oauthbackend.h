@@ -12,6 +12,8 @@ namespace QCloud
 {
 
 class OAuthWidget;
+class OAuthBackendPrivate;
+
 class QCLOUD_EXPORT OAuthBackend : public IBackend
 {
     Q_OBJECT
@@ -48,8 +50,7 @@ protected:
     QByteArray inlineString(QOAuth::ParamMap params = QOAuth::ParamMap(), QOAuth::ParsingMode mode = QOAuth::ParseForHeaderArguments);
 
 private:
-    class Private;
-    Private* d;
+    OAuthBackendPrivate* d;
 };
 
 }

@@ -5,11 +5,10 @@
 #include "oauthbackend.h"
 
 namespace QCloud {
-class OAuthBackend::Private : public QObject {
-    Q_OBJECT
+class OAuthBackendPrivate {
 public:
-    Private(OAuthBackend* backend);
-    virtual ~Private();
+    OAuthBackendPrivate(OAuthBackend* backend);
+    virtual ~OAuthBackendPrivate();
     QByteArray oauthToken;
     QByteArray oauthTokenSecret;
     QString requestTokenUrl;

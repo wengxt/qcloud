@@ -1,24 +1,35 @@
 #include "server.h"
+#include "server_p.h"
 #include "daemonadaptor.h"
 
 namespace QCloud
 {
+ServerPrivate::ServerPrivate (Server* server) :
+    session(QDBusConnection::sessionBus())
+    ,adaptor(new DaemonAdaptor(server))
+    ,valid(false)
+{
+
+}
+
+ServerPrivate::~ServerPrivate()
+{
+}
 
 Server::Server (QObject* parent) : QObject (parent)
-    , m_session (QDBusConnection::sessionBus())
-    , m_adaptor (new DaemonAdaptor (this))
-    , m_valid (false)
+    , d(new ServerPrivate(this))
 {
     Info::registerMetaType();
-    m_session.registerObject ("/daemon", this);
-    if (m_session.registerService ("org.qcloud.Daemon"))
-        m_valid = true;
+    d->session.registerObject ("/daemon", this);
+    if (d->session.registerService ("org.qcloud.Daemon"))
+        d->valid = true;
 }
 
 Server::~Server()
 {
-    m_session.unregisterService ("org.qcloud.Daemon");
-    m_session.unregisterObject ("/daemon");
+    d->session.unregisterService ("org.qcloud.Daemon");
+    d->session.unregisterObject ("/daemon");
+    delete d;
 }
 
 void Server::notifyAccountUpdated()
@@ -28,7 +39,7 @@ void Server::notifyAccountUpdated()
 
 bool Server::isValid() const
 {
-    return m_valid;
+    return d->valid;
 }
 
 }

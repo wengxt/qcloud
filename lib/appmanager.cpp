@@ -9,14 +9,20 @@
 namespace QCloud
 {
 
-AppManager* AppManager::Private::inst = NULL;
+AppManager* AppManagerPrivate::inst = NULL;
 
-AppManager::Private::Private (AppManager* parent) : QObject (parent)
+AppManagerPrivate::AppManagerPrivate ()
 {
     scan();
 }
 
-void AppManager::Private::scan()
+AppManagerPrivate::~AppManagerPrivate ()
+{
+    foreach(App* app, appMap.values())
+        delete app;
+}
+
+void AppManagerPrivate::scan()
 {
     QString path = DATADIR;
     path.append ("/qcloud/app");
@@ -29,7 +35,7 @@ void AppManager::Private::scan()
     if (entryList.isEmpty())
         return;
 
-    Q_FOREACH (const QString & maybeFile, entryList) {
+    foreach (const QString & maybeFile, entryList) {
         QFileInfo fi (dir.filePath (maybeFile));
 
         QString filePath = fi.filePath(); // file name with path
@@ -42,9 +48,13 @@ void AppManager::Private::scan()
 }
 
 AppManager::AppManager() : QObject()
-    , d (new Private (this))
+    , d (new AppManagerPrivate)
 {
+}
 
+AppManager::~AppManager()
+{
+    delete d;
 }
 
 App* AppManager::app (const QString& name)
@@ -62,9 +72,9 @@ QList<App*> AppManager::appList()
 
 AppManager* AppManager::instance()
 {
-    if (!AppManager::Private::inst)
-        AppManager::Private::inst = new AppManager;
-    return AppManager::Private::inst;
+    if (!AppManagerPrivate::inst)
+        AppManagerPrivate::inst = new AppManager;
+    return AppManagerPrivate::inst;
 }
 
 }

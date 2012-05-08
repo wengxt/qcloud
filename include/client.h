@@ -10,6 +10,7 @@
 namespace QCloud
 {
 
+class ClientPrivate;
 class QCLOUD_EXPORT Client : public QObject
 {
     Q_OBJECT
@@ -28,8 +29,7 @@ public:
 signals:
     void accountUpdated();
 protected:
-    class Private;
-    Private* d;
+    ClientPrivate* d;
 };
 }
 

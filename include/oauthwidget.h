@@ -13,6 +13,7 @@ namespace QCloud
 {
 
 class OAuthBackend;
+class OAuthWidgetPrivate;
 
 class QCLOUD_EXPORT OAuthWidget : public AuthWidget
 {
@@ -22,9 +23,10 @@ public:
     virtual ~OAuthWidget();
     void openUrl (const QUrl& url);
     virtual void startAuth();
+protected:
+    friend class OAuthWidgetPrivate;
 private:
-    class Private;
-    Private* d;
+    OAuthWidgetPrivate* d;
 };
 
 }

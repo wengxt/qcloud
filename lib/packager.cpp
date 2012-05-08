@@ -25,7 +25,7 @@ static void scanDir(QStringList& fileList, const QString& path)
     QDir::Filters filterflag = QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot;
 
     QStringList list = dir.entryList(filterflag);
-    Q_FOREACH(const QString & item, list) {
+    foreach(const QString & item, list) {
         QString absItem = dir.absoluteFilePath(item);
         QFileInfo info(absItem);
         if (info.isDir())
@@ -53,7 +53,7 @@ bool Packager::compress (const QString& fileName, const QString& baseDir, const 
 
     QStringList expandFileList;
 
-    Q_FOREACH (const QString& f, fileList)
+    foreach (const QString& f, fileList)
     {
         QFileInfo file(f);
         if (!file.exists()) {
@@ -92,7 +92,7 @@ bool Packager::compress (const QString& fileName, const QString& baseDir, const 
 
     struct archive_entry* entry;
     char buff[BUF_SIZE];
-    Q_FOREACH (const QString & item , expandFileList) {
+    foreach (const QString & item , expandFileList) {
         QString relPath = dir.relativeFilePath(item);
 
         struct stat st;

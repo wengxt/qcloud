@@ -8,10 +8,11 @@
 #include <QtCloud/Info>
 #include "qcloud_global.h"
 
-class DaemonAdaptor;
 namespace QCloud
 {
+
 class ServerPrivate;
+
 class QCLOUD_EXPORT Server : public QObject
 {
     Q_OBJECT
@@ -31,9 +32,7 @@ signals:
     void accountUpdated();
 private:
     Q_DISABLE_COPY (Server)
-    QDBusConnection m_session;
-    DaemonAdaptor* m_adaptor;
-    bool m_valid;
+    ServerPrivate* d;
 };
 }
 

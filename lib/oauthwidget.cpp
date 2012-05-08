@@ -12,19 +12,19 @@
 namespace QCloud
 {
 
-OAuthWidget::Private::Private (OAuthWidget* parent) : QObject (parent)
+OAuthWidgetPrivate::OAuthWidgetPrivate (OAuthWidget* parent) : QObject (parent)
     , p (parent)
-    , m_backend (0)
-    , m_ui (new Ui::OAuthWidget)
+    , backend (0)
+    , ui (new Ui::OAuthWidget)
 {
 }
 
-OAuthWidget::Private::~Private()
+OAuthWidgetPrivate::~OAuthWidgetPrivate()
 {
-    delete m_ui;
+    delete ui;
 }
 
-void OAuthWidget::Private::urlChanged (const QUrl& url)
+void OAuthWidgetPrivate::urlChanged (const QUrl& url)
 {
     qDebug() << url;
     if (QCloud::isCustomCallbackUrl (url)) {
@@ -32,36 +32,36 @@ void OAuthWidget::Private::urlChanged (const QUrl& url)
     }
 }
 
-void OAuthWidget::Private::loadStarted()
+void OAuthWidgetPrivate::loadStarted()
 {
-    m_ui->progressBar->show();
+    ui->progressBar->show();
 }
 
-void OAuthWidget::Private::loadProgress (int p)
+void OAuthWidgetPrivate::loadProgress (int p)
 {
-    m_ui->progressBar->setValue (p);
+    ui->progressBar->setValue (p);
 }
 
-void OAuthWidget::Private::loadFinished (bool suc)
+void OAuthWidgetPrivate::loadFinished (bool suc)
 {
     Q_UNUSED (suc);
-    m_ui->progressBar->hide();
+    ui->progressBar->hide();
 }
 
-void OAuthWidget::Private::authorizeSuccess(const QUrl& url)
+void OAuthWidgetPrivate::authorizeSuccess(const QUrl& url)
 {
-    m_backend->setAuthUrl(url);
-    m_ui->webView->disconnect (SIGNAL (urlChanged (QUrl)));
+    backend->setAuthUrl(url);
+    ui->webView->disconnect (SIGNAL (urlChanged (QUrl)));
     emit p->authFinished (true);
 }
 
 OAuthWidget::OAuthWidget (QCloud::OAuthBackend* backend, QWidget* parent) : AuthWidget (parent)
-    , d (new Private (this))
+    , d (new OAuthWidgetPrivate (this))
 {
-    d->m_ui->setupUi (this);
-    d->m_ui->progressBar->hide();
-    d->m_backend = backend;
-    QWebView* webView = d->m_ui->webView;
+    d->ui->setupUi (this);
+    d->ui->progressBar->hide();
+    d->backend = backend;
+    QWebView* webView = d->ui->webView;
     webView->settings()->globalSettings()->setAttribute (QWebSettings::LocalStorageEnabled, true);
     webView->settings()->globalSettings()->setAttribute (QWebSettings::OfflineStorageDatabaseEnabled, true);
     webView->settings()->globalSettings()->setAttribute (QWebSettings::JavascriptCanOpenWindows, true);
@@ -80,14 +80,14 @@ OAuthWidget::~OAuthWidget()
 
 void OAuthWidget::openUrl (const QUrl& url)
 {
-    d->m_ui->webView->disconnect (SIGNAL (urlChanged (QUrl)));
-    d->m_ui->webView->load (url);
-    connect (d->m_ui->webView, SIGNAL (urlChanged (QUrl)), d, SLOT (urlChanged (QUrl)));
+    d->ui->webView->disconnect (SIGNAL (urlChanged (QUrl)));
+    d->ui->webView->load (url);
+    connect (d->ui->webView, SIGNAL (urlChanged (QUrl)), d, SLOT (urlChanged (QUrl)));
 }
 
 void OAuthWidget::startAuth()
 {
-    d->m_backend->startAuth (this);
+    d->backend->startAuth (this);
 }
 
 

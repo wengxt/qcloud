@@ -14,13 +14,13 @@ class OAuthWidget;
 
 namespace QCloud
 {
-class OAuthWidget::Private : public QObject
+class OAuthWidgetPrivate : public QObject
 {
     Q_OBJECT
     friend class OAuthWidget;
 public:
-    explicit Private (OAuthWidget* parent);
-    virtual ~Private();
+    explicit OAuthWidgetPrivate (OAuthWidget* parent);
+    virtual ~OAuthWidgetPrivate();
 protected slots:
     void urlChanged (const QUrl& url);
     void authorizeSuccess(const QUrl& url);
@@ -30,8 +30,8 @@ protected slots:
 
 protected:
     OAuthWidget* p;
-    OAuthBackend* m_backend;
-    Ui::OAuthWidget* m_ui;
+    OAuthBackend* backend;
+    Ui::OAuthWidget* ui;
 };
 }
 
