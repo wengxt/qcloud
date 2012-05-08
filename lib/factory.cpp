@@ -15,32 +15,32 @@
 namespace QCloud
 {
 
-Factory* Factory::Private::inst = NULL;
+Factory* FactoryPrivate::inst = NULL;
 
-Factory::Private::Private (Factory* factory) : QObject (factory)
+FactoryPrivate::FactoryPrivate (Factory* factory) : p(factory)
 {
-    m_categoryMap["network"] = IPlugin::Network;
-    m_categoryMap["backend"] = IPlugin::Backend;
-    m_categoryMap["securestore"] = IPlugin::SecureStore;
+    categoryMap["network"] = IPlugin::Network;
+    categoryMap["backend"] = IPlugin::Backend;
+    categoryMap["securestore"] = IPlugin::SecureStore;
     scan();
 }
 
-Factory::Private::~Private()
+FactoryPrivate::~FactoryPrivate()
 {
 }
 
-void Factory::Private::scan()
+void FactoryPrivate::scan()
 {
-    Q_FOREACH (const QString & category, m_categoryMap.keys())
-    scan (category);
+    foreach (const QString & category, categoryMap.keys())
+        scan (category);
 
-    Q_FOREACH (QPluginLoader * loader, m_plugins["backend"].values()) {
+    foreach (QPluginLoader * loader, plugins["backend"].values()) {
         IPlugin* backend = qobject_cast<IPlugin*> (loader->instance());
-        m_backendList.push_back (backend);
+        backendList.push_back (backend);
     }
 }
 
-void Factory::Private::scan (const QString& category)
+void FactoryPrivate::scan (const QString& category)
 {
     // check plugin files
     const QStringList dirs = QCoreApplication::libraryPaths();
@@ -62,7 +62,7 @@ void Factory::Private::scan (const QString& category)
             continue;
         }
 
-        Q_FOREACH (const QString & maybeFile, entryList) {
+        foreach (const QString & maybeFile, entryList) {
             QFileInfo fi (dir.filePath (maybeFile));
 
             QString filePath = fi.filePath(); // file name with path
@@ -72,11 +72,11 @@ void Factory::Private::scan (const QString& category)
                 continue;
             }
 
-            QPluginLoader* loader = new QPluginLoader (filePath, this);
+            QPluginLoader* loader = new QPluginLoader (filePath, p);
             IPlugin* plugin = qobject_cast< IPlugin* > (loader->instance());
             if (plugin) {
-                if (plugin->category() == m_categoryMap[category])
-                    m_plugins[category][plugin->name()] = loader;
+                if (plugin->category() == categoryMap[category])
+                    plugins[category][plugin->name()] = loader;
                 else
                     qDebug() << filePath << " is not a " << category  << "plugin!";
 
@@ -86,9 +86,9 @@ void Factory::Private::scan (const QString& category)
 }
 
 
-IPlugin* Factory::Private::loadPlugin (const QString& category, const QString& name)
+IPlugin* FactoryPrivate::loadPlugin (const QString& category, const QString& name)
 {
-    QPluginLoader* loader = m_plugins[category][name];
+    QPluginLoader* loader = plugins[category][name];
     if (loader)
         return qobject_cast< IPlugin* > (loader->instance());
 
@@ -96,15 +96,20 @@ IPlugin* Factory::Private::loadPlugin (const QString& category, const QString& n
 }
 
 Factory::Factory() : QObject (NULL)
-    , d (new Private (this))
+    , d (new FactoryPrivate (this))
 {
+}
+
+Factory::~Factory()
+{
+    delete d;
 }
 
 Factory* Factory::instance()
 {
-    if (!Private::inst)
-        Private::inst = new Factory;
-    return Private::inst;
+    if (!FactoryPrivate::inst)
+        FactoryPrivate::inst = new Factory;
+    return FactoryPrivate::inst;
 }
 
 
@@ -145,7 +150,7 @@ ISecureStore* Factory::createSecureStore (const QString& name, QObject* parent)
 
 const QList< IPlugin* >& Factory::backendList()
 {
-    return d->m_backendList;
+    return d->backendList;
 }
 
 }

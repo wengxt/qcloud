@@ -15,6 +15,7 @@ namespace QCloud
 class ISecureStore;
 class IPlugin;
 class IBackend;
+class FactoryPrivate;
 
 class QCLOUD_EXPORT Factory : public QObject
 {
@@ -27,8 +28,8 @@ public:
     const QList< IPlugin* >& backendList();
 private:
     Factory();
-    class Private;
-    Private* d;
+    virtual ~Factory();
+    FactoryPrivate* d;
 };
 }
 

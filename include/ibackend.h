@@ -10,10 +10,9 @@ namespace QCloud
 {
 
 class ISecureStore;
-
 class Request;
-
 class App;
+class IBackendPrivate;
 
 class QCLOUD_EXPORT IBackend : public QObject
 {
@@ -22,7 +21,7 @@ public:
     explicit IBackend (QObject* parent = 0);
     virtual ~IBackend();
 
-    virtual void setApp (App* app) = 0;
+    virtual void setApp (App* app);
     virtual bool authorize (QWidget* widget = 0) = 0;
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
     virtual Request* uploadFile (const QString& localFileName, const QString& remoteFilePath) = 0;
@@ -36,9 +35,8 @@ public:
     void setInfo(const Info& info);
     const Info& info();
 protected:
-    Info m_info;
-    QNetworkAccessManager* m_networkAccessManager;
-    App* m_app;
+    Q_DISABLE_COPY(IBackend);
+    IBackendPrivate* d;
 };
 
 }

@@ -9,21 +9,19 @@ namespace QCloud
 
 class IPlugin;
 
-class Factory::Private : public QObject
+class FactoryPrivate
 {
-    friend class Factory;
-    Q_OBJECT
 public:
-    explicit Private (Factory* parent = 0);
-    virtual ~Private();
+    explicit FactoryPrivate (Factory* factory);
+    virtual ~FactoryPrivate();
 
-private:
     void scan();
     void scan (const QString& category);
     IPlugin* loadPlugin (const QString& category, const QString& name);
-    QMap<QString, IPlugin::PluginCategory> m_categoryMap;
-    QMap<QString, QMap<QString, QPluginLoader* > > m_plugins;
-    QList<IPlugin*> m_backendList;
+    QMap<QString, IPlugin::PluginCategory> categoryMap;
+    QMap<QString, QMap<QString, QPluginLoader* > > plugins;
+    QList<IPlugin*> backendList;
+    Factory* p;
 
     static Factory* inst;
 };

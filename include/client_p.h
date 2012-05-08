@@ -5,16 +5,15 @@ class OrgQcloudDaemonInterface;
 namespace QCloud
 {
 
-class Client::Private : public QObject
+class ClientPrivate
 {
     friend class Client;
-    Q_OBJECT
 public:
-    explicit Private (Client* parent = 0);
-    virtual ~Private();
+    explicit ClientPrivate (Client* parent = 0);
+    virtual ~ClientPrivate();
 
 private:
-    QDBusConnection m_connection;
-    OrgQcloudDaemonInterface* m_daemon;
+    QDBusConnection connection;
+    OrgQcloudDaemonInterface* daemon;
 };
 }

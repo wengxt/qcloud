@@ -6,6 +6,9 @@
 
 namespace QCloud
 {
+
+class AppManagerPrivate;
+
 class QCLOUD_EXPORT AppManager : public QObject
 {
     Q_OBJECT
@@ -16,8 +19,8 @@ public:
 
 private:
     explicit AppManager();
-    class Private;
-    Private* d;
+    virtual ~AppManager();
+    AppManagerPrivate* d;
 };
 }
 

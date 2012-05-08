@@ -6,23 +6,23 @@
 namespace QCloud
 {
 
-OAuthBackend::Private::Private(OAuthBackend* parent) : QObject(parent)
+OAuthBackendPrivate::OAuthBackendPrivate(OAuthBackend* parent)
 {
-    oauth = new QOAuth::Interface(this);
+    oauth = new QOAuth::Interface(parent);
 }
 
-OAuthBackend::Private::~Private()
+OAuthBackendPrivate::~OAuthBackendPrivate()
 {
-    oauth->setNetworkAccessManager(NULL);
 }
 
 OAuthBackend::OAuthBackend (QObject* parent) : IBackend (parent)
-    , d (new Private(this))
+    , d (new OAuthBackendPrivate(this))
 {
 }
 
 OAuthBackend::~OAuthBackend()
 {
+    d->oauth->setNetworkAccessManager(NULL);
     delete d;
 }
 

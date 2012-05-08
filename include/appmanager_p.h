@@ -5,12 +5,12 @@
 
 namespace QCloud
 {
-class AppManager::Private : public QObject
+class AppManagerPrivate
 {
     friend class AppManager;
-    Q_OBJECT
 public:
-    Private (AppManager* parent);
+    AppManagerPrivate ();
+    virtual ~AppManagerPrivate();
 
 private:
     void scan();

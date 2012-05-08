@@ -5,67 +5,66 @@
 namespace QCloud
 {
 
-Client::Private::Private (Client* client) : QObject (client)
-    , m_connection (QDBusConnection::sessionBus())
-    , m_daemon (new org::qcloud::Daemon ("org.qcloud.Daemon", "/daemon", m_connection, this))
+ClientPrivate::ClientPrivate (Client* client) :
+    connection (QDBusConnection::sessionBus())
+    , daemon (new org::qcloud::Daemon ("org.qcloud.Daemon", "/daemon", connection, client))
 {
-    connect(m_daemon, SIGNAL(accountUpdated()), client, SIGNAL(accountUpdated()));
 }
 
 
-Client::Private::~Private()
+ClientPrivate::~ClientPrivate()
 {
 }
 
 Client::Client (QObject* parent) : QObject (parent)
-    , d (new Private (this))
+    , d (new ClientPrivate (this))
 {
-
+    connect(d->daemon, SIGNAL(accountUpdated()), this, SIGNAL(accountUpdated()));
 }
 
 Client::~Client()
 {
-
+    delete d;
 }
 
 bool Client::isValid()
 {
-    return d->m_daemon->isValid();
+    return d->daemon->isValid();
 }
 
 QDBusPendingReply<InfoList> Client::listApps()
 {
-    return d->m_daemon->listApps();
+    return d->daemon->listApps();
 }
 
 QDBusPendingReply<InfoList> Client::listBackends()
 {
-    return d->m_daemon->listBackends();
+    return d->daemon->listBackends();
 }
 
 QDBusPendingReply<InfoList> Client::listAccounts()
 {
-    return d->m_daemon->listAccounts();
+    return d->daemon->listAccounts();
 }
 
 QDBusPendingReply< void > Client::addAccount (const QString& backend_name, const QString& user_name)
 {
-    return d->m_daemon->addAccount (backend_name, user_name);
+    return d->daemon->addAccount (backend_name, user_name);
 }
 
 QDBusPendingReply< void > Client::deleteAccount (const QString& uuid)
 {
-    return d->m_daemon->deleteAccount(uuid);
+    return d->daemon->deleteAccount(uuid);
 }
 
 QDBusPendingReply< int > Client::sync (const QString& app_name)
 {
-    return d->m_daemon->sync (app_name);
+    return d->daemon->sync (app_name);
 }
 
 QDBusPendingReply< int > Client::uploadFile (const QString& app_name, const QStringList& file_list)
 {
-    return d->m_daemon->uploadFile (app_name, file_list);
+    return d->daemon->uploadFile (app_name, file_list);
 }
 
 }
