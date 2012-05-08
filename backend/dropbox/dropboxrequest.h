@@ -116,4 +116,18 @@ protected:
     QBuffer m_buffer;
 };
 
+class DropboxGetInfoRequest : public DropboxRequest
+{
+    Q_OBJECT
+public:
+    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path);
+    virtual ~DropboxGetInfoRequest();
+protected slots:
+    virtual void readyForRead();
+    virtual void replyFinished();
+protected:
+    QJson::Parser m_parser;
+    QBuffer m_buffer;
+};
+
 #endif

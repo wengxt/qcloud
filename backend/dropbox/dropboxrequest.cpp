@@ -284,4 +284,32 @@ DropboxDeleteRequest::~DropboxDeleteRequest()
     m_buffer.close();
 }
 
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path)
+{
+    m_dropbox = dropbox;
+    QString urlString = "https://api.dropbox.com/1/metadata/%1/%2";
+    m_buffer.open(QIODevice::ReadWrite);
+    sendRequest(QUrl(urlString.arg(getRootType(),path)),QOAuth::GET);
+}
+
+void DropboxGetInfoRequest::readyForRead()
+{
+    m_buffer.write(m_reply->readAll());
+}
+
+void DropboxGetInfoRequest::replyFinished()
+{
+    if (m_reply->error() != QNetworkReply::NoError){
+        m_error = NetworkError;
+        qDebug() << "Reponse error " << m_reply->errorString();
+    }
+    QVariant result = m_parser.parse(m_buffer.data());
+    qDebug() << result;
+    emit finished();
+}
+
+DropboxGetInfoRequest::~DropboxGetInfoRequest()
+{
+    m_buffer.close();
+}
 

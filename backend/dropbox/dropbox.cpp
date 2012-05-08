@@ -106,6 +106,11 @@ QCloud::Request* Dropbox::deleteFile(const QString& path)
     return new DropboxDeleteRequest(this, path);
 }
 
+QCloud::Request* Dropbox::getInfo(const QString& path)
+{
+    return new DropboxGetInfoRequest(this,path);
+}
+
 QString Dropbox::userName() {
     if (m_userName.isEmpty()) {
         QUrl url("https://api.dropbox.com/1/account/info");
