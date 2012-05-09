@@ -10,7 +10,7 @@
             <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
         </method>
         <method name="listAccounts">
-            <arg name="accounts" type="a(sss)" direction="out" />
+            <arg name="accounts" type="a(ssss)" direction="out" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
         </method>
         <method name="uploadFile">
@@ -29,6 +29,11 @@
         </method>
         <method name="deleteAccount">
             <arg name="uuid" type="s" direction="in" />
+        </method>
+        <method name="listFiles">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="file_list" type="a(ssss)" direction="out" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList">
         </method>
         <signal name="accountUpdated">
         </signal>

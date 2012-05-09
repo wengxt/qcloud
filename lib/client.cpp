@@ -47,6 +47,11 @@ QDBusPendingReply<InfoList> Client::listAccounts()
     return d->daemon->listAccounts();
 }
 
+QDBusPendingReply<InfoList> Client::listFiles(const QString& uuid)
+{
+    return d->daemon->listFiles(uuid);
+}
+
 QDBusPendingReply< void > Client::addAccount (const QString& backend_name, const QString& user_name)
 {
     return d->daemon->addAccount (backend_name, user_name);

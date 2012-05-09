@@ -16,7 +16,7 @@ public:
     virtual QCloud::InfoList listApps();
     virtual QCloud::InfoList listBackends();
     virtual QCloud::InfoList listAccounts();
-    virtual QCloud::InfoList listFile(const QString& uuid);
+    virtual QCloud::InfoList listFiles(const QString& uuid);
     virtual void addAccount (const QString& backendName, const QString& appName);
     virtual void deleteAccount (const QString& uuid);
     virtual int uploadFile (const QString& app_name, const QStringList& file_list);

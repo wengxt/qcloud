@@ -99,7 +99,7 @@ QCloud::InfoList Service::listAccounts()
     return infoList;
 }
 
-QCloud::InfoList Service::listFile(const QString& uuid)
+QCloud::InfoList Service::listFiles(const QString& uuid)
 {
     QCloud::InfoList infoList;
     Account *account = m_daemon->accountManager()->findAccount(uuid);

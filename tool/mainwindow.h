@@ -17,15 +17,18 @@ public:
     virtual ~MainWindow();
 
     void loadAccount();
+    void loadFileList();
 
 private slots:
     void accountsFinished(QDBusPendingCallWatcher* watcher);
+    void filesFinished(QDBusPendingCallWatcher* watcher);
     void addAccountButtonClicked();
     void deleteAccountButtonClicked();
 private:
     QWidget* m_widget;
     Ui::Tool* m_ui;
     InfoModel* m_accountModel;
+    InfoModel* m_fileModel;
     QPushButton* m_addAccountButton;
     QPushButton* m_deleteAccountButton;
 };
