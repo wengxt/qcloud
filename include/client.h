@@ -22,7 +22,7 @@ public:
     QDBusPendingReply<InfoList> listApps();
     QDBusPendingReply<InfoList> listBackends();
     QDBusPendingReply<InfoList> listAccounts();
-    QDBusPendingReply<InfoList> listFiles(const QString& uuid);
+    QDBusPendingReply<InfoList> listFiles(const QString& uuid,const QString& directory);
     QDBusPendingReply<void> addAccount (const QString& backend_name, const QString& user_name);
     QDBusPendingReply<void> deleteAccount (const QString& uuid);
     QDBusPendingReply<int> sync (const QString& app_name);

@@ -1,4 +1,5 @@
 #include <QMainWindow>
+#include <qabstractitemmodel.h>
 
 class QDBusPendingCallWatcher;
 class InfoModel;
@@ -24,6 +25,9 @@ private slots:
     void filesFinished(QDBusPendingCallWatcher* watcher);
     void addAccountButtonClicked();
     void deleteAccountButtonClicked();
+    void enterButtonClicked();
+    void fileListActivated();
+    void listButtonClicked();
 private:
     QWidget* m_widget;
     Ui::Tool* m_ui;
@@ -31,4 +35,7 @@ private:
     InfoModel* m_fileModel;
     QPushButton* m_addAccountButton;
     QPushButton* m_deleteAccountButton;
+    QPushButton* m_listButton;
+    QPushButton* m_enterButton;
+    QString currentDir;
 };
