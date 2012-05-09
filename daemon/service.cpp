@@ -5,6 +5,8 @@
 #include "daemon.h"
 #include "accountmanager.h"
 #include "account.h"
+#include "entryinfo.h"
+#include <QFileInfo>
 
 #include <QDebug>
 
@@ -93,6 +95,27 @@ QCloud::InfoList Service::listAccounts()
 
         infoList << info;
         qDebug() << "UUID : " << account->uuid() << "userName : " << account->userName();
+    }
+    return infoList;
+}
+
+QCloud::InfoList Service::listFile(const QString& uuid)
+{
+    QCloud::InfoList infoList;
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    QCloud::EntryInfo entryInfo("",account->backend());
+    QCloud::EntryList entryList;
+    entryInfo.getContents(entryList);
+    infoList.clear();
+    foreach(QCloud::EntryInfo i,entryList){
+        QCloud::Info info;
+        QFileInfo fileInfo(i.path());
+        info.setName(fileInfo.fileName());
+        info.setDescription(i.path());
+        info.setDisplayName(fileInfo.fileName());
+        info.setIconName(i.icon());
+        
+        infoList << info;
     }
     return infoList;
 }

@@ -3,6 +3,8 @@
 
 #include <QFile>
 #include <QBuffer>
+#include <QVariant>
+#include <QMap>
 #include <qjson/parser.h>
 #include <QtOAuth/QtOAuth>
 #include "request.h"
@@ -120,7 +122,7 @@ class DropboxGetInfoRequest : public DropboxRequest
 {
     Q_OBJECT
 public:
-    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path);
+    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path,QVariantMap* value);
     virtual ~DropboxGetInfoRequest();
 protected slots:
     virtual void readyForRead();
@@ -128,6 +130,7 @@ protected slots:
 protected:
     QJson::Parser m_parser;
     QBuffer m_buffer;
+    QVariantMap* m_value;
 };
 
 #endif

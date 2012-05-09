@@ -13,6 +13,22 @@
 
 #define BUF_SIZE 512
 
+static void removeTralingSlash(QString& str)
+{
+    int pos = str.size() - 1;
+    while (pos>=0 && str[pos]=='/')
+        pos --;
+    str.remove(pos + 1,str.size() - pos - 1);
+}
+
+static void removeFrontSlash(QString& str)
+{
+    int pos = 0;
+    while (pos<str.size() && str[pos]=='/')
+        pos ++;
+    str.remove(0,pos);
+}
+
 QCloud::Request::Error DropboxRequest::error()
 {
     return m_error;
@@ -84,7 +100,9 @@ DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& loc
 
     QString surl;
     surl = "https://api-content.dropbox.com/1/files_put/%1/%2";
-    QUrl url (surl.arg (getRootType()).arg (remoteFilePath));
+    surl = surl.arg (getRootType(),remoteFilePath);
+    removeTralingSlash(surl);
+    QUrl url (surl);
     sendRequest (url, QOAuth::PUT, &m_file);
 }
 
@@ -125,7 +143,9 @@ DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString&
     }
     QString urlString;
     urlString = "https://api-content.dropbox.com/1/files/%1/%2";
-    QUrl url (urlString.arg (getRootType()).arg (remoteFilePath));
+    urlString = urlString.arg (getRootType(),remoteFilePath);
+    removeTralingSlash(urlString);
+    QUrl url (urlString);
     sendRequest (url, QOAuth::GET);
 }
 
@@ -284,12 +304,18 @@ DropboxDeleteRequest::~DropboxDeleteRequest()
     m_buffer.close();
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QVariantMap* value)
 {
     m_dropbox = dropbox;
-    QString urlString = "https://api.dropbox.com/1/metadata/%1/%2";
+    m_value = value;
+    QString paramSt = "%1";
+    paramSt = paramSt.arg(path);
+    removeFrontSlash(paramSt);
+    removeTralingSlash(paramSt);
+    QString urlString = "https://api.dropbox.com/1/metadata/%1/";
+    urlString = urlString.arg(getRootType()) + paramSt;
     m_buffer.open(QIODevice::ReadWrite);
-    sendRequest(QUrl(urlString.arg(getRootType(),path)),QOAuth::GET);
+    sendRequest(QUrl(urlString),QOAuth::GET);
 }
 
 void DropboxGetInfoRequest::readyForRead()
@@ -305,6 +331,7 @@ void DropboxGetInfoRequest::replyFinished()
     }
     QVariant result = m_parser.parse(m_buffer.data());
     qDebug() << result;
+    (*m_value) = result.toMap();
     emit finished();
 }
 

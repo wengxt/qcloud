@@ -72,7 +72,8 @@ int main (int argc, char* argv[])
             request->waitForFinished();
         }
         else if (strcmp(argv[2], "get_info") == 0){
-            QCloud::Request* request = dropbox->getInfo(QString::fromLocal8Bit(argv[3]));
+            QVariantMap value;
+            QCloud::Request* request = dropbox->pathInfo(QString::fromLocal8Bit(argv[3]),&value);
             request->waitForFinished();
         }
         else {

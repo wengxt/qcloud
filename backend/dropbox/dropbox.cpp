@@ -106,9 +106,9 @@ QCloud::Request* Dropbox::deleteFile(const QString& path)
     return new DropboxDeleteRequest(this, path);
 }
 
-QCloud::Request* Dropbox::getInfo(const QString& path)
+QCloud::Request* Dropbox::pathInfo(const QString& path,QVariantMap* value)
 {
-    return new DropboxGetInfoRequest(this,path);
+    return new DropboxGetInfoRequest(this,path,value);
 }
 
 QString Dropbox::userName() {
