@@ -103,19 +103,38 @@ QCloud::InfoList Service::listFiles(const QString& uuid,const QString& directory
 {
     QCloud::InfoList infoList;
     Account *account = m_daemon->accountManager()->findAccount(uuid);
+    qDebug() << account->backend()->userName();
     QCloud::EntryInfo entryInfo(directory,account->backend());
     QCloud::EntryList entryList;
     entryInfo.getContents(entryList);
     infoList.clear();
+    QCloud::Info info;
+    
+    //set ..
+    QFileInfo fileInfo(entryInfo.path());
+    info.setName(fileInfo.path());
+    if (entryInfo.isDir())
+        info.setDescription("is_dir");
+    else
+        info.setDescription("not_a_dir");
+    info.setDisplayName("..");
+    info.setIconName(entryInfo.icon());
+    infoList << info;
+    
     foreach(QCloud::EntryInfo i,entryList){
-        QCloud::Info info;
-        QFileInfo fileInfo(i.path());
-        info.setName(fileInfo.fileName());
-        info.setDescription(i.path());
+        fileInfo = QFileInfo(i.path());
+        info.setName(i.path());
+        if (i.isDir())
+            info.setDescription("is_dir");
+        else
+            info.setDescription("not_a_dir");
         info.setDisplayName(fileInfo.fileName());
         info.setIconName(i.icon());
         
+        qDebug() << info.name() << " " << info.description();
+        
         infoList << info;
     }
+    
     return infoList;
 }

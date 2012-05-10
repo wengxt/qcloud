@@ -144,13 +144,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="enterButton">
-          <property name="text">
-           <string>Enter</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
      </item>

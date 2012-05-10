@@ -18,14 +18,13 @@ public:
     virtual ~MainWindow();
 
     void loadAccount();
-    void loadFileList();
+    bool loadFileList();
 
 private slots:
     void accountsFinished(QDBusPendingCallWatcher* watcher);
     void filesFinished(QDBusPendingCallWatcher* watcher);
     void addAccountButtonClicked();
     void deleteAccountButtonClicked();
-    void enterButtonClicked();
     void fileListActivated();
     void listButtonClicked();
 private:
@@ -36,6 +35,5 @@ private:
     QPushButton* m_addAccountButton;
     QPushButton* m_deleteAccountButton;
     QPushButton* m_listButton;
-    QPushButton* m_enterButton;
     QString currentDir;
 };

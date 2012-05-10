@@ -1,11 +1,12 @@
 #include "entryinfo.h"
+#include "request.h"
 #include <QDebug>
 
 namespace QCloud{
     
 void EntryInfo::getInfo(const QVariantMap& value)
 {
-    m_size = value["size"].toULongLong();
+    m_size = value["bytes"].toULongLong();
     is_dir = value["is_dir"].toBool();
     m_modifiedTime = value["modified"].toString();
     m_hash = value["hash"].toString();
@@ -16,18 +17,20 @@ void EntryInfo::getInfo(const QVariantMap& value)
 
 void EntryInfo::generateContents(const QVariantMap& value)
 {
-        contentsList = new EntryList;
-        QVariantList list = value["contents"].toList();
-        Q_FOREACH (QVariant i,list){
-            EntryInfo info(i.toMap());
-            contentsList->append(info);
-        }
+    contentsList = new EntryList;
+    QVariantList list = value["contents"].toList();
+    Q_FOREACH (QVariant i,list){
+        EntryInfo info(i.toMap());
+        contentsList->append(info);
+        qDebug() << info.path() << " " << info.isDir();
+    }
 }
-    
+
 EntryInfo::EntryInfo(const QString& path,IBackend* backend)
 {
     QVariantMap value;
-    backend->pathInfo(path,&value);
+    Request* request = backend->pathInfo(path,&value);
+    request->waitForFinished();
     getInfo(value);
     if (is_dir){
         generateContents(value);
@@ -36,12 +39,14 @@ EntryInfo::EntryInfo(const QString& path,IBackend* backend)
 
 EntryInfo::EntryInfo(const QVariantMap& value)
 {
-   getInfo(value); 
+    getInfo(value); 
 }
 
 EntryInfo::EntryInfo(const EntryInfo& info)
 {
-    contentsList = new EntryList(*info.contentsList);
+    if (info.contentsList!=NULL)
+        contentsList = new EntryList(*info.contentsList);
+    is_dir = info.is_dir;
     m_size = info.m_size;
     m_hash = info.m_hash;
     m_modifiedTime = info.m_modifiedTime;
