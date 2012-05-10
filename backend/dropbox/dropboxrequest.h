@@ -124,7 +124,7 @@ class DropboxGetInfoRequest : public DropboxRequest
 {
     Q_OBJECT
 public:
-    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path,EntryInfo* info);
+    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info);
     virtual ~DropboxGetInfoRequest();
 protected slots:
     virtual void readyForRead();
@@ -132,9 +132,9 @@ protected slots:
 protected:
     QJson::Parser m_parser;
     QBuffer m_buffer;
-    EntryInfo* m_info;
+    QCloud::EntryInfo* m_info;
 private:
-    EntryInfo getInfoFromMap(const QVariantMap& infoMap);
+    QCloud::EntryInfo getInfoFromMap(const QVariantMap& infoMap);
 };
 
 #endif

@@ -14,11 +14,6 @@ typedef QList<EntryInfo> EntryList;
 class QCLOUD_EXPORT EntryInfo
 {
 public:
-    enum EntryError{
-        NoError,
-        NotDir,
-        NoBackend
-    };
     enum EntryType{
         SizeType,
         DirType,

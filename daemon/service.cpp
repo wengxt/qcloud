@@ -6,6 +6,7 @@
 #include "accountmanager.h"
 #include "account.h"
 #include "entryinfo.h"
+#include "request.h"
 #include <QFileInfo>
 
 #include <QDebug>
@@ -102,12 +103,16 @@ QCloud::InfoList Service::listAccounts()
 QCloud::InfoList Service::listFiles(const QString& uuid,const QString& directory)
 {
     QCloud::InfoList infoList;
+    infoList.clear();
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     qDebug() << account->backend()->userName();
-    QCloud::EntryInfo entryInfo(directory,account->backend());
+    QCloud::EntryInfo entryInfo;
+    QCloud::Request* request = account->backend()->pathInfo(directory,&entryInfo);
+    request->waitForFinished();
     QCloud::EntryList entryList;
-    entryInfo.getContents(entryList);
-    infoList.clear();
+    if (!entryInfo.getContents(entryList)){
+        qDebug() << "Error !";
+    }
     QCloud::Info info;
     
     //set ..

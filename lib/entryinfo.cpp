@@ -46,6 +46,7 @@ QString EntryInfo::icon()
 
 bool EntryInfo::getContents(EntryList& list)
 {
+    //qDebug() << m_hash << " " << m_icon << " "<< m_modifiedTime << " " << m_path << " " << m_size;
     if (!is_dir){
         qDebug() << "Not a dir";
         return false;

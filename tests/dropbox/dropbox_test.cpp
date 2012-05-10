@@ -6,6 +6,9 @@
 #include "factory.h"
 #include "app.h"
 #include "request.h"
+#include "entryinfo.h"
+
+using namespace QCloud;
 
 void printUsage(char **argv)
 {
@@ -72,8 +75,8 @@ int main (int argc, char* argv[])
             request->waitForFinished();
         }
         else if (strcmp(argv[2], "get_info") == 0){
-            QVariantMap value;
-            QCloud::Request* request = dropbox->pathInfo(QString::fromLocal8Bit(argv[3]),&value);
+            EntryInfo info;
+            QCloud::Request* request = dropbox->pathInfo(QString::fromLocal8Bit(argv[3]),&info);
             request->waitForFinished();
         }
         else {

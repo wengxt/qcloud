@@ -304,20 +304,21 @@ DropboxDeleteRequest::~DropboxDeleteRequest()
     m_buffer.close();
 }
 
-EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoMap)
+QCloud::EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoMap)
 {
-    EntryInfo info;
-    info.setValue(EntryInfo::SizeType,infoMap["bytes"]);
-    info.setValue(EntryInfo::DirType, infoMap["is_dir"]);
-    info.setValue(EntryInfo::HashType,infoMap["hash"]);
-    info.setValue(EntryInfo::IconType,infoMap["icon"]);
-    info.setValue(EntryInfo::PathType,infoMap["path"]);
-    info.setValue(EntryInfo::ModifiedTimeType,infoMap["modified"]);
+    QCloud::EntryInfo info;
+    info.setValue(QCloud::EntryInfo::SizeType,infoMap["bytes"]);
+    info.setValue(QCloud::EntryInfo::DirType, infoMap["is_dir"]);
+    info.setValue(QCloud::EntryInfo::HashType,infoMap["hash"]);
+    info.setValue(QCloud::EntryInfo::IconType,infoMap["icon"]);
+    info.setValue(QCloud::EntryInfo::PathType,infoMap["path"]);
+    info.setValue(QCloud::EntryInfo::ModifiedTimeType,infoMap["modified"]);
     return info;
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,EntryInfo* info)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info)
 {
+    qDebug() << "Path : " << path;
     m_dropbox = dropbox;
     m_info = info;
     QString paramSt = "%1";
@@ -345,13 +346,18 @@ void DropboxGetInfoRequest::replyFinished()
     qDebug() << result;
     QVariantMap infoMap = result.toMap();
     (*m_info) = getInfoFromMap(infoMap);
-    EntryList infoList;
-    infoList.clear();
-    foreach(QVariant i,infoMap["contents"].toMap()){
-        EntryInfo info = getInfoFromMap(i.toMap());
-        infoList << info;
+    if (m_info->isDir()){
+        QCloud::EntryList infoList;
+        infoList.clear();
+        qDebug() << "Is directory!";
+        QVariantList contentsList = infoMap["contents"].toList();
+        foreach(QVariant i,contentsList){
+            QCloud::EntryInfo info = getInfoFromMap(i.toMap());
+            infoList << info;
+            qDebug() << info.path();
+        }
+        m_info->setContents(infoList);
     }
-    m_info->setContents(infoList);
     emit finished();
 }
 
