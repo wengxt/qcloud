@@ -15,7 +15,7 @@
 #include "authdialog.h"
 #include "qcloud_utils.h"
 #include "request.h"
-#include <isecurestore.h>
+#include "isecurestore.h"
 
 Dropbox::Dropbox (QObject* parent) : OAuthBackend (parent)
     ,m_globalAccess(false)
@@ -106,9 +106,9 @@ QCloud::Request* Dropbox::deleteFile(const QString& path)
     return new DropboxDeleteRequest(this, path);
 }
 
-QCloud::Request* Dropbox::pathInfo(const QString& path,QVariantMap* value)
+QCloud::Request* Dropbox::pathInfo(const QString& path,EntryInfo* info)
 {
-    return new DropboxGetInfoRequest(this,path,value);
+    return new DropboxGetInfoRequest(this,path,info);
 }
 
 QString Dropbox::userName() {

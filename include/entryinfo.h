@@ -19,9 +19,15 @@ public:
         NotDir,
         NoBackend
     };
-    EntryInfo(const QString& path,IBackend* backend);
-    EntryInfo(const QVariantMap& value);
-    EntryInfo(const EntryInfo& info);
+    enum EntryType{
+        SizeType,
+        DirType,
+        HashType,
+        IconType,
+        PathType,
+        ModifiedTimeType
+    };
+    EntryInfo();
     virtual ~EntryInfo();
     qulonglong size();
     bool isDir();
@@ -29,15 +35,14 @@ public:
     QString hash();
     QString path();
     QString icon();
-    EntryError getContents(EntryList& list,IBackend* backend = NULL);
+    void setValue(EntryType type,const QVariant& value);
+    void setContents(const EntryList& list);
+    bool getContents(EntryList& list);
 protected:
     qulonglong m_size;
     bool is_dir;
     QString m_modifiedTime,m_hash,m_path,m_icon;
-    EntryList* contentsList;
-private:
-    void getInfo(const QVariantMap& value);
-    void generateContents(const QVariantMap& value);
+    EntryList contentsList;
 };
 }
 #endif

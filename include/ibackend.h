@@ -4,6 +4,7 @@
 #include <QtCore/QtPlugin>
 #include "qcloud_global.h"
 #include "info.h"
+#include "entryinfo.h"
 
 class QNetworkAccessManager;
 namespace QCloud
@@ -13,6 +14,7 @@ class ISecureStore;
 class Request;
 class App;
 class IBackendPrivate;
+class EntryInfo;
 
 class QCLOUD_EXPORT IBackend : public QObject
 {
@@ -30,7 +32,7 @@ public:
     virtual Request* moveFile (const QString& fromPath,const QString& toPath) = 0;
     virtual Request* createFolder (const QString& path) = 0;
     virtual Request* deleteFile (const QString& path) = 0;
-    virtual Request* pathInfo (const QString& path,QVariantMap* value) = 0;
+    virtual Request* pathInfo (const QString& path,EntryInfo* info) = 0;
     virtual void saveAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore) = 0;
     virtual void loadAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore) = 0;
     virtual void deleteSecretInfo (const QString& key, ISecureStore* securestore) = 0;

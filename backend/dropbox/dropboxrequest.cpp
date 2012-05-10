@@ -13,7 +13,7 @@
 
 #define BUF_SIZE 512
 
-static void removeTralingSlash(QString& str)
+inline static void removeTralingSlash(QString& str)
 {
     int pos = str.size() - 1;
     while (pos>=0 && str[pos]=='/')
@@ -21,7 +21,7 @@ static void removeTralingSlash(QString& str)
     str.remove(pos + 1,str.size() - pos - 1);
 }
 
-static void removeFrontSlash(QString& str)
+inline static void removeFrontSlash(QString& str)
 {
     int pos = 0;
     while (pos<str.size() && str[pos]=='/')
@@ -304,10 +304,22 @@ DropboxDeleteRequest::~DropboxDeleteRequest()
     m_buffer.close();
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QVariantMap* value)
+EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoMap)
+{
+    EntryInfo info;
+    info.setValue(EntryInfo::SizeType,infoMap["bytes"]);
+    info.setValue(EntryInfo::DirType, infoMap["is_dir"]);
+    info.setValue(EntryInfo::HashType,infoMap["hash"]);
+    info.setValue(EntryInfo::IconType,infoMap["icon"]);
+    info.setValue(EntryInfo::PathType,infoMap["path"]);
+    info.setValue(EntryInfo::ModifiedTimeType,infoMap["modified"]);
+    return info;
+}
+
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,EntryInfo* info)
 {
     m_dropbox = dropbox;
-    m_value = value;
+    m_info = info;
     QString paramSt = "%1";
     paramSt = paramSt.arg(path);
     removeFrontSlash(paramSt);
@@ -331,7 +343,15 @@ void DropboxGetInfoRequest::replyFinished()
     }
     QVariant result = m_parser.parse(m_buffer.data());
     qDebug() << result;
-    (*m_value) = result.toMap();
+    QVariantMap infoMap = result.toMap();
+    (*m_info) = getInfoFromMap(infoMap);
+    EntryList infoList;
+    infoList.clear();
+    foreach(QVariant i,infoMap["contents"].toMap()){
+        EntryInfo info = getInfoFromMap(i.toMap());
+        infoList << info;
+    }
+    m_info->setContents(infoList);
     emit finished();
 }
 
