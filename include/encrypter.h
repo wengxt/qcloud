@@ -3,8 +3,8 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include "isecurestore.h"
 #include <QtCrypto/QtCrypto>
+#include "isecurestore.h"
 #include "qcloud_global.h"
 #define GROUP_NAME "QCloud_Encrypter"
 #define KEY_NAME "Key"

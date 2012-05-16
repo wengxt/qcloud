@@ -1,10 +1,11 @@
 #ifndef QCLOUD_ENTRYINFO_H
 #define QCLOUD_ENTRYINFO_H
-#include "qcloud_global.h"
-#include "ibackend.h"
 #include <QObject>
 #include <QMap>
 #include <QVariant>
+#include <QDateTime>
+#include "qcloud_global.h"
+#include "ibackend.h"
 
 
 namespace QCloud{
@@ -26,7 +27,7 @@ public:
     virtual ~EntryInfo();
     qulonglong size();
     bool isDir();
-    QString modifiedTime();
+    QDateTime modifiedTime();
     QString hash();
     QString path();
     QString icon();
@@ -36,7 +37,8 @@ public:
 protected:
     qulonglong m_size;
     bool is_dir;
-    QString m_modifiedTime,m_hash,m_path,m_icon;
+    QString m_hash,m_path,m_icon;
+    QDateTime m_modifiedTime;
     EntryList contentsList;
 };
 }

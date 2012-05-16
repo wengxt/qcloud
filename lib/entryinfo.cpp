@@ -24,7 +24,7 @@ bool EntryInfo::isDir()
     return is_dir;
 }
 
-QString EntryInfo::modifiedTime()
+QDateTime EntryInfo::modifiedTime()
 {
     return m_modifiedTime;
 }
@@ -79,7 +79,7 @@ void EntryInfo::setValue(EntryInfo::EntryType type,const QVariant& value)
             m_path = value.toString();
             break;
         case EntryInfo::ModifiedTimeType:
-            m_modifiedTime = value.toString();
+            m_modifiedTime = QDateTime::fromString(value.toString());
             break;
         default:
             qDebug() << "No such type";

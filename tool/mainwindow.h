@@ -1,5 +1,4 @@
 #include <QMainWindow>
-#include <qabstractitemmodel.h>
 
 class QDBusPendingCallWatcher;
 class InfoModel;
