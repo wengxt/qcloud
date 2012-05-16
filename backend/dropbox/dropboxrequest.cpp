@@ -13,20 +13,24 @@
 
 #define BUF_SIZE 512
 
-inline static void removeTralingSlash(QString& str)
+inline static QString removeInvalidSlash(const QString& str)
 {
-    int pos = str.size() - 1;
-    while (pos>=0 && str[pos]=='/')
-        pos --;
-    str.remove(pos + 1,str.size() - pos - 1);
-}
-
-inline static void removeFrontSlash(QString& str)
-{
-    int pos = 0;
-    while (pos<str.size() && str[pos]=='/')
-        pos ++;
-    str.remove(0,pos);
+    QString retString = "";
+    if (str.size()==0)
+        return retString;
+    retString += str[0];
+    for (int i=1;i<str.size();i++){
+        if (str[i]!='/' || str[i - 1]!='/')
+            retString += str[i];
+    }
+    if (retString[0]=='/')
+        retString.remove(0,1);
+    int pos = retString.size() - 1;
+    if (pos<=0)
+        return retString;
+    if (retString[pos]=='/')
+        retString.remove(pos,1);
+    return retString;
 }
 
 QCloud::Request::Error DropboxRequest::error()
@@ -73,21 +77,21 @@ QString DropboxRequest::getRootType()
 
 void DropboxRequest::readyForRead()
 {
-
+    
 }
 
 void DropboxRequest::replyFinished()
 {
-
+    
 }
 
 DropboxRequest::~DropboxRequest()
 {
-
+    
 }
 
 DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, const QString& remoteFilePath) :
-    m_file (localFileName)
+m_file (localFileName)
 {
     m_dropbox = dropbox;
     if (!m_file.open (QIODevice::ReadOnly)) {
@@ -95,14 +99,13 @@ DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& loc
         QTimer::singleShot (0, this, SIGNAL (finished()));
         return;
     }
-
+    
     m_buffer.open (QBuffer::ReadWrite);
-
+    
     QString surl;
     surl = "https://api-content.dropbox.com/1/files_put/%1/%2";
     surl = surl.arg (getRootType(),remoteFilePath);
-    removeTralingSlash(surl);
-    QUrl url (surl);
+    QUrl url (removeInvalidSlash(surl));
     sendRequest (url, QOAuth::PUT, &m_file);
 }
 
@@ -122,7 +125,7 @@ void DropboxUploadRequest::replyFinished()
         qDebug() << "Reponse error " << m_reply->errorString();
         m_error = NetworkError;
     }
-
+    
     m_buffer.seek (0);
     // Lets print the HTTP PUT response.
     QVariant result = m_parser.parse (m_buffer.data());
@@ -132,7 +135,7 @@ void DropboxUploadRequest::replyFinished()
 }
 
 DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName) :
-    m_file (localFileName)
+m_file (localFileName)
 {
     m_dropbox = dropbox;
     if (!m_file.open (QIODevice::WriteOnly)) {
@@ -144,8 +147,7 @@ DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString&
     QString urlString;
     urlString = "https://api-content.dropbox.com/1/files/%1/%2";
     urlString = urlString.arg (getRootType(),remoteFilePath);
-    removeTralingSlash(urlString);
-    QUrl url (urlString);
+    QUrl url (removeInvalidSlash(urlString));
     sendRequest (url, QOAuth::GET);
 }
 
@@ -316,17 +318,15 @@ QCloud::EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoM
     return info;
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info,QCloud::EntryList* contents)
 {
-    qDebug() << "Path : " << path;
     m_dropbox = dropbox;
     m_info = info;
+    m_contents = contents;
     QString paramSt = "%1";
     paramSt = paramSt.arg(path);
-    removeFrontSlash(paramSt);
-    removeTralingSlash(paramSt);
     QString urlString = "https://api.dropbox.com/1/metadata/%1/";
-    urlString = urlString.arg(getRootType()) + paramSt;
+    urlString = urlString.arg(getRootType()) + removeInvalidSlash(paramSt);
     m_buffer.open(QIODevice::ReadWrite);
     sendRequest(QUrl(urlString),QOAuth::GET);
 }
@@ -341,22 +341,30 @@ void DropboxGetInfoRequest::replyFinished()
     if (m_reply->error() != QNetworkReply::NoError){
         m_error = NetworkError;
         qDebug() << "Reponse error " << m_reply->errorString();
+        return ;
     }
     QVariant result = m_parser.parse(m_buffer.data());
     qDebug() << result;
     QVariantMap infoMap = result.toMap();
-    (*m_info) = getInfoFromMap(infoMap);
-    if (m_info->isDir()){
+    if (m_info!=NULL){
+        (*m_info) = getInfoFromMap(infoMap);
+    }
+    if (m_contents){
+        if (infoMap["is_dir"].toBool()==false){
+            qDebug() << "Not a directory!";
+            m_error = NetworkError;
+            return ;
+        }
         QCloud::EntryList infoList;
         infoList.clear();
-        qDebug() << "Is directory!";
         QVariantList contentsList = infoMap["contents"].toList();
         foreach(QVariant i,contentsList){
             QCloud::EntryInfo info = getInfoFromMap(i.toMap());
             infoList << info;
             qDebug() << info.path();
         }
-        m_info->setContents(infoList);
+        (*m_contents) = infoList;
+        
     }
     emit finished();
 }

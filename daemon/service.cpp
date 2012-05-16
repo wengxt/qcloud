@@ -107,12 +107,9 @@ QCloud::InfoList Service::listFiles(const QString& uuid,const QString& directory
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     qDebug() << account->backend()->userName();
     QCloud::EntryInfo entryInfo;
-    QCloud::Request* request = account->backend()->pathInfo(directory,&entryInfo);
-    request->waitForFinished();
     QCloud::EntryList entryList;
-    if (!entryInfo.getContents(entryList)){
-        qDebug() << "Error !";
-    }
+    QCloud::Request* request = account->backend()->pathInfo(directory,&entryInfo,&entryList);
+    request->waitForFinished();
     QCloud::Info info;
     
     //set ..

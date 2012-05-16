@@ -44,22 +44,6 @@ QString EntryInfo::icon()
     return m_icon;
 }
 
-bool EntryInfo::getContents(EntryList& list)
-{
-    //qDebug() << m_hash << " " << m_icon << " "<< m_modifiedTime << " " << m_path << " " << m_size;
-    if (!is_dir){
-        qDebug() << "Not a dir";
-        return false;
-    }
-    list = contentsList;
-    return true;
-}
-
-void EntryInfo::setContents(const EntryList& list)
-{
-    contentsList = list;
-}
-
 void EntryInfo::setValue(EntryInfo::EntryType type,const QVariant& value)
 {
     switch (type){
