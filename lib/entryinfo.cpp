@@ -1,6 +1,6 @@
+#include <QDebug>
 #include "entryinfo.h"
 #include "request.h"
-#include <QDebug>
 
 namespace QCloud{
     

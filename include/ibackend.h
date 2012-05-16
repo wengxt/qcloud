@@ -14,8 +14,6 @@ class ISecureStore;
 class Request;
 class App;
 class IBackendPrivate;
-//class EntryInfo;
-//class EntryList;
 
 class QCLOUD_EXPORT IBackend : public QObject
 {
