@@ -350,21 +350,19 @@ void DropboxGetInfoRequest::replyFinished()
         (*m_info) = getInfoFromMap(infoMap);
     }
     if (m_contents){
-        if (infoMap["is_dir"].toBool()==false){
+        if (infoMap["is_dir"].toBool()==false)
             qDebug() << "Not a directory!";
-            m_error = NetworkError;
-            return ;
+        else{
+            QCloud::EntryList infoList;
+            infoList.clear();
+            QVariantList contentsList = infoMap["contents"].toList();
+            foreach(QVariant i,contentsList){
+                QCloud::EntryInfo info = getInfoFromMap(i.toMap());
+                infoList << info;
+                qDebug() << info.path();
+            }
+            (*m_contents) = infoList;
         }
-        QCloud::EntryList infoList;
-        infoList.clear();
-        QVariantList contentsList = infoMap["contents"].toList();
-        foreach(QVariant i,contentsList){
-            QCloud::EntryInfo info = getInfoFromMap(i.toMap());
-            infoList << info;
-            qDebug() << info.path();
-        }
-        (*m_contents) = infoList;
-        
     }
     emit finished();
 }
