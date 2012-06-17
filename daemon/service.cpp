@@ -14,7 +14,7 @@
 Service::Service (Daemon* daemon) : Server (daemon)
     ,m_daemon(daemon)
 {
-
+    currentRequestId = 0;
 }
 
 Service::~Service()
@@ -100,16 +100,25 @@ QCloud::InfoList Service::listAccounts()
     return infoList;
 }
 
-void Service::listFiles(const QString& uuid,const QString& directory)
+int Service::listFiles(const QString& uuid,const QString& directory)
 {
+    ListFilesRequestHandler* requestHander = new ListFilesRequestHandler(currentRequestId,this,this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     qDebug() << account->backend()->userName();
-    QCloud::Request* request = account->backend()->pathInfo(directory,&entryInfo,&entryList);
-    //request->waitForFinished();
-    connect(request,SIGNAL(finished()),this,SLOT(listFilesRequestFinished()));
+    QCloud::Request* request = account->backend()->pathInfo(directory,&requestHander->entryInfo,&requestHander->entryList);
+    requestHander->setRequest(request);
+    currentRequestId ++;
+    return currentRequestId - 1;
 }
 
-void Service::listFilesRequestFinished()
+ListFilesRequestHandler::ListFilesRequestHandler(int id,QCloud::Server* server,QObject* parent)
+{
+    m_id = id;
+    m_server = server;
+}
+
+
+void ListFilesRequestHandler::requestFinished()
 {
     qDebug() << "Sending finished signal...";
     QCloud::InfoList infoList;
@@ -141,5 +150,11 @@ void Service::listFilesRequestFinished()
         infoList << info;
     }
     
-    notifyDirectoryInfoTransformed(infoList);
+    m_server->notifyDirectoryInfoTransformed(infoList,m_id);   
+    delete this;
+}
+
+ListFilesRequestHandler::~ListFilesRequestHandler()
+{
+    
 }

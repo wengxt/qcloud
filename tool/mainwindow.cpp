@@ -100,20 +100,16 @@ bool MainWindow::loadFileList()
     if (uuid.isEmpty()){
         return false;
     }
-    //QDBusPendingReply< QCloud::InfoList > files = ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    //QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(files);
-    //connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(filesFinished(QDBusPendingCallWatcher*)));
+    QDBusPendingReply< int > id = ClientApp::instance()->client()->listFiles(uuid,currentDir);
+    //ClientApp::instance()->client()->listFiles(uuid,currentDir);
+    QEventLoop loop;
+    QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(id);
+    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), &loop,SLOT(quit()));
+    loop.exec();
+    idSet.insert(id.value());
     //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
-    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
+    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList,int)),this,SLOT(fileListFinished(QCloud::InfoList,int)));
     return true;
-}
-
-void MainWindow::filesFinished(QDBusPendingCallWatcher* watcher)
-{
-    qDebug() << "filesFinished";
-    QDBusPendingReply< QCloud::InfoList > backends(*watcher);
-    m_fileModel->setInfoList(backends.value());
 }
 
 void MainWindow::fileListActivated()
@@ -138,9 +134,12 @@ void MainWindow::listButtonClicked()
     loadFileList();
 }
 
-void MainWindow::fileListFinished(const QCloud::InfoList& info)
+void MainWindow::fileListFinished(const QCloud::InfoList& info,int id)
 {
-    qDebug() << "Got file list info";
+    if (!idSet.contains(id))
+        return ;
+    idSet.remove(id);
+    qDebug() << "Got file list info with ID : " << id;
     m_fileModel->setInfoList(info);
 }
 

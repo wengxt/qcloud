@@ -22,18 +22,18 @@ public:
     virtual InfoList listApps() = 0;
     virtual InfoList listBackends() = 0;
     virtual InfoList listAccounts() = 0;
-    virtual void listFiles(const QString& uuid,const QString& directory) = 0;
+    virtual int listFiles(const QString& uuid,const QString& directory) = 0;
     virtual int uploadFile (const QString& app_name, const QStringList& file_list) = 0;
     virtual void addAccount (const QString& backend_name, const QString& user_name) = 0;
     virtual void deleteAccount (const QString& uuid) = 0;
     virtual int sync (const QString& app_name) = 0;
     void notifyAccountUpdated();
-    void notifyDirectoryInfoTransformed(const QCloud::InfoList& info);
+    void notifyDirectoryInfoTransformed(const QCloud::InfoList& info,int id);
     bool isValid() const;
 
 signals:
     void accountUpdated();
-    void directoryInfoTransformed(const QCloud::InfoList& info);
+    void directoryInfoTransformed(const QCloud::InfoList& info,int id);
 private:
     Q_DISABLE_COPY (Server)
     ServerPrivate* d;

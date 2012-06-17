@@ -20,7 +20,7 @@ Client::Client (QObject* parent) : QObject (parent)
     , d (new ClientPrivate (this))
 {
     connect(d->daemon, SIGNAL(accountUpdated()), this, SIGNAL(accountUpdated()));
-    connect(d->daemon, SIGNAL(directoryInfoTransformed(QCloud::InfoList)), this, SIGNAL(directoryInfoTransformed(QCloud::InfoList)));
+    connect(d->daemon, SIGNAL(directoryInfoTransformed(QCloud::InfoList,int)), this, SIGNAL(directoryInfoTransformed(QCloud::InfoList,int)));
 }
 
 Client::~Client()
@@ -48,7 +48,7 @@ QDBusPendingReply<InfoList> Client::listAccounts()
     return d->daemon->listAccounts();
 }
 
-QDBusPendingReply<InfoList> Client::listFiles(const QString& uuid,const QString& directory)
+QDBusPendingReply<int> Client::listFiles(const QString& uuid,const QString& directory)
 {
     return d->daemon->listFiles(uuid,directory);
 }

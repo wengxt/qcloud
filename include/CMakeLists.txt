@@ -16,6 +16,7 @@ set(qcloud_HEADER
     appmanager.h
     encrypter.h
     entryinfo.h
+    requesthandler.h
     )
 
 #install(FILES ${qcloud_HEADER} DESTINATION include)

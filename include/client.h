@@ -22,14 +22,14 @@ public:
     QDBusPendingReply<InfoList> listApps();
     QDBusPendingReply<InfoList> listBackends();
     QDBusPendingReply<InfoList> listAccounts();
-    QDBusPendingReply<InfoList> listFiles(const QString& uuid,const QString& directory);
+    QDBusPendingReply<int> listFiles(const QString& uuid,const QString& directory);
     QDBusPendingReply<void> addAccount (const QString& backend_name, const QString& user_name);
     QDBusPendingReply<void> deleteAccount (const QString& uuid);
     QDBusPendingReply<int> sync (const QString& app_name);
     QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
 signals:
     void accountUpdated();
-    void directoryInfoTransformed(const QCloud::InfoList& infoList);
+    void directoryInfoTransformed(const QCloud::InfoList& infoList,int id);
 protected:
     ClientPrivate* d;
 };
