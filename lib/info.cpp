@@ -9,7 +9,7 @@ void Info::registerMetaType()
 {
     qRegisterMetaType<Info>("QCloud::Info");
     qDBusRegisterMetaType<Info>();
-    qRegisterMetaType<InfoList>("QCloud::AppList");
+    qRegisterMetaType<InfoList>("QCloud::InfoList");
     qDBusRegisterMetaType<InfoList>();
 }
 

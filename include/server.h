@@ -28,12 +28,12 @@ public:
     virtual void deleteAccount (const QString& uuid) = 0;
     virtual int sync (const QString& app_name) = 0;
     void notifyAccountUpdated();
-    void notifyDirectoryInfoTransformed(QCloud::InfoList info);
+    void notifyDirectoryInfoTransformed(const QCloud::InfoList& info);
     bool isValid() const;
 
 signals:
     void accountUpdated();
-    void directoryInfoTransformed(QCloud::InfoList info);
+    void directoryInfoTransformed(const QCloud::InfoList& info);
 private:
     Q_DISABLE_COPY (Server)
     ServerPrivate* d;

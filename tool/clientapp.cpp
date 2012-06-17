@@ -3,11 +3,14 @@
 #include "app.h"
 #include "client.h"
 
+#include <QDebug>
+
 ClientApp::ClientApp (int& argc, char** argv) : QApplication (argc, argv)
-    ,m_client(new QCloud::Client(this))
+    ,m_client(0)
     ,m_mainWindow(new MainWindow)
 {
     QCloud::Info::registerMetaType();
+    m_client = new QCloud::Client(this);
     m_mainWindow->show();
 
     if (m_client->isValid())
@@ -23,5 +26,6 @@ QCloud::Client* ClientApp::client()
 
 void ClientApp::accountUpdated()
 {
+    qDebug() << "accountUpdated";
     m_mainWindow->loadAccount();
 }

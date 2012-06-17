@@ -17,7 +17,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     , m_fileModel(new InfoModel(this))
 {
     currentDir = "";
-    
+
     setCentralWidget (m_widget);
     m_ui->setupUi (m_widget);
     m_ui->accountView->setModel(m_accountModel);
@@ -29,7 +29,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
 
     m_addAccountButton->setIcon (QIcon::fromTheme ("list-add"));
     m_deleteAccountButton->setIcon (QIcon::fromTheme ("list-remove"));
-    
+
     m_ui->fileView->setModel(m_fileModel);
     m_ui->fileView->setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -104,12 +104,14 @@ bool MainWindow::loadFileList()
     ClientApp::instance()->client()->listFiles(uuid,currentDir);
     //QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(files);
     //connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(filesFinished(QDBusPendingCallWatcher*)));
-    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(const QCloud::InfoList&)),this,SLOT(fileListFinished(QCloud::InfoList)));
+    //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
+    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
     return true;
 }
 
 void MainWindow::filesFinished(QDBusPendingCallWatcher* watcher)
 {
+    qDebug() << "filesFinished";
     QDBusPendingReply< QCloud::InfoList > backends(*watcher);
     m_fileModel->setInfoList(backends.value());
 }
