@@ -29,6 +29,7 @@ public:
     QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
 signals:
     void accountUpdated();
+    void directoryInfoTransformed(QCloud::InfoList info);
 protected:
     ClientPrivate* d;
 };

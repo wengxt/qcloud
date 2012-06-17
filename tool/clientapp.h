@@ -2,6 +2,7 @@
 #define QCLOUD_CLIENTAPP_H
 
 #include <QApplication>
+#include "infomodel.h"
 
 class MainWindow;
 namespace QCloud

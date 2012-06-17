@@ -5,8 +5,8 @@
 #include "daemon.h"
 #include "accountmanager.h"
 #include "account.h"
-#include "entryinfo.h"
 #include "request.h"
+#include "entryinfo.h"
 #include <QFileInfo>
 
 #include <QDebug>
@@ -100,18 +100,21 @@ QCloud::InfoList Service::listAccounts()
     return infoList;
 }
 
-QCloud::InfoList Service::listFiles(const QString& uuid,const QString& directory)
+void Service::listFiles(const QString& uuid,const QString& directory)
 {
-    QCloud::InfoList infoList;
-    infoList.clear();
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     qDebug() << account->backend()->userName();
-    QCloud::EntryInfo entryInfo;
-    QCloud::EntryList entryList;
     QCloud::Request* request = account->backend()->pathInfo(directory,&entryInfo,&entryList);
-    request->waitForFinished();
+    //request->waitForFinished();
+    connect(request,SIGNAL(finished()),this,SLOT(listFilesRequestFinished()));
+}
+
+void Service::listFilesRequestFinished()
+{
+    qDebug() << "Sending finished signal...";
+    QCloud::InfoList infoList;
+    infoList.clear();
     QCloud::Info info;
-    
     //set ..
     QFileInfo fileInfo(entryInfo.path());
     info.setName(fileInfo.path());
@@ -138,5 +141,5 @@ QCloud::InfoList Service::listFiles(const QString& uuid,const QString& directory
         infoList << info;
     }
     
-    return infoList;
+    notifyDirectoryInfoTransformed(infoList);
 }

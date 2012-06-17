@@ -33,10 +33,14 @@
         <method name="listFiles">
             <arg name="uuid" type="s" direction="in" />
             <arg name="directory" type="s" direction="in" />
-            <arg name="file_list" type="a(ssss)" direction="out" />
-            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
+            <!---<arg name="file_list" type="a(ssss)" direction="out" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" /> -->
         </method>
         <signal name="accountUpdated">
+        </signal>
+        <signal name="directoryInfoTransformed">
+            <arg name="info" type="a(ssss)" direction="out"/>
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QCloud::InfoList" />
         </signal>
     </interface>
 </node>

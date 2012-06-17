@@ -100,9 +100,11 @@ bool MainWindow::loadFileList()
     if (uuid.isEmpty()){
         return false;
     }
-    QDBusPendingReply< QCloud::InfoList > files = ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(files);
-    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(filesFinished(QDBusPendingCallWatcher*)));
+    //QDBusPendingReply< QCloud::InfoList > files = ClientApp::instance()->client()->listFiles(uuid,currentDir);
+    ClientApp::instance()->client()->listFiles(uuid,currentDir);
+    //QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(files);
+    //connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), this, SLOT(filesFinished(QDBusPendingCallWatcher*)));
+    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(const QCloud::InfoList&)),this,SLOT(fileListFinished(QCloud::InfoList)));
     return true;
 }
 
@@ -133,3 +135,10 @@ void MainWindow::listButtonClicked()
 {
     loadFileList();
 }
+
+void MainWindow::fileListFinished(const QCloud::InfoList& info)
+{
+    qDebug() << "Got file list info";
+    m_fileModel->setInfoList(info);
+}
+
