@@ -107,8 +107,7 @@ int Service::listFiles(const QString& uuid,const QString& directory)
     qDebug() << account->backend()->userName();
     QCloud::Request* request = account->backend()->pathInfo(directory,&requestHander->entryInfo,&requestHander->entryList);
     requestHander->setRequest(request);
-    currentRequestId ++;
-    return currentRequestId - 1;
+    return currentRequestId ++;
 }
 
 ListFilesRequestHandler::ListFilesRequestHandler(int id,QCloud::Server* server,QObject* parent)
