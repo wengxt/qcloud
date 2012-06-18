@@ -37,6 +37,7 @@
         <method name="listFiles">
             <arg name="uuid" type="s" direction="in" />
             <arg name="directory" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
             <!---<arg name="file_list" type="a(ssss)" direction="out" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" /> -->
         </method>
@@ -44,6 +45,7 @@
         </signal>
         <signal name="directoryInfoTransformed">
             <arg name="info" type="a(ssss)"/>
+            <arg name="id" type="i" />
             <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QCloud::InfoList" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QCloud::InfoList" />
         </signal>

@@ -37,9 +37,9 @@ void Server::notifyAccountUpdated()
     emit accountUpdated();
 }
 
-void Server::notifyDirectoryInfoTransformed(const QCloud::InfoList& info)
+void Server::notifyDirectoryInfoTransformed(const QCloud::InfoList& info,int id)
 {
-    emit directoryInfoTransformed(info);
+    emit directoryInfoTransformed(info,id);
     qDebug() << "signal directoryInfoTransformed() sent";
 }
 
