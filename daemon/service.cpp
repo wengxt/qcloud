@@ -91,7 +91,7 @@ QCloud::InfoList Service::listAccounts()
         QCloud::Info info;
         info.setName(account->uuid());
         info.setDescription(QString("%1 - %2").arg(account->backend()->info().description()).arg(account->app()->description()));
-        info.setIconName("user");
+        info.setIconName(account->backend()->info().iconName());
         info.setDisplayName(account->userName());
 
         infoList << info;
@@ -133,7 +133,7 @@ void ListFilesRequestHandler::requestFinished()
     info.setDisplayName("..");
     info.setIconName(entryInfo.icon());
     infoList << info;
-    
+
     foreach(QCloud::EntryInfo i,entryList){
         fileInfo = QFileInfo(i.path());
         info.setName(i.path());
@@ -143,17 +143,17 @@ void ListFilesRequestHandler::requestFinished()
             info.setDescription("not_a_dir");
         info.setDisplayName(fileInfo.fileName());
         info.setIconName(i.icon());
-        
+
         qDebug() << info.name() << " " << info.description();
-        
+
         infoList << info;
     }
-    
-    m_server->notifyDirectoryInfoTransformed(infoList,m_id);   
+
+    m_server->notifyDirectoryInfoTransformed(infoList,m_id);
     delete this;
 }
 
 ListFilesRequestHandler::~ListFilesRequestHandler()
 {
-    
+
 }
