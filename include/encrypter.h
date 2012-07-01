@@ -3,13 +3,14 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCrypto/QtCrypto>
 #include "isecurestore.h"
 #include "qcloud_global.h"
 #define GROUP_NAME "QCloud_Encrypter"
 #define KEY_NAME "Key"
 
 namespace QCloud{
+
+class EncrypterPrivate;
 
 class QCLOUD_EXPORT Encrypter : public QObject
 {
@@ -20,13 +21,7 @@ public:
     bool encrypt(const QString& fileName,const QString& outputFile);
     bool decrypt(const QString& fileName,const QString& outputFile);
 private:
-    bool init();
-    void generateKey(QCA::SymmetricKey& key);
-
-    bool hasKey;
-    ISecureStore *m_storage;
-    QCA::SymmetricKey key;
-    QCA::Initializer initQCA;
+    EncrypterPrivate* d;
 };
 
 }

@@ -1,6 +1,6 @@
 #include "encrypter.h"
 #include "isecurestore.h"
-#include <QtCrypto/QtCrypto>
+#include <encrypter_p.h>
 #include <QFile>
 #include <QDebug>
 #include <QInputDialog>
@@ -20,33 +20,27 @@ inline static void clearString(QByteArray& st)
     st = "";
 }
 
-void Encrypter::generateKey(QCA::SymmetricKey& key)
+EncrypterPrivate::EncrypterPrivate(Encrypter* encrypter) : p(encrypter)
 {
-    //key = QCA::SymmetricKey(KEY_LEN);
-    qDebug() << "Setting generator";
-    QCA::PBKDF2 generator("sha1");
-    qDebug() << "Set generator";
-    key = generator.makeKey(
-              QCA::SecureArray(QInputDialog::getText(NULL,tr("Input Password"),
-                               tr("Password"),
-                               QLineEdit::PasswordEchoOnEdit).toAscii()),
-              QCA::InitializationVector(),KEY_LEN,10000);
 }
 
-inline bool Encrypter::init()
+EncrypterPrivate::~EncrypterPrivate()
 {
-    if (m_storage==NULL || (!m_storage->isAvailable())) {
+}
+
+bool EncrypterPrivate::init() {
+    if (storage==NULL || (!storage->isAvailable())) {
         qDebug() << "SecureStore is not available";
         return false;
     }
     if (!hasKey) {
         qDebug() << "Key not found , assume it is the first time to run encrypt/decrypt";
         QByteArray key_value;
-        if (!m_storage->readItem(GROUP_NAME, KEY_NAME, key_value)) {
+        if (!storage->readItem(GROUP_NAME, KEY_NAME, key_value)) {
             qDebug() << "Failed getting key , generating new value from user input";
             generateKey(key);
             qDebug() << "Finished generating.";
-            bool flag = m_storage->writeItem(GROUP_NAME, KEY_NAME, key.toByteArray());
+            bool flag = storage->writeItem(GROUP_NAME, KEY_NAME, key.toByteArray());
             qDebug() << "Finished Writing key";
             if (!flag) {
                 qDebug() << "Failed setting one of the items";
@@ -66,15 +60,26 @@ inline bool Encrypter::init()
     return true;
 }
 
-Encrypter::Encrypter(ISecureStore *storage)
+void EncrypterPrivate::generateKey(QCA::SymmetricKey& key) {
+    //key = QCA::SymmetricKey(KEY_LEN);
+    qDebug() << "Setting generator";
+    QCA::PBKDF2 generator("sha1");
+    qDebug() << "Set generator";
+    key = generator.makeKey(
+              QCA::SecureArray(QInputDialog::getText(NULL,p->tr("Input Password"),
+                               p->tr("Password"),
+                               QLineEdit::PasswordEchoOnEdit).toAscii()),
+              QCA::InitializationVector(),KEY_LEN,10000);
+}
+
+Encrypter::Encrypter(ISecureStore *storage) :
+    d(new EncrypterPrivate(this))
 {
-    m_storage = storage;
-    hasKey = false;
 }
 
 Encrypter::~Encrypter()
 {
-
+    delete d;
 }
 
 bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
@@ -99,14 +104,14 @@ bool Encrypter::encrypt(const QString& fileName,const QString& outputFile)
     }
     QCA::InitializationVector iv = QCA::InitializationVector(IV_LEN);
     writeFile.write(iv.toByteArray());
-    if (!init())
+    if (!d->init())
         return false;
 
     QCA::Cipher cipher("aes128",QCA::Cipher::ENC_TYPE,
                        //NoPadding with CFB or DefaultPadding with CBC
                        QCA::Cipher::PADDING,
                        QCA::Encode,
-                       key,iv);
+                       d->key,iv);
 
     QByteArray buf;
     writeFile.write(cipher.process(QCA::SecureArray(ENCRYPTER_TEST_CONTENT)).toByteArray());
@@ -169,7 +174,7 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
                        //NoPadding with CFB or DefaultPadding with CBC
                        QCA::Cipher::PADDING,
                        QCA::Decode,
-                       key,iv);
+                       d->key,iv);
 
     QByteArray buf;
     QCA::SecureArray bufRegion;
@@ -177,19 +182,19 @@ bool Encrypter::decrypt(const QString& fileName,const QString& outputFile)
     int cnt = 0;
     qDebug() << "Checking password , original content is " << QCA::arrayToHex(ENCRYPTER_TEST_CONTENT);
     while (cnt<3) {
-        if (!init()) {
+        if (!d->init()) {
             readFile.close();
             writeFile.close();
             return false;
         }
-        cipher.setup(QCA::Decode,key,iv);
+        cipher.setup(QCA::Decode,d->key,iv);
         bufRegion = cipher.process(QCA::SecureArray(buf));
         if ((bufRegion.toByteArray())==ENCRYPTER_TEST_CONTENT) {
             qDebug() << "Password checked ok!";
             break;
         }
-        hasKey = false;
-        m_storage->deleteItem(GROUP_NAME, KEY_NAME);
+        d->hasKey = false;
+        d->storage->deleteItem(GROUP_NAME, KEY_NAME);
         qDebug() << "Password incorrect! Decrypted content is " << QCA::arrayToHex(bufRegion.toByteArray());
         cnt ++;
     }
