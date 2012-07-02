@@ -1,6 +1,8 @@
 #include <QMainWindow>
 #include <QSet>
 #include "infomodel.h"
+#include "entryinfomodel.h"
+#include "entryinfo.h"
 
 class QDBusPendingCallWatcher;
 class InfoModel;
@@ -27,12 +29,12 @@ private slots:
     void deleteAccountButtonClicked();
     void fileListActivated();
     void listButtonClicked();
-    void fileListFinished(const QCloud::InfoList& info,int id);
+    void fileListFinished(const QCloud::EntryInfoList& info, int id);
 private:
     QWidget* m_widget;
     Ui::Tool* m_ui;
     InfoModel* m_accountModel;
-    InfoModel* m_fileModel;
+    EntryInfoModel* m_fileModel;
     QPushButton* m_addAccountButton;
     QPushButton* m_deleteAccountButton;
     QPushButton* m_listButton;

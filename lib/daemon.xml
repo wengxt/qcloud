@@ -44,10 +44,10 @@
         <signal name="accountUpdated">
         </signal>
         <signal name="directoryInfoTransformed">
-            <arg name="info" type="a(ssss)"/>
+            <arg name="info" type="a(sttsbss)"/>
             <arg name="id" type="i" />
-            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QCloud::InfoList" />
-            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QCloud::InfoList" />
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QCloud::EntryInfoList" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QCloud::EntryInfoList" />
         </signal>
     </interface>
 </node>

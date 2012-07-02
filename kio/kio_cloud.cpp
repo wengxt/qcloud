@@ -14,7 +14,36 @@
 #include <stdio.h>
 
 #include "kio_cloud.h"
+#include "requestwatcher.h"
 #include <client.h>
+
+
+#define KIO_CLOUD_DEBUG
+
+#ifdef KIO_CLOUD_DEBUG
+class KioDebug {
+public:
+    QDebug & kioDebug() {
+        static QFile log_file("/tmp/kio_cloud");
+        log_file.flush();
+        log_file.close();
+        log_file.open(QIODevice::WriteOnly | QIODevice::Append);
+
+        static QDebug log_stream(&log_file);
+        return log_stream;
+    }
+} _kiodebug;
+
+QDebug & kioDebug()
+{
+    return _kiodebug.kioDebug() << endl;
+}
+#else
+QDebug kioDebug()
+{
+    return qDebug();
+}
+#endif
 
 extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
 {
@@ -27,6 +56,7 @@ extern "C" int KDE_EXPORT kdemain(int argc, char **argv)
         exit(-1);
     }
     QCloud::Info::registerMetaType();
+    QCloud::EntryInfo::registerMetaType();
     // start the slave
     CloudSlave slave(argv[2], argv[3]);
     slave.dispatchLoop();
@@ -53,7 +83,7 @@ CloudSlave::~CloudSlave()
 void CloudSlave::stat (const KUrl& url)
 {
     if (isRootUrl(url)) {
-        kDebug() << "Stat root" << url;
+        kioDebug() << "Stat root" << url;
         //
         // stat the root path
         //
@@ -77,17 +107,16 @@ void CloudSlave::stat (const KUrl& url)
 
 void CloudSlave::get (const KUrl& url)
 {
-    kDebug() << "CloudSlave::listDir" << url.url();
+    kioDebug() << "CloudSlave::listDir" << url.url();
     KIO::SlaveBase::get (url);
 }
 
-
 void CloudSlave::listDir (const KUrl& url)
 {
-    kDebug() << "CloudSlave::listDir" << url.url();
+    kioDebug() << "CloudSlave::listDir" << url.url();
 
     if (!m_client->isValid()) {
-        kDebug() << "!!!!!!!!!!!!!!!NOT VALID";
+        kioDebug() << "!!!!!!!!!!!!!!!NOT VALID";
         error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
     }
 
@@ -102,7 +131,7 @@ void CloudSlave::listDir (const KUrl& url)
 
         KIO::UDSEntry uds;
         Q_FOREACH(const QCloud::Info & account, result.value()) {
-            kDebug() << account.name() << account.iconName();
+            kioDebug() << account.name() << account.iconName();
             uds.clear();
             uds.insert(KIO::UDSEntry::UDS_NAME, account.name());
             uds.insert(KIO::UDSEntry::UDS_DISPLAY_NAME, account.displayName());
@@ -117,6 +146,52 @@ void CloudSlave::listDir (const KUrl& url)
 
         finished();
     }
-    else
-        error(KIO::ERR_DOES_NOT_EXIST, url.prettyUrl());
+    else {
+        QString path = url.path();
+        if (!path.isEmpty() && path[0] == '/')
+            path = path.mid(1);
+        QString uid = path.section('/', 0, 0);
+        kioDebug() <<  path << uid << path.section('/', 1);
+        QDBusPendingReply< int > requestId = m_client->listFiles(uid, path.section('/', 1));
+        requestId.waitForFinished();
+
+        kioDebug() << uid << path.section('/', 1);
+
+        if (requestId.isError()) {
+            error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
+            return;
+        }
+
+        int id = requestId.value();
+        if (id < 0) {
+            error(KIO::ERR_UNSUPPORTED_ACTION, url.prettyUrl());
+            return;
+        }
+
+        RequestWatcher watcher(requestId);
+        QObject::connect(m_client, SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)), &watcher, SLOT(receivedList(QCloud::EntryInfoList,int)));
+
+        QEventLoop loop;
+        QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+        loop.exec();
+
+        KIO::UDSEntry uds;
+        Q_FOREACH(const QCloud::EntryInfo & item, watcher.m_entryinfo) {
+            kioDebug() << item.path() << item.modifiedTime() << item.isDir();
+            QFileInfo f(item.path());
+            uds.clear();
+            uds.insert(KIO::UDSEntry::UDS_NAME, f.fileName());
+            uds.insert(KIO::UDSEntry::UDS_SIZE, item.size());
+            uds.insert(KIO::UDSEntry::UDS_ICON_NAME, item.icon());
+            uds.insert(KIO::UDSEntry::UDS_FILE_TYPE, item.isDir()? S_IFDIR: S_IFREG);
+            uds.insert(KIO::UDSEntry::UDS_ACCESS, 0500);
+            uds.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, item.modifiedTime().toTime_t());
+            uds.insert(KIO::UDSEntry::UDS_MIME_TYPE, item.mime());
+            listEntry(uds, false);
+        }
+        totalSize(watcher.m_entryinfo.count());
+        listEntry(uds, true);
+
+        finished();
+    }
 }

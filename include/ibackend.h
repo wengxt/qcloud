@@ -31,7 +31,7 @@ public:
     virtual Request* moveFile (const QString& fromPath,const QString& toPath) = 0;
     virtual Request* createFolder (const QString& path) = 0;
     virtual Request* deleteFile (const QString& path) = 0;
-    virtual Request* pathInfo (const QString& path,EntryInfo* info = NULL,EntryList* contents = NULL) = 0;
+    virtual Request* pathInfo (const QString& path,EntryInfo* info = NULL,EntryInfoList* contents = NULL) = 0;
     virtual void saveAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore) = 0;
     virtual void loadAccountInfo (const QString& key, QSettings& settings, ISecureStore* secureStore) = 0;
     virtual void deleteSecretInfo (const QString& key, ISecureStore* securestore) = 0;

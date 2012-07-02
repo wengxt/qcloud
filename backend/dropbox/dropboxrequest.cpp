@@ -8,8 +8,7 @@
 #include <qjson/parser.h>
 #include "dropboxrequest.h"
 #include "dropbox.h"
-
-#include <QDebug>
+#include <qcloud_utils.h>
 
 #define BUF_SIZE 512
 
@@ -77,17 +76,17 @@ QString DropboxRequest::getRootType()
 
 void DropboxRequest::readyForRead()
 {
-    
+
 }
 
 void DropboxRequest::replyFinished()
 {
-    
+
 }
 
 DropboxRequest::~DropboxRequest()
 {
-    
+
 }
 
 DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, const QString& remoteFilePath) :
@@ -99,9 +98,9 @@ m_file (localFileName)
         QTimer::singleShot (0, this, SIGNAL (finished()));
         return;
     }
-    
+
     m_buffer.open (QBuffer::ReadWrite);
-    
+
     QString surl;
     surl = "https://api-content.dropbox.com/1/files_put/%1/%2";
     surl = surl.arg (getRootType(),remoteFilePath);
@@ -125,7 +124,7 @@ void DropboxUploadRequest::replyFinished()
         qDebug() << "Reponse error " << m_reply->errorString();
         m_error = NetworkError;
     }
-    
+
     m_buffer.seek (0);
     // Lets print the HTTP PUT response.
     QVariant result = m_parser.parse (m_buffer.data());
@@ -309,16 +308,18 @@ DropboxDeleteRequest::~DropboxDeleteRequest()
 QCloud::EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoMap)
 {
     QCloud::EntryInfo info;
+    qDebug() << infoMap["modified"].toString() << infoMap["modified"].toDateTime() << QDateTime::fromString(infoMap["modified"].toString(), Qt::ISODate);
     info.setValue(QCloud::EntryInfo::SizeType,infoMap["bytes"]);
     info.setValue(QCloud::EntryInfo::DirType, infoMap["is_dir"]);
     info.setValue(QCloud::EntryInfo::HashType,infoMap["hash"]);
-    info.setValue(QCloud::EntryInfo::IconType,infoMap["icon"]);
+    info.setValue(QCloud::EntryInfo::IconType,Dropbox::mapIcon(infoMap["icon"].toString(), info.isDir()));
     info.setValue(QCloud::EntryInfo::PathType,infoMap["path"]);
-    info.setValue(QCloud::EntryInfo::ModifiedTimeType,infoMap["modified"]);
+    info.setValue(QCloud::EntryInfo::ModifiedTimeType, QCloud::parseRFC2822Date(infoMap["modified"].toString()));
+    info.setValue(QCloud::EntryInfo::MimeType,info.isDir() ? "inode/directory" : infoMap["mime_type"]);
     return info;
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info,QCloud::EntryList* contents)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info,QCloud::EntryInfoList* contents)
 {
     m_dropbox = dropbox;
     m_info = info;
@@ -353,7 +354,7 @@ void DropboxGetInfoRequest::replyFinished()
         if (infoMap["is_dir"].toBool()==false)
             qDebug() << "Not a directory!";
         else{
-            QCloud::EntryList infoList;
+            QCloud::EntryInfoList infoList;
             infoList.clear();
             QVariantList contentsList = infoMap["contents"].toList();
             foreach(QVariant i,contentsList){

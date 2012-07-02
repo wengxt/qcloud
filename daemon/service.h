@@ -23,7 +23,7 @@ public:
     virtual void deleteAccount (const QString& uuid);
     virtual int uploadFile (const QString& app_name, const QStringList& file_list);
     virtual int sync (const QString& app_name);
-    
+
 private:
     Daemon* m_daemon;
     int currentRequestId;
@@ -36,12 +36,12 @@ class ListFilesRequestHandler : public QCloud::RequestHandler
 public:
     explicit ListFilesRequestHandler(int id,QCloud::Server* server,QObject* parent=0);
     virtual ~ListFilesRequestHandler();
-    
+
 public slots:
     virtual void requestFinished();
-    
+
 protected:
-    QCloud::EntryList entryList;
+    QCloud::EntryInfoList entryInfoList;
     QCloud::EntryInfo entryInfo;
 };
 

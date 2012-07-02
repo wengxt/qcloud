@@ -3,7 +3,6 @@ include_directories(${PROJECT_SOURCE_DIR}/securestore/kwallet/ ${QCA2_INCLUDE_DI
 qt4_wrap_cpp(
     encrypter_test_MOC_SRCS
     ${PROJECT_SOURCE_DIR}/securestore/kwallet/kwalletstore.h
-    ${PROJECT_SOURCE_DIR}/include/encrypter.h
 )
 
 add_executable(encrypter_test

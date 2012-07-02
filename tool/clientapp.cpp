@@ -10,6 +10,7 @@ ClientApp::ClientApp (int& argc, char** argv) : QApplication (argc, argv)
     ,m_mainWindow(new MainWindow)
 {
     QCloud::Info::registerMetaType();
+    QCloud::EntryInfo::registerMetaType();
     m_client = new QCloud::Client(this);
     m_mainWindow->show();
 

@@ -5,6 +5,7 @@
 #include <QtDBus/QDBusPendingReply>
 #include <QtCloud/App>
 #include <QtCloud/Info>
+#include <QtCloud/EntryInfo>
 #include "qcloud_global.h"
 
 namespace QCloud
@@ -29,7 +30,7 @@ public:
     QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
 signals:
     void accountUpdated();
-    void directoryInfoTransformed(const QCloud::InfoList& infoList,int id);
+    void directoryInfoTransformed(const QCloud::EntryInfoList& infoList,int id);
 protected:
     ClientPrivate* d;
 };

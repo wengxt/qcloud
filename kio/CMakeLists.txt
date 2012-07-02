@@ -2,7 +2,9 @@ add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 include_directories(${KDE4_INCLUDES} ${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} . )
 
 set(kio_cloud_PART_SRCS
-   kio_cloud.cpp)
+   kio_cloud.cpp
+   requestwatcher.cpp
+   )
 
 kde4_add_plugin(kio_cloud ${kio_cloud_PART_SRCS})
 

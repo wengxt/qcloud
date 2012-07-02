@@ -20,7 +20,7 @@ Client::Client (QObject* parent) : QObject (parent)
     , d (new ClientPrivate (this))
 {
     connect(d->daemon, SIGNAL(accountUpdated()), this, SIGNAL(accountUpdated()));
-    connect(d->daemon, SIGNAL(directoryInfoTransformed(QCloud::InfoList,int)), this, SIGNAL(directoryInfoTransformed(QCloud::InfoList,int)));
+    connect(d->daemon, SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)), this, SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)));
 }
 
 Client::~Client()

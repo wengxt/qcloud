@@ -71,7 +71,7 @@ qt4_add_dbus_adaptor(qcloud_SRCS
 
 set_property(
     SOURCE daemon.xml
-    PROPERTY INCLUDE info.h
+    PROPERTY INCLUDE types.h
 )
 
 qt4_add_dbus_interface(qcloud_SRCS

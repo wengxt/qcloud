@@ -14,7 +14,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     , m_widget (new QWidget (this))
     , m_ui (new Ui::Tool)
     , m_accountModel (new InfoModel(this))
-    , m_fileModel(new InfoModel(this))
+    , m_fileModel(new EntryInfoModel(this))
 {
     currentDir = "";
 
@@ -108,7 +108,7 @@ bool MainWindow::loadFileList()
     loop.exec();
     idSet.insert(id.value());
     //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
-    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList,int)),this,SLOT(fileListFinished(QCloud::InfoList,int)));
+    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)),this,SLOT(fileListFinished(QCloud::EntryInfoList,int)));
     return true;
 }
 
@@ -134,12 +134,12 @@ void MainWindow::listButtonClicked()
     loadFileList();
 }
 
-void MainWindow::fileListFinished(const QCloud::InfoList& info,int id)
+void MainWindow::fileListFinished(const QCloud::EntryInfoList& info,int id)
 {
     if (!idSet.contains(id))
         return ;
     idSet.remove(id);
     qDebug() << "Got file list info with ID : " << id;
-    m_fileModel->setInfoList(info);
+    m_fileModel->setEntryInfoList(info);
 }
 

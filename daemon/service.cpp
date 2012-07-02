@@ -104,8 +104,10 @@ int Service::listFiles(const QString& uuid,const QString& directory)
 {
     ListFilesRequestHandler* requestHander = new ListFilesRequestHandler(currentRequestId,this,this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
     qDebug() << account->backend()->userName();
-    QCloud::Request* request = account->backend()->pathInfo(directory,&requestHander->entryInfo,&requestHander->entryList);
+    QCloud::Request* request = account->backend()->pathInfo(directory,&requestHander->entryInfo,&requestHander->entryInfoList);
     requestHander->setRequest(request);
     return currentRequestId ++;
 }
@@ -120,36 +122,8 @@ ListFilesRequestHandler::ListFilesRequestHandler(int id,QCloud::Server* server,Q
 void ListFilesRequestHandler::requestFinished()
 {
     qDebug() << "Sending finished signal...";
-    QCloud::InfoList infoList;
-    infoList.clear();
-    QCloud::Info info;
-    //set ..
-    QFileInfo fileInfo(entryInfo.path());
-    info.setName(fileInfo.path());
-    if (entryInfo.isDir())
-        info.setDescription("is_dir");
-    else
-        info.setDescription("not_a_dir");
-    info.setDisplayName("..");
-    info.setIconName(entryInfo.icon());
-    infoList << info;
 
-    foreach(QCloud::EntryInfo i,entryList){
-        fileInfo = QFileInfo(i.path());
-        info.setName(i.path());
-        if (i.isDir())
-            info.setDescription("is_dir");
-        else
-            info.setDescription("not_a_dir");
-        info.setDisplayName(fileInfo.fileName());
-        info.setIconName(i.icon());
-
-        qDebug() << info.name() << " " << info.description();
-
-        infoList << info;
-    }
-
-    m_server->notifyDirectoryInfoTransformed(infoList,m_id);
+    m_server->notifyDirectoryInfoTransformed(entryInfoList,m_id);
     delete this;
 }
 

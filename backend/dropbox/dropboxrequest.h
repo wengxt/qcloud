@@ -12,7 +12,6 @@
 
 class QNetworkReply;
 class QFile;
-class EntryInfo;
 
 class Dropbox;
 class DropboxRequest : public QCloud::Request
@@ -124,7 +123,7 @@ class DropboxGetInfoRequest : public DropboxRequest
 {
     Q_OBJECT
 public:
-    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info,QCloud::EntryList* contents);
+    DropboxGetInfoRequest (Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info,QCloud::EntryInfoList* contents);
     virtual ~DropboxGetInfoRequest();
 protected slots:
     virtual void readyForRead();
@@ -133,7 +132,7 @@ protected:
     QJson::Parser m_parser;
     QBuffer m_buffer;
     QCloud::EntryInfo* m_info;
-    QCloud::EntryList* m_contents;
+    QCloud::EntryInfoList* m_contents;
 private:
     QCloud::EntryInfo getInfoFromMap(const QVariantMap& infoMap);
 };

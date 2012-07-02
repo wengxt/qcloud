@@ -6,6 +6,7 @@ set(tool_SRCS
     main.cpp
     clientapp.cpp
     infomodel.cpp
+    entryinfomodel.cpp
     )
 
 set(tool_MOC_HDRS
@@ -13,6 +14,7 @@ set(tool_MOC_HDRS
     mainwindow.h
     clientapp.h
     infomodel.h
+    entryinfomodel.h
     )
 
 qt4_wrap_cpp(

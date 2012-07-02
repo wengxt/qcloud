@@ -20,6 +20,7 @@ Server::Server (QObject* parent) : QObject (parent)
     , d(new ServerPrivate(this))
 {
     Info::registerMetaType();
+    EntryInfo::registerMetaType();
     d->session.registerObject ("/daemon", this);
     if (d->session.registerService ("org.qcloud.Daemon"))
         d->valid = true;
@@ -37,7 +38,7 @@ void Server::notifyAccountUpdated()
     emit accountUpdated();
 }
 
-void Server::notifyDirectoryInfoTransformed(const QCloud::InfoList& info,int id)
+void Server::notifyDirectoryInfoTransformed(const QCloud::EntryInfoList& info,int id)
 {
     emit directoryInfoTransformed(info,id);
     qDebug() << "signal directoryInfoTransformed() sent";
