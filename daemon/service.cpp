@@ -136,6 +136,43 @@ int Service::deleteFile (const QString& uuid, const QString& path)
     return currentRequestId ++;
 }
 
+int Service::moveFile (const QString& uuid, const QString& src, const QString& dst)
+{
+    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    qDebug() << account->backend()->userName();
+    QCloud::Request* request = account->backend()->moveFile(src, dst);
+    requestHander->setRequest(request);
+    return currentRequestId ++;
+}
+
+int Service::copyFile (const QString& uuid, const QString& src, const QString& dst)
+{
+    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    qDebug() << account->backend()->userName();
+    QCloud::Request* request = account->backend()->copyFile(src, dst);
+    requestHander->setRequest(request);
+    return currentRequestId ++;
+}
+
+int Service::fetchInfo (const QString& uuid, const QString& path)
+{
+    FileInfoRequestHandler* requestHander = new FileInfoRequestHandler(currentRequestId, this, this);
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    qDebug() << account->backend()->userName();
+    QCloud::Request* request = account->backend()->pathInfo(path, &requestHander->entryInfo);
+    requestHander->setRequest(request);
+    return currentRequestId ++;
+}
+
+
 ListFilesRequestHandler::ListFilesRequestHandler(int id, QCloud::Server* server,QObject* parent)
 {
     m_id = id;
@@ -152,6 +189,27 @@ void ListFilesRequestHandler::requestFinished()
 }
 
 ListFilesRequestHandler::~ListFilesRequestHandler()
+{
+
+}
+
+
+FileInfoRequestHandler::FileInfoRequestHandler(int id, QCloud::Server* server,QObject* parent)
+{
+    m_id = id;
+    m_server = server;
+}
+
+
+void FileInfoRequestHandler::requestFinished()
+{
+    qDebug() << "Sending finished signal...";
+
+    m_server->notifyFileInfoTransformed(m_id, m_request->error(), entryInfo);
+    delete this;
+}
+
+FileInfoRequestHandler::~FileInfoRequestHandler()
 {
 
 }

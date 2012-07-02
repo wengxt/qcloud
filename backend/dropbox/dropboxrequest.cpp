@@ -195,10 +195,14 @@ void DropboxCopyRequest::replyFinished()
     if (m_reply->error() != QNetworkReply::NoError) {
         m_error = NetworkError;
         qDebug() << "Reponse error " << m_reply->errorString();
-        return ;
+        QVariant result = m_parser.parse (m_buffer.data());
+        qDebug() << result;
+
+        QString err = result.toMap()["error"].toString();
+        qDebug() << err;
+        if (err.contains("already exists"))
+            m_error = Request::FileExistsError;
     }
-    QVariant result = m_parser.parse (m_buffer.data());
-    qDebug() << result;
     emit finished();
 }
 
@@ -230,7 +234,6 @@ void DropboxMoveRequest::replyFinished()
     if (m_reply->error() != QNetworkReply::NoError) {
         m_error = NetworkError;
         qDebug() << "Reponse error " << m_reply->errorString();
-        return ;
     }
     QVariant result = m_parser.parse (m_buffer.data());
     qDebug() << result;
@@ -346,7 +349,6 @@ void DropboxGetInfoRequest::replyFinished()
     if (m_reply->error() != QNetworkReply::NoError){
         m_error = NetworkError;
         qDebug() << "Reponse error " << m_reply->errorString();
-        return ;
     }
     QVariant result = m_parser.parse(m_buffer.data());
     qDebug() << result;

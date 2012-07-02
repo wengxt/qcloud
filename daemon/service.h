@@ -25,6 +25,9 @@ public:
     virtual int sync (const QString& app_name);
     virtual int createFolder (const QString& uuid, const QString& directory);
     virtual int deleteFile (const QString& uuid, const QString& path);
+    virtual int moveFile (const QString& uuid, const QString& src, const QString& dst);
+    virtual int copyFile (const QString& uuid, const QString& src, const QString& dst);
+    virtual int fetchInfo (const QString& uuid, const QString& directory);
 
 private:
     Daemon* m_daemon;
@@ -44,6 +47,21 @@ public slots:
 
 protected:
     QCloud::EntryInfoList entryInfoList;
+    QCloud::EntryInfo entryInfo;
+};
+
+class FileInfoRequestHandler : public QCloud::RequestHandler
+{
+    Q_OBJECT
+    friend class Service;
+public:
+    explicit FileInfoRequestHandler(int id,QCloud::Server* server,QObject* parent=0);
+    virtual ~FileInfoRequestHandler();
+
+public slots:
+    virtual void requestFinished();
+
+protected:
     QCloud::EntryInfo entryInfo;
 };
 

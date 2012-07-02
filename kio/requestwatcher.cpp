@@ -13,10 +13,20 @@ void RequestWatcher::requestFinished (int id, uint error)
     }
 }
 
-void RequestWatcher::receivedList (int id, uint error, const QCloud::EntryInfoList& info)
+
+void RequestWatcher::reveivedInfo (int id, uint error, const QCloud::EntryInfo& info)
 {
     if (id == m_requestId) {
         m_entryinfo = info;
+        m_error = error;
+        emit end();
+    }
+}
+
+void RequestWatcher::receivedList (int id, uint error, const QCloud::EntryInfoList& info)
+{
+    if (id == m_requestId) {
+        m_entryinfolist = info;
         m_error = error;
         emit end();
     }

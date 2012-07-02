@@ -31,8 +31,12 @@ public:
     virtual int sync (const QString& app_name) = 0;
     virtual int createFolder (const QString& uuid, const QString& directory) = 0;
     virtual int deleteFile (const QString& uuid, const QString& path) = 0;
+    virtual int moveFile (const QString& uuid, const QString& src, const QString& dst) = 0;
+    virtual int copyFile (const QString& uuid, const QString& src, const QString& dst) = 0;
+    virtual int fetchInfo (const QString& uuid, const QString& directory) = 0;
     void notifyAccountUpdated();
     void notifyDirectoryInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfoList& info);
+    void notifyFileInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfo& info);
     void notifyRequestFinished(int id, QCloud::Request::Error error);
     bool isValid() const;
 
@@ -40,6 +44,7 @@ signals:
     void accountUpdated();
     void requestFinished(int id, uint error);
     void directoryInfoTransformed(int id, uint error, const QCloud::EntryInfoList& info);
+    void fileInfoTransformed(int id, uint error, const QCloud::EntryInfo& info);
 private:
     Q_DISABLE_COPY (Server)
     ServerPrivate* d;

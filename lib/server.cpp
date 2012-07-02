@@ -44,6 +44,12 @@ void Server::notifyDirectoryInfoTransformed(int id, QCloud::Request::Error error
     qDebug() << "signal directoryInfoTransformed() sent";
 }
 
+void Server::notifyFileInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfo& info)
+{
+    emit fileInfoTransformed(id,(uint)error,info);
+    qDebug() << "signal fileInfoTransformed() sent";
+}
+
 void Server::notifyRequestFinished(int id, QCloud::Request::Error error)
 {
     emit requestFinished(id, (uint)error);

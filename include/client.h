@@ -31,8 +31,12 @@ public:
     QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
     QDBusPendingReply<int> createFolder(const QString& uuid, const QString& path);
     QDBusPendingReply<int> deleteFile (const QString& uuid, const QString& path);
+    QDBusPendingReply<int> moveFile (const QString& uid1, const QString& src, const QString& dest);
+    QDBusPendingReply<int> copyFile (const QString& uid1, const QString& src, const QString& dest);
+    QDBusPendingReply<int> fetchInfo (const QString& uuid, const QString& path);
 signals:
     void accountUpdated();
+    void fileInfoTransformed(int id, uint error, const QCloud::EntryInfo &info);
     void directoryInfoTransformed(int id, uint error, const QCloud::EntryInfoList &info);
     void requestFinished(int id, uint error);
 protected:

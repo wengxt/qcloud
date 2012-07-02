@@ -22,6 +22,7 @@ Client::Client (QObject* parent) : QObject (parent)
     connect(d->daemon, SIGNAL(accountUpdated()), this, SIGNAL(accountUpdated()));
     connect(d->daemon, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)), this, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)));
     connect(d->daemon, SIGNAL(requestFinished(int,uint)), this, SIGNAL(requestFinished(int,uint)));
+    connect(d->daemon, SIGNAL(fileInfoTransformed(int,uint,QCloud::EntryInfo)), this, SIGNAL(fileInfoTransformed(int,uint,QCloud::EntryInfo)));
 }
 
 Client::~Client()
@@ -83,5 +84,21 @@ QDBusPendingReply<int> Client::deleteFile(const QString& uuid,const QString& dir
 {
     return d->daemon->deleteFile(uuid, directory);
 }
+
+QDBusPendingReply<int> Client::moveFile(const QString& uuid,const QString& src, const QString& dest)
+{
+    return d->daemon->moveFile(uuid, src, dest);
+}
+
+QDBusPendingReply<int> Client::copyFile(const QString& uuid,const QString& src, const QString& dest)
+{
+    return d->daemon->copyFile(uuid, src, dest);
+}
+
+QDBusPendingReply<int> Client::fetchInfo(const QString& uuid,const QString& directory)
+{
+    return d->daemon->fetchInfo(uuid, directory);
+}
+
 
 }

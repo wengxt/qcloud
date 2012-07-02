@@ -46,9 +46,26 @@
             <arg name="directory" type="s" direction="in" />
             <arg name="request_id" type="i" direction="out" />
         </method>
+        <method name="fetchInfo">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="directory" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
+        </method>
         <method name="deleteFile">
             <arg name="uuid" type="s" direction="in" />
             <arg name="directory" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
+        </method>
+        <method name="moveFile">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="src" type="s" direction="in" />
+            <arg name="dst" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
+        </method>
+        <method name="copyFile">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="src" type="s" direction="in" />
+            <arg name="dst" type="s" direction="in" />
             <arg name="request_id" type="i" direction="out" />
         </method>
         <signal name="requestFinished">
@@ -63,6 +80,13 @@
             <arg name="info" type="a(sttsbss)"/>
             <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="QCloud::EntryInfoList" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.In2" value="QCloud::EntryInfoList" />
+        </signal>
+        <signal name="fileInfoTransformed">
+            <arg name="id" type="i" />
+            <arg name="error" type="u"/>
+            <arg name="info" type="(sttsbss)"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="QCloud::EntryInfo" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In2" value="QCloud::EntryInfo" />
         </signal>
     </interface>
 </node>

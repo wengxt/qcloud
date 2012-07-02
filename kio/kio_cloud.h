@@ -22,6 +22,8 @@ protected:
     virtual void get (const KUrl& url);
     virtual void mkdir (const KUrl& url, int permissions);
     virtual void del (const KUrl& url, bool isfile);
+    virtual void rename (const KUrl& src, const KUrl& dest, KIO::JobFlags flags);
+    virtual void copy (const KUrl& src, const KUrl& dest, int permissions, KIO::JobFlags flags);
     QCloud::Client* m_client;
 };
 
