@@ -375,6 +375,9 @@ void CloudSlave::copy (const KUrl& src, const KUrl& dest, int permissions, KIO::
         case QCloud::Request::FileExistsError:
             error(KIO::ERR_FILE_ALREADY_EXIST, dest.prettyUrl());
             break;
+        case QCloud::Request::FileNotFoundError:
+            error(KIO::ERR_DOES_NOT_EXIST, dest.prettyUrl());
+            break;
         default:
             error(KIO::ERR_UNKNOWN, dest.prettyUrl());
             break;

@@ -195,13 +195,30 @@ void DropboxCopyRequest::replyFinished()
     if (m_reply->error() != QNetworkReply::NoError) {
         m_error = NetworkError;
         qDebug() << "Reponse error " << m_reply->errorString();
-        QVariant result = m_parser.parse (m_buffer.data());
-        qDebug() << result;
+    }
+    QVariant result = m_parser.parse (m_buffer.data());
+    qDebug() << result;
 
-        QString err = result.toMap()["error"].toString();
+    QVariantMap map = qvariant_cast<QVariantMap>(result);
+    if (!map.isEmpty() && map.contains("error")) {
+        QString err = map["error"].toString();
         qDebug() << err;
+
+        /*
+         * See this for more info:
+         * https://www.dropbox.com/developers/reference/api#fileops-copy
+         *
+         * 403: Shared folders within app folders are not allowed by dropbox.
+         * 406: We just move a file to another, can meet this error.
+         *
+         * So don't need to check these situations.
+         */
         if (err.contains("already exists"))
             m_error = Request::FileExistsError;
+        else if (err.contains ("not found"))
+            m_error = Request::FileNotFoundError;
+        else
+            m_error = Request::OtherError;
     }
     emit finished();
 }

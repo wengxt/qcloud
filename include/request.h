@@ -14,7 +14,9 @@ public:
         AuthorizeError,
         NetworkError,
         FileError,
-        FileExistsError
+        FileExistsError,
+        FileNotFoundError,
+        OtherError
     };
 
     explicit Request (QObject* parent = 0);
