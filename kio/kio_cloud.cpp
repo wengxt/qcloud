@@ -169,7 +169,7 @@ void CloudSlave::listDir (const KUrl& url)
         }
 
         RequestWatcher watcher(requestId);
-        QObject::connect(m_client, SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)), &watcher, SLOT(receivedList(QCloud::EntryInfoList,int)));
+        QObject::connect(m_client, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)), &watcher, SLOT(receivedList(int,uint,QCloud::EntryInfoList)));
 
         QEventLoop loop;
         QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
@@ -194,4 +194,62 @@ void CloudSlave::listDir (const KUrl& url)
 
         finished();
     }
+}
+
+void CloudSlave::mkdir (const KUrl& url, int permissions)
+{
+    QString path = url.path();
+    if (!path.isEmpty() && path[0] == '/')
+        path = path.mid(1);
+    QString uid = path.section('/', 0, 0);
+    kioDebug() <<  path << uid << path.section('/', 1);
+    QDBusPendingReply< int > requestId = m_client->createFolder(uid, path.section('/', 1));
+    requestId.waitForFinished();
+
+    if (requestId.isError()) {
+        error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
+        return;
+    }
+
+    int id = requestId.value();
+    if (id < 0) {
+        error(KIO::ERR_UNSUPPORTED_ACTION, url.prettyUrl());
+        return;
+    }
+    RequestWatcher watcher(requestId);
+    QObject::connect(m_client, SIGNAL(requestFinished(int,uint)), &watcher, SLOT(requestFinished(int,uint)));
+
+    QEventLoop loop;
+    QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+    loop.exec();
+    finished();
+}
+
+void CloudSlave::del (const KUrl& url, bool isfile)
+{
+    QString path = url.path();
+    if (!path.isEmpty() && path[0] == '/')
+        path = path.mid(1);
+    QString uid = path.section('/', 0, 0);
+    kioDebug() <<  path << uid << path.section('/', 1);
+    QDBusPendingReply< int > requestId = m_client->deleteFile(uid, path.section('/', 1));
+    requestId.waitForFinished();
+
+    if (requestId.isError()) {
+        error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
+        return;
+    }
+
+    int id = requestId.value();
+    if (id < 0) {
+        error(KIO::ERR_UNSUPPORTED_ACTION, url.prettyUrl());
+        return;
+    }
+    RequestWatcher watcher(requestId);
+    QObject::connect(m_client, SIGNAL(requestFinished(int,uint)), &watcher, SLOT(requestFinished(int,uint)));
+
+    QEventLoop loop;
+    QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+    loop.exec();
+    finished();
 }

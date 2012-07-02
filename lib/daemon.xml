@@ -41,13 +41,28 @@
             <!---<arg name="file_list" type="a(ssss)" direction="out" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" /> -->
         </method>
+        <method name="createFolder">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="directory" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
+        </method>
+        <method name="deleteFile">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="directory" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
+        </method>
+        <signal name="requestFinished">
+            <arg name="request_id" type="i"/>
+            <arg name="error" type="u"/>
+        </signal>
         <signal name="accountUpdated">
         </signal>
         <signal name="directoryInfoTransformed">
-            <arg name="info" type="a(sttsbss)"/>
             <arg name="id" type="i" />
-            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QCloud::EntryInfoList" />
-            <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QCloud::EntryInfoList" />
+            <arg name="error" type="u"/>
+            <arg name="info" type="a(sttsbss)"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="QCloud::EntryInfoList" />
+            <annotation name="com.trolltech.QtDBus.QtTypeName.In2" value="QCloud::EntryInfoList" />
         </signal>
     </interface>
 </node>

@@ -29,7 +29,7 @@ private slots:
     void deleteAccountButtonClicked();
     void fileListActivated();
     void listButtonClicked();
-    void fileListFinished(const QCloud::EntryInfoList& info, int id);
+    void fileListFinished(int id, uint error, const QCloud::EntryInfoList& info);
 private:
     QWidget* m_widget;
     Ui::Tool* m_ui;

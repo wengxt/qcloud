@@ -112,7 +112,31 @@ int Service::listFiles(const QString& uuid,const QString& directory)
     return currentRequestId ++;
 }
 
-ListFilesRequestHandler::ListFilesRequestHandler(int id,QCloud::Server* server,QObject* parent)
+int Service::createFolder (const QString& uuid, const QString& directory)
+{
+    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    qDebug() << account->backend()->userName();
+    QCloud::Request* request = account->backend()->createFolder(directory);
+    requestHander->setRequest(request);
+    return currentRequestId ++;
+}
+
+int Service::deleteFile (const QString& uuid, const QString& path)
+{
+    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    qDebug() << account->backend()->userName();
+    QCloud::Request* request = account->backend()->deleteFile(path);
+    requestHander->setRequest(request);
+    return currentRequestId ++;
+}
+
+ListFilesRequestHandler::ListFilesRequestHandler(int id, QCloud::Server* server,QObject* parent)
 {
     m_id = id;
     m_server = server;
@@ -123,11 +147,31 @@ void ListFilesRequestHandler::requestFinished()
 {
     qDebug() << "Sending finished signal...";
 
-    m_server->notifyDirectoryInfoTransformed(entryInfoList,m_id);
+    m_server->notifyDirectoryInfoTransformed(m_id, m_request->error(), entryInfoList);
     delete this;
 }
 
 ListFilesRequestHandler::~ListFilesRequestHandler()
 {
 
+}
+
+
+GeneralRequestHandler::GeneralRequestHandler(int id, QCloud::Server* server,QObject* parent)
+{
+    m_id = id;
+    m_server = server;
+}
+GeneralRequestHandler::~GeneralRequestHandler()
+{
+
+}
+
+
+void GeneralRequestHandler::requestFinished()
+{
+    qDebug() << "Sending finished signal...";
+
+    m_server->notifyRequestFinished(m_id, m_request->error());
+    delete this;
 }

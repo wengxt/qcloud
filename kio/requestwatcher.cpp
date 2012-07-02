@@ -5,10 +5,19 @@ RequestWatcher::RequestWatcher (int requestId, QObject* object) : QObject (objec
     m_requestId = requestId;
 }
 
-void RequestWatcher::receivedList (const QCloud::EntryInfoList& entryinfo, int requestId)
+void RequestWatcher::requestFinished (int id, uint error)
 {
-    if (requestId == m_requestId) {
-        m_entryinfo = entryinfo;
+    if (id == m_requestId) {
+        m_error = error;
+        emit end();
+    }
+}
+
+void RequestWatcher::receivedList (int id, uint error, const QCloud::EntryInfoList& info)
+{
+    if (id == m_requestId) {
+        m_entryinfo = info;
+        m_error = error;
         emit end();
     }
 }

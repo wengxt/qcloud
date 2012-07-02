@@ -20,7 +20,8 @@ Client::Client (QObject* parent) : QObject (parent)
     , d (new ClientPrivate (this))
 {
     connect(d->daemon, SIGNAL(accountUpdated()), this, SIGNAL(accountUpdated()));
-    connect(d->daemon, SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)), this, SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)));
+    connect(d->daemon, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)), this, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)));
+    connect(d->daemon, SIGNAL(requestFinished(int,uint)), this, SIGNAL(requestFinished(int,uint)));
 }
 
 Client::~Client()
@@ -71,6 +72,16 @@ QDBusPendingReply< int > Client::sync (const QString& app_name)
 QDBusPendingReply< int > Client::uploadFile (const QString& app_name, const QStringList& file_list)
 {
     return d->daemon->uploadFile (app_name, file_list);
+}
+
+QDBusPendingReply<int> Client::createFolder(const QString& uuid,const QString& directory)
+{
+    return d->daemon->createFolder(uuid, directory);
+}
+
+QDBusPendingReply<int> Client::deleteFile(const QString& uuid,const QString& directory)
+{
+    return d->daemon->deleteFile(uuid, directory);
 }
 
 }

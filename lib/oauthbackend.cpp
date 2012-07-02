@@ -126,7 +126,7 @@ void OAuthBackend::setAuthUrl(const QUrl& url)
 
 QByteArray OAuthBackend::authorizationString(const QUrl& url, QOAuth::HttpMethod method, QOAuth::ParamMap params, QOAuth::ParsingMode mode)
 {
-    return d->oauth->createParametersString(url.toString(), method, d->oauthToken, d->oauthTokenSecret, QOAuth::HMAC_SHA1, params, mode);
+    return d->oauth->createParametersString(QString::fromAscii(url.toEncoded()), method, d->oauthToken, d->oauthTokenSecret, QOAuth::HMAC_SHA1, params, mode);
 }
 
 QByteArray OAuthBackend::inlineString(QOAuth::ParamMap params, QOAuth::ParsingMode mode)

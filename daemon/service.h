@@ -23,6 +23,8 @@ public:
     virtual void deleteAccount (const QString& uuid);
     virtual int uploadFile (const QString& app_name, const QStringList& file_list);
     virtual int sync (const QString& app_name);
+    virtual int createFolder (const QString& uuid, const QString& directory);
+    virtual int deleteFile (const QString& uuid, const QString& path);
 
 private:
     Daemon* m_daemon;
@@ -44,5 +46,18 @@ protected:
     QCloud::EntryInfoList entryInfoList;
     QCloud::EntryInfo entryInfo;
 };
+
+class GeneralRequestHandler : public QCloud::RequestHandler
+{
+    Q_OBJECT
+    friend class Service;
+public:
+    explicit GeneralRequestHandler(int id,QCloud::Server* server,QObject* parent=0);
+    virtual ~GeneralRequestHandler();
+
+public slots:
+    virtual void requestFinished();
+};
+
 
 #endif // SERVICE_H

@@ -15,20 +15,20 @@
 inline static QString removeInvalidSlash(const QString& str)
 {
     QString retString = "";
-    if (str.size()==0)
+    if (str.isEmpty())
         return retString;
     retString += str[0];
-    for (int i=1;i<str.size();i++){
+    for (int i = 1; i < str.size(); i ++){
         if (str[i]!='/' || str[i - 1]!='/')
             retString += str[i];
     }
-    if (retString[0]=='/')
+    if (retString[0] == '/')
         retString.remove(0,1);
     int pos = retString.size() - 1;
-    if (pos<=0)
+    if (pos <= 0)
         return retString;
-    if (retString[pos]=='/')
-        retString.remove(pos,1);
+    if (retString[pos] == '/')
+        retString.remove(pos, 1);
     return retString;
 }
 
@@ -41,8 +41,10 @@ void DropboxRequest::sendRequest (const QUrl& url, const QOAuth::HttpMethod& met
 {
     m_error = NoError;
     m_reply = 0;
+    qDebug() << "Request URL" << url;
     QNetworkRequest request (url);
     if (method == QOAuth::POST) {
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
         for (QOAuth::ParamMap::iterator it = paramMap.begin(); it != paramMap.end(); it++) {
             it.value() = QUrl::toPercentEncoding(QString::fromUtf8(it.value()));
         }
@@ -51,6 +53,7 @@ void DropboxRequest::sendRequest (const QUrl& url, const QOAuth::HttpMethod& met
         qDebug() << m_dropbox->authorizationString (url, method, paramMap, QOAuth::ParseForRequestContent);
         m_reply = m_dropbox->networkAccessManager()->post (request, m_dropbox->inlineString (paramMap, QOAuth::ParseForRequestContent));
     } else {
+        qDebug() << "Authorization String" << m_dropbox->authorizationString (url, method);
         request.setRawHeader ("Authorization", m_dropbox->authorizationString (url, method));
         if (method == QOAuth::GET)
             m_reply = m_dropbox->networkAccessManager()->get (request);
@@ -103,8 +106,8 @@ m_file (localFileName)
 
     QString surl;
     surl = "https://api-content.dropbox.com/1/files_put/%1/%2";
-    surl = surl.arg (getRootType(),remoteFilePath);
-    QUrl url (removeInvalidSlash(surl));
+    surl = surl.arg (getRootType(),removeInvalidSlash(remoteFilePath));
+    QUrl url (surl);
     sendRequest (url, QOAuth::PUT, &m_file);
 }
 
@@ -319,15 +322,16 @@ QCloud::EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoM
     return info;
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path,QCloud::EntryInfo* info,QCloud::EntryInfoList* contents)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path, QCloud::EntryInfo* info,QCloud::EntryInfoList* contents)
 {
     m_dropbox = dropbox;
     m_info = info;
     m_contents = contents;
-    QString paramSt = "%1";
-    paramSt = paramSt.arg(path);
-    QString urlString = "https://api.dropbox.com/1/metadata/%1/";
-    urlString = urlString.arg(getRootType()) + removeInvalidSlash(paramSt);
+    QString cleanPath = removeInvalidSlash(path);
+    if (!cleanPath.isEmpty())
+        cleanPath += '/';
+    QString urlString = "https://api.dropbox.com/1/metadata/%1/%2";
+    urlString = urlString.arg(getRootType()).arg(cleanPath);
     m_buffer.open(QIODevice::ReadWrite);
     sendRequest(QUrl(urlString),QOAuth::GET);
 }

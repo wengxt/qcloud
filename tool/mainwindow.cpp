@@ -108,7 +108,7 @@ bool MainWindow::loadFileList()
     loop.exec();
     idSet.insert(id.value());
     //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
-    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::EntryInfoList,int)),this,SLOT(fileListFinished(QCloud::EntryInfoList,int)));
+    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
     return true;
 }
 
@@ -120,10 +120,10 @@ void MainWindow::fileListActivated()
     QModelIndex index;
     index = m_ui->fileView->currentIndex();
     QString lastDir = currentDir;
-    currentDir = static_cast<QCloud::Info*> (index.internalPointer())->name();
-    QString is_dir = static_cast< QCloud::Info* > (index.internalPointer())->description();
+    currentDir = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    bool is_dir = static_cast< QCloud::EntryInfo* > (index.internalPointer())->isDir();
     qDebug() << is_dir << " " << currentDir;
-    if (is_dir!="is_dir" || (!loadFileList())){
+    if (!is_dir || (!loadFileList())){
         currentDir = lastDir;
         return ;
     }
@@ -134,7 +134,7 @@ void MainWindow::listButtonClicked()
     loadFileList();
 }
 
-void MainWindow::fileListFinished(const QCloud::EntryInfoList& info,int id)
+void MainWindow::fileListFinished(int id, uint error, const QCloud::EntryInfoList& info)
 {
     if (!idSet.contains(id))
         return ;

@@ -8,6 +8,7 @@
 #include <QtCloud/Info>
 #include "qcloud_global.h"
 #include "entryinfo.h"
+#include "request.h"
 
 namespace QCloud
 {
@@ -28,13 +29,17 @@ public:
     virtual void addAccount (const QString& backend_name, const QString& user_name) = 0;
     virtual void deleteAccount (const QString& uuid) = 0;
     virtual int sync (const QString& app_name) = 0;
+    virtual int createFolder (const QString& uuid, const QString& directory) = 0;
+    virtual int deleteFile (const QString& uuid, const QString& path) = 0;
     void notifyAccountUpdated();
-    void notifyDirectoryInfoTransformed(const QCloud::EntryInfoList& info,int id);
+    void notifyDirectoryInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfoList& info);
+    void notifyRequestFinished(int id, QCloud::Request::Error error);
     bool isValid() const;
 
 signals:
     void accountUpdated();
-    void directoryInfoTransformed(const QCloud::EntryInfoList& info,int id);
+    void requestFinished(int id, uint error);
+    void directoryInfoTransformed(int id, uint error, const QCloud::EntryInfoList& info);
 private:
     Q_DISABLE_COPY (Server)
     ServerPrivate* d;

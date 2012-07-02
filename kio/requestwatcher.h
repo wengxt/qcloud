@@ -9,13 +9,15 @@ public:
     RequestWatcher(int requestId, QObject* object = 0);
 
 public slots:
-    void receivedList(const QCloud::EntryInfoList& info, int requestId);
+    void requestFinished(int id, uint error);
+    void receivedList(int id, uint error, const QCloud::EntryInfoList& info);
 signals:
     void end();
 
 public:
 
     QCloud::EntryInfoList m_entryinfo;
+    uint m_error;
 private:
     int m_requestId;
 };

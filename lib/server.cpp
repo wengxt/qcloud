@@ -38,10 +38,15 @@ void Server::notifyAccountUpdated()
     emit accountUpdated();
 }
 
-void Server::notifyDirectoryInfoTransformed(const QCloud::EntryInfoList& info,int id)
+void Server::notifyDirectoryInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfoList& info)
 {
-    emit directoryInfoTransformed(info,id);
+    emit directoryInfoTransformed(id,(uint)error,info);
     qDebug() << "signal directoryInfoTransformed() sent";
+}
+
+void Server::notifyRequestFinished(int id, QCloud::Request::Error error)
+{
+    emit requestFinished(id, (uint)error);
 }
 
 bool Server::isValid() const
