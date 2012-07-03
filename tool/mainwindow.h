@@ -40,4 +40,5 @@ private:
     QPushButton* m_listButton;
     QString currentDir;
     QSet<int> idSet;
+    QMap<int,QString> idPath;
 };

@@ -1,3 +1,6 @@
+#include <QDebug>
+#include <QFileInfo>
+
 #include "mainwindow.h"
 #include "accountdialog.h"
 #include "clientapp.h"
@@ -8,7 +11,6 @@
 #include "appmanager.h"
 #include "ui_tool.h"
 
-#include <QDebug>
 
 MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (parent, flags)
     , m_widget (new QWidget (this))
@@ -16,7 +18,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     , m_accountModel (new InfoModel(this))
     , m_fileModel(new EntryInfoModel(this))
 {
-    currentDir = "";
+    currentDir = "/";
 
     setCentralWidget (m_widget);
     m_ui->setupUi (m_widget);
@@ -107,6 +109,7 @@ bool MainWindow::loadFileList()
     connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), &loop,SLOT(quit()));
     loop.exec();
     idSet.insert(id.value());
+    idPath[id.value()] = currentDir;
     //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
     connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
     return true;
@@ -140,6 +143,13 @@ void MainWindow::fileListFinished(int id, uint error, const QCloud::EntryInfoLis
         return ;
     idSet.remove(id);
     qDebug() << "Got file list info with ID : " << id;
-    m_fileModel->setEntryInfoList(info);
+    QFileInfo currentDirInfo(idPath[id]);
+    QCloud::EntryInfo parentPath;
+    parentPath.setValue(QCloud::EntryInfo::PathType,QVariant(currentDirInfo.path()));
+    parentPath.setValue(QCloud::EntryInfo::DirType,QVariant(true));
+    QCloud::EntryInfoList m_info = info;
+    if (currentDirInfo.absolutePath()!="" && currentDirInfo.absolutePath()!=currentDirInfo.absoluteFilePath())
+        m_info << parentPath;
+    m_fileModel->setEntryInfoList(idPath[id],m_info);
 }
 
