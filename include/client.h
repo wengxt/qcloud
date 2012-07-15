@@ -28,7 +28,8 @@ public:
     QDBusPendingReply<void> addAccount (const QString& backend_name, const QString& user_name);
     QDBusPendingReply<void> deleteAccount (const QString& uuid);
     QDBusPendingReply<int> sync (const QString& app_name);
-    QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
+    QDBusPendingReply<int> uploadFile (const QString& uuid, const QString& file, uint type, const QString& dest);
+    QDBusPendingReply<int> downloadFile (const QString& uuid, const QString& src, const QString& file, uint type);
     QDBusPendingReply<int> createFolder(const QString& uuid, const QString& path);
     QDBusPendingReply<int> deleteFile (const QString& uuid, const QString& path);
     QDBusPendingReply<int> moveFile (const QString& uid1, const QString& src, const QString& dest);

@@ -24,8 +24,8 @@ public:
     virtual ~Dropbox();
     virtual void setApp (QCloud::App* app);
     virtual bool authorize (QWidget* parent = 0);
-    virtual QCloud::Request* uploadFile (const QString& localFileName, const QString& remoteFilePath);
-    virtual QCloud::Request* downloadFile (const QString& remoteFilePath,const QString& localFileName);
+    virtual QCloud::Request* uploadFile (const QString& localFileName, uint type, const QString& remoteFilePath);
+    virtual QCloud::Request* downloadFile (const QString& remoteFilePath,const QString& localFileName, uint type);
     virtual QCloud::Request* copyFile (const QString& fromPath,const QString& toPath);
     virtual QCloud::Request* moveFile (const QString& fromPath,const QString& toPath);
     virtual QCloud::Request* createFolder (const QString& path);

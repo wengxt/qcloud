@@ -3,17 +3,17 @@
 
 void QCloud::RequestHandler::requestFinished()
 {
-    
+
 }
 
 QCloud::RequestHandler::RequestHandler(QObject* parent): QObject(parent)
 {
-    
 }
 
 void QCloud::RequestHandler::setRequest(QCloud::Request* request)
 {
     m_request = request;
+    request->setParent(this);
     connect(request,SIGNAL(finished()),this,SLOT(requestFinished()));
 }
 

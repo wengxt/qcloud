@@ -41,14 +41,14 @@ int main (int argc, char* argv[])
                 printUsage(argv);
                 return 0;
             }
-            QCloud::Request* request = dropbox->uploadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
+            QCloud::Request* request = dropbox->uploadFile (QString::fromLocal8Bit(argv[3]), QCloud::IBackend::LocalFile, QString::fromLocal8Bit(argv[4]));
             request->waitForFinished();
         } else if (strcmp (argv[2], "download") == 0) {
             if (argc <= 4) {
                 printUsage(argv);
                 return 0;
             }
-            QCloud::Request* request = dropbox->downloadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]));
+            QCloud::Request* request = dropbox->downloadFile (QString::fromLocal8Bit(argv[3]), QString::fromLocal8Bit(argv[4]), QCloud::IBackend::LocalFile);
             request->waitForFinished();
         } else if (strcmp(argv[2], "copy") == 0){
             if (argc <= 4) {

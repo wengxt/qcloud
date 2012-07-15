@@ -78,9 +78,27 @@ int Service::sync (const QString& app_name)
     return 0;
 }
 
-int Service::uploadFile (const QString& app_name, const QStringList& file_list)
+int Service::uploadFile (const QString& uuid, const QString& file, uint type, const QString& dest)
 {
-    return 0;
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
+    QCloud::Request* request = account->backend()->uploadFile(file, type, dest);
+    requestHandler->setRequest(request);
+    return currentRequestId ++;
+}
+
+
+int Service::downloadFile (const QString& uuid, const QString& src, const QString& file, uint type)
+{
+    Account *account = m_daemon->accountManager()->findAccount(uuid);
+    if (!account)
+        return -1;
+    GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
+    QCloud::Request* request = account->backend()->downloadFile(src, file, type);
+    requestHandler->setRequest(request);
+    return currentRequestId ++;
 }
 
 QCloud::InfoList Service::listAccounts()
@@ -102,78 +120,84 @@ QCloud::InfoList Service::listAccounts()
 
 int Service::listFiles(const QString& uuid,const QString& directory)
 {
-    ListFilesRequestHandler* requestHander = new ListFilesRequestHandler(currentRequestId,this,this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     if (!account)
         return -1;
+    ListFilesRequestHandler* requestHandler = new ListFilesRequestHandler(currentRequestId, this);
     qDebug() << account->backend()->userName();
-    QCloud::Request* request = account->backend()->pathInfo(directory,&requestHander->entryInfo,&requestHander->entryInfoList);
-    requestHander->setRequest(request);
+    QCloud::Request* request = account->backend()->pathInfo(directory,&requestHandler->entryInfo,&requestHandler->entryInfoList);
+    requestHandler->setRequest(request);
     return currentRequestId ++;
 }
 
 int Service::createFolder (const QString& uuid, const QString& directory)
 {
-    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     if (!account)
         return -1;
+    GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
     qDebug() << account->backend()->userName();
     QCloud::Request* request = account->backend()->createFolder(directory);
-    requestHander->setRequest(request);
+    requestHandler->setRequest(request);
     return currentRequestId ++;
 }
 
 int Service::deleteFile (const QString& uuid, const QString& path)
 {
-    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     if (!account)
         return -1;
+    GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
     qDebug() << account->backend()->userName();
     QCloud::Request* request = account->backend()->deleteFile(path);
-    requestHander->setRequest(request);
+    requestHandler->setRequest(request);
     return currentRequestId ++;
 }
 
 int Service::moveFile (const QString& uuid, const QString& src, const QString& dst)
 {
-    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     if (!account)
         return -1;
+    GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
     qDebug() << account->backend()->userName();
     QCloud::Request* request = account->backend()->moveFile(src, dst);
-    requestHander->setRequest(request);
+    requestHandler->setRequest(request);
     return currentRequestId ++;
 }
 
 int Service::copyFile (const QString& uuid, const QString& src, const QString& dst)
 {
-    GeneralRequestHandler* requestHander = new GeneralRequestHandler(currentRequestId, this, this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     if (!account)
         return -1;
+    GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
     qDebug() << account->backend()->userName();
     QCloud::Request* request = account->backend()->copyFile(src, dst);
-    requestHander->setRequest(request);
+    requestHandler->setRequest(request);
     return currentRequestId ++;
 }
 
 int Service::fetchInfo (const QString& uuid, const QString& path)
 {
-    FileInfoRequestHandler* requestHander = new FileInfoRequestHandler(currentRequestId, this, this);
     Account *account = m_daemon->accountManager()->findAccount(uuid);
     if (!account)
         return -1;
+    FileInfoRequestHandler* requestHandler = new FileInfoRequestHandler(currentRequestId, this);
     qDebug() << account->backend()->userName();
-    QCloud::Request* request = account->backend()->pathInfo(path, &requestHander->entryInfo);
-    requestHander->setRequest(request);
+    QCloud::Request* request = account->backend()->pathInfo(path, &requestHandler->entryInfo);
+    requestHandler->setRequest(request);
     return currentRequestId ++;
 }
 
+int Service::queryProgress (int request_id)
+{
+    return 0;
+}
 
-ListFilesRequestHandler::ListFilesRequestHandler(int id, QCloud::Server* server,QObject* parent)
+
+
+ListFilesRequestHandler::ListFilesRequestHandler(int id, QCloud::Server* server) : RequestHandler(server)
 {
     m_id = id;
     m_server = server;
@@ -182,7 +206,7 @@ ListFilesRequestHandler::ListFilesRequestHandler(int id, QCloud::Server* server,
 
 void ListFilesRequestHandler::requestFinished()
 {
-    qDebug() << "Sending finished signal...";
+    qDebug() << "Sending finished signal..." << m_id << m_request->metaObject()->className();
 
     m_server->notifyDirectoryInfoTransformed(m_id, m_request->error(), entryInfoList);
     delete this;
@@ -194,7 +218,7 @@ ListFilesRequestHandler::~ListFilesRequestHandler()
 }
 
 
-FileInfoRequestHandler::FileInfoRequestHandler(int id, QCloud::Server* server,QObject* parent)
+FileInfoRequestHandler::FileInfoRequestHandler(int id, QCloud::Server* server) : RequestHandler(server)
 {
     m_id = id;
     m_server = server;
@@ -203,7 +227,7 @@ FileInfoRequestHandler::FileInfoRequestHandler(int id, QCloud::Server* server,QO
 
 void FileInfoRequestHandler::requestFinished()
 {
-    qDebug() << "Sending finished signal...";
+    qDebug() << "Sending finished signal..." << m_id << m_request->metaObject()->className();
 
     m_server->notifyFileInfoTransformed(m_id, m_request->error(), entryInfo);
     delete this;
@@ -215,7 +239,7 @@ FileInfoRequestHandler::~FileInfoRequestHandler()
 }
 
 
-GeneralRequestHandler::GeneralRequestHandler(int id, QCloud::Server* server,QObject* parent)
+GeneralRequestHandler::GeneralRequestHandler(int id, QCloud::Server* server) : RequestHandler(server)
 {
     m_id = id;
     m_server = server;
@@ -228,7 +252,7 @@ GeneralRequestHandler::~GeneralRequestHandler()
 
 void GeneralRequestHandler::requestFinished()
 {
-    qDebug() << "Sending finished signal...";
+    qDebug() << "Sending finished signal..." << m_id << m_request->metaObject()->className();
 
     m_server->notifyRequestFinished(m_id, m_request->error());
     delete this;

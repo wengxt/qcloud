@@ -19,14 +19,19 @@ class QCLOUD_EXPORT IBackend : public QObject
 {
     Q_OBJECT
 public:
+    enum TransferType {
+        LocalFile,
+        LocalSocket
+    };
+
     explicit IBackend (QObject* parent = 0);
     virtual ~IBackend();
 
     virtual void setApp (App* app);
     virtual bool authorize (QWidget* widget = 0) = 0;
     virtual void setNetworkAccessManager (QNetworkAccessManager* manager);
-    virtual Request* uploadFile (const QString& localFileName, const QString& remoteFilePath) = 0;
-    virtual Request* downloadFile (const QString& remoteFilePath,const QString& localFileName) = 0;
+    virtual Request* uploadFile (const QString& localFileName, uint type, const QString& remoteFilePath) = 0;
+    virtual Request* downloadFile (const QString& remoteFilePath,const QString& localFileName, uint type) = 0;
     virtual Request* copyFile (const QString& fromPath,const QString& toPath) = 0;
     virtual Request* moveFile (const QString& fromPath,const QString& toPath) = 0;
     virtual Request* createFolder (const QString& path) = 0;

@@ -70,9 +70,14 @@ QDBusPendingReply< int > Client::sync (const QString& app_name)
     return d->daemon->sync (app_name);
 }
 
-QDBusPendingReply< int > Client::uploadFile (const QString& app_name, const QStringList& file_list)
+QDBusPendingReply< int > Client::uploadFile (const QString &uuid, const QString &file, uint type, const QString &dest)
 {
-    return d->daemon->uploadFile (app_name, file_list);
+    return d->daemon->uploadFile (uuid, file, type, dest);
+}
+
+QDBusPendingReply< int > Client::downloadFile (const QString &uuid, const QString &src, const QString &file, uint type)
+{
+    return d->daemon->downloadFile (uuid, src, file, type);
 }
 
 QDBusPendingReply<int> Client::createFolder(const QString& uuid,const QString& directory)

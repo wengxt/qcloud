@@ -1,33 +1,219 @@
+#include <QLocalSocket>
+#include "client.h"
+
 #include "requestwatcher.h"
+#include "kio_cloud.h"
 
-RequestWatcher::RequestWatcher (int requestId, QObject* object) : QObject (object)
+RequestWatcherBase::RequestWatcherBase (int requestId, CloudSlave* slave, QObject* object) : QObject (object)
+    ,m_requestId(requestId)
+    ,m_slave(slave)
+    ,m_error(0)
+    ,m_finished(false)
 {
-    m_requestId = requestId;
+
 }
 
-void RequestWatcher::requestFinished (int id, uint error)
+const QString& RequestWatcherBase::errorString()
+{
+    return m_errorString;
+}
+
+
+uint RequestWatcherBase::error()
+{
+    return m_error;
+}
+
+bool RequestWatcherBase::isFinished()
+{
+    return m_finished;
+}
+
+void RequestWatcherBase::notifyFinished()
+{
+    if (m_finished)
+        return;
+    m_finished = true;
+    emit finished();
+}
+
+
+InfoRequestWatcher::InfoRequestWatcher (int requestId, CloudSlave* slave, QObject* object) : RequestWatcherBase(requestId, slave, object)
+{
+    connect(slave->client(), SIGNAL(fileInfoTransformed(int,uint,QCloud::EntryInfo)), this, SLOT(reveivedInfo(int,uint,QCloud::EntryInfo)));
+}
+
+void InfoRequestWatcher::reveivedInfo (int id, uint error, const QCloud::EntryInfo& info)
 {
     if (id == m_requestId) {
+        m_entryInfo = info;
         m_error = error;
-        emit end();
+        notifyFinished();
+    }
+}
+
+const QCloud::EntryInfo& InfoRequestWatcher::entryInfo()
+{
+    return m_entryInfo;
+}
+
+
+InfoListRequestWatcher::InfoListRequestWatcher (int requestId, CloudSlave* slave, QObject* object) : RequestWatcherBase(requestId, slave, object)
+{
+    connect(slave->client(), SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)), this, SLOT(reveivedInfoList(int,uint,QCloud::EntryInfoList)));
+}
+
+const QCloud::EntryInfoList& InfoListRequestWatcher::entryInfoList()
+{
+    return m_entryInfoList;
+}
+
+void InfoListRequestWatcher::reveivedInfoList (int id, uint error, const QCloud::EntryInfoList& info)
+{
+    if (id == m_requestId) {
+        m_entryInfoList = info;
+        m_error = error;
+        notifyFinished();
     }
 }
 
 
-void RequestWatcher::reveivedInfo (int id, uint error, const QCloud::EntryInfo& info)
+GeneralRequestWatcher::GeneralRequestWatcher (int requestId, CloudSlave* slave, QObject* object) : RequestWatcherBase(requestId, slave, object)
+{
+    connect(slave->client(), SIGNAL(requestFinished(int,uint)), SLOT(requestFinished(int,uint)));
+}
+
+void GeneralRequestWatcher::requestFinished (int id, uint error)
 {
     if (id == m_requestId) {
-        m_entryinfo = info;
         m_error = error;
-        emit end();
+        notifyFinished();
     }
 }
 
-void RequestWatcher::receivedList (int id, uint error, const QCloud::EntryInfoList& info)
+Uploader::Uploader (int requestId, QLocalServer* server, CloudSlave* slave, QObject* object) : GeneralRequestWatcher (requestId, slave, object)
+    ,m_server(server)
+    ,m_socket(0)
 {
-    if (id == m_requestId) {
-        m_entryinfolist = info;
-        m_error = error;
-        emit end();
+    if (m_server->hasPendingConnections()) {
+        onNewConnection();
     }
+    else
+        connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
+}
+
+void Uploader::onNewConnection()
+{
+    m_socket = m_server->nextPendingConnection();
+    m_server->close();
+    connect(m_socket, SIGNAL(bytesWritten(qint64)), SLOT(bytesWritten(qint64)));
+    connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onError(QLocalSocket::LocalSocketError)));
+    run();
+}
+
+void Uploader::onError (QLocalSocket::LocalSocketError error)
+{
+    kioDebug() << "Uploader::onError" << error;
+    m_error = QCloud::Request::NetworkError;
+    notifyFinished();
+}
+
+
+void Uploader::run()
+{
+    QByteArray array;
+    m_slave->dataReq();
+
+    int result = m_slave->readData(array);
+    if (result <= 0) {
+        if (result < 0)
+            m_error = QCloud::Request::NetworkError;
+        else {
+            m_socket->disconnectFromServer();
+        }
+        notifyFinished();
+    }
+    else {
+        kioDebug() << "Uploader::run" << array;
+        m_socket->write(array);
+    }
+}
+
+void Uploader::bytesWritten(qint64 size)
+{
+    run();
+}
+
+Downloader::Downloader (int requestId, QLocalServer* server, CloudSlave* slave, QObject* object) : GeneralRequestWatcher (requestId, slave, object)
+    ,m_server(server)
+    ,m_socket(0)
+{
+    if (m_server->hasPendingConnections()) {
+        onNewConnection();
+    }
+    else
+        connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
+}
+
+void Downloader::onNewConnection()
+{
+    m_socket = m_server->nextPendingConnection();
+    m_server->close();
+    connect(m_socket, SIGNAL(readyRead()), SLOT(readyRead()));
+    connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onError(QLocalSocket::LocalSocketError)));
+    run();
+}
+
+void Downloader::onError (QLocalSocket::LocalSocketError error)
+{
+    if (error != QLocalSocket::PeerClosedError) {
+        m_error = QCloud::Request::NetworkError;
+    }
+    notifyFinished();
+}
+
+void Downloader::run()
+{
+    char buf[8192];
+    int result = 0;
+    do {
+        result = m_socket->read(buf, sizeof(buf));
+        if (result > 0)
+            m_slave->data(QByteArray(buf, result));
+        kioDebug() << "Downloader::run" << result;
+    } while(result > 0);
+
+    if (result < 0) {
+        m_error = QCloud::Request::NetworkError;
+        m_errorString = m_socket->errorString();
+        notifyFinished();
+    }
+}
+
+void Downloader::readyRead()
+{
+    run();
+}
+
+void Downloader::requestFinished (int id, uint error)
+{
+    kioDebug() << "Downloader::requestFinished" << m_error;
+    int result = 0;
+    if (m_socket->bytesAvailable()) {
+        char buf[8192];
+        do {
+            result = m_socket->read(buf, sizeof(buf));
+            if (result > 0)
+                m_slave->data(QByteArray(buf, result));
+            kioDebug() << "Downloader::run" << result;
+        } while(result > 0);
+    }
+    m_slave->data(QByteArray());
+
+    if (result < 0) {
+        m_error = QCloud::Request::NetworkError;
+        kioDebug() << m_socket->errorString() << m_socket->error() << m_socket->state();
+        m_errorString = m_socket->errorString();
+    }
+    GeneralRequestWatcher::requestFinished (id, error);
 }

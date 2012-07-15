@@ -24,6 +24,8 @@ public:
 protected slots:
     virtual void readyForRead();
     virtual void replyFinished();
+    void uploadProgress(qint64 send, qint64 total);
+    void downloadProgress(qint64 send, qint64 total);
 protected:
     void sendRequest(const QUrl& url, const QOAuth::HttpMethod& method, QIODevice* device = 0, QOAuth::ParamMap paramMap = QOAuth::ParamMap());
     QString getRootType();
@@ -36,7 +38,7 @@ class DropboxUploadRequest : public DropboxRequest
 {
     Q_OBJECT
 public:
-    DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, const QString& remoteFilePath);
+    DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, uint type, const QString& remoteFilePath);
     virtual ~DropboxUploadRequest();
 
 protected slots:
@@ -44,7 +46,7 @@ protected slots:
     virtual void replyFinished();
 protected:
     QJson::Parser m_parser;
-    QFile m_file;
+    QIODevice* m_iodevice;
     QBuffer m_buffer;
 };
 
@@ -53,14 +55,15 @@ class DropboxDownloadRequest : public DropboxRequest
 {
     Q_OBJECT
 public:
-    DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName);
+    DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName, uint type);
     virtual ~DropboxDownloadRequest();
 protected slots:
     virtual void readyForRead();
     virtual void replyFinished();
+    void bytesWritten (qint64);
 protected:
     QJson::Parser m_parser;
-    QFile m_file;
+    QIODevice* m_iodevice;
 };
 
 class DropboxCopyRequest : public DropboxRequest

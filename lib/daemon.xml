@@ -16,13 +16,6 @@
             <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
             <annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="QCloud::InfoList" />
         </method>
-        <method name="uploadFile">
-            <arg name="app_name" type="s" direction="in" />
-            <arg name="file_list" type="a(s)" direction="in" />
-            <arg name="sequence_number" type="i" direction="out" />
-            <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QStringList" />
-            <annotation name="com.trolltech.QtDBus.QtTypeName.In1" value="QStringList" />
-        </method>
         <method name="sync">
             <arg name="app_name" type="s" direction="in" />
             <arg name="sequence_number" type="i" direction="out" />
@@ -33,6 +26,20 @@
         </method>
         <method name="deleteAccount">
             <arg name="uuid" type="s" direction="in" />
+        </method>
+        <method name="uploadFile">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="file" type="s" direction="in" />
+            <arg name="type" type="u" direction="in" />
+            <arg name="dest" type="s" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
+        </method>
+        <method name="downloadFile">
+            <arg name="uuid" type="s" direction="in" />
+            <arg name="src" type="s" direction="in" />
+            <arg name="file" type="s" direction="in" />
+            <arg name="type" type="u" direction="in" />
+            <arg name="request_id" type="i" direction="out" />
         </method>
         <method name="listFiles">
             <arg name="uuid" type="s" direction="in" />
@@ -67,6 +74,9 @@
             <arg name="src" type="s" direction="in" />
             <arg name="dst" type="s" direction="in" />
             <arg name="request_id" type="i" direction="out" />
+        </method>
+        <method name="queryProgress">
+            <arg name="request_id" type="i"/>
         </method>
         <signal name="requestFinished">
             <arg name="request_id" type="i"/>

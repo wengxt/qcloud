@@ -77,14 +77,14 @@ void Dropbox::startAuth (QCloud::OAuthWidget* widget)
 }
 
 
-QCloud::Request* Dropbox::uploadFile (const QString& localFileName, const QString& remoteFilePath)
+QCloud::Request* Dropbox::uploadFile (const QString& localFileName, uint type, const QString& remoteFilePath)
 {
-    return new DropboxUploadRequest(this, localFileName, remoteFilePath);
+    return new DropboxUploadRequest(this, localFileName, type, remoteFilePath);
 }
 
-QCloud::Request* Dropbox::downloadFile (const QString& remoteFilePath,const QString& localFileName)
+QCloud::Request* Dropbox::downloadFile (const QString& remoteFilePath, const QString& localFileName, uint type)
 {
-    return new DropboxDownloadRequest(this, remoteFilePath, localFileName);
+    return new DropboxDownloadRequest(this, remoteFilePath, localFileName, type);
 }
 
 QCloud::Request* Dropbox::copyFile(const QString& fromPath, const QString& toPath)
