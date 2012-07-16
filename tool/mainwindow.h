@@ -29,8 +29,12 @@ private slots:
     void deleteAccountButtonClicked();
     void fileListActivated();
     void listButtonClicked();
+    void createFolderTriggered();
+    void requestFinished(int requestId,uint error);
     void fileListFinished(int id, uint error, const QCloud::EntryInfoList& info);
 private:
+    QString getUuid();
+    void removeId(int id);
     QWidget* m_widget;
     Ui::Tool* m_ui;
     InfoModel* m_accountModel;

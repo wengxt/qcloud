@@ -138,6 +138,13 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QPushButton" name="createFolderButton">
+          <property name="text">
+           <string>CreateFolder</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="listButton">
           <property name="text">
            <string>ListFiles</string>
