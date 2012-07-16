@@ -1,4 +1,6 @@
 #include <QLocalSocket>
+#include <QTimer>
+#include <QDBusServiceWatcher>
 #include "client.h"
 
 #include "requestwatcher.h"
@@ -10,7 +12,7 @@ RequestWatcherBase::RequestWatcherBase (int requestId, CloudSlave* slave, QObjec
     ,m_error(0)
     ,m_finished(false)
 {
-
+    connect(m_slave->client(), SIGNAL(resetRequest()), SLOT(resetRequest()));
 }
 
 const QString& RequestWatcherBase::errorString()
@@ -18,6 +20,12 @@ const QString& RequestWatcherBase::errorString()
     return m_errorString;
 }
 
+void RequestWatcherBase::resetRequest()
+{
+    m_error = QCloud::Request::NetworkError;
+    disconnect(m_slave->client(), SIGNAL(resetRequest()), this, SLOT(resetRequest()));
+    notifyFinished();
+}
 
 uint RequestWatcherBase::error()
 {
@@ -102,18 +110,23 @@ Uploader::Uploader (int requestId, QLocalServer* server, CloudSlave* slave, QObj
         connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
 }
 
+Uploader::~Uploader()
+{
+    if (m_socket)
+        delete m_socket;
+}
+
+
 void Uploader::onNewConnection()
 {
     m_socket = m_server->nextPendingConnection();
-    m_server->close();
-    connect(m_socket, SIGNAL(bytesWritten(qint64)), SLOT(bytesWritten(qint64)));
     connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onError(QLocalSocket::LocalSocketError)));
-    run();
+    QTimer::singleShot(0, this, SLOT(run()));
 }
 
 void Uploader::onError (QLocalSocket::LocalSocketError error)
 {
-    kioDebug() << "Uploader::onError" << error;
+    // kioDebug() << "Uploader::onError" << error;
     m_error = QCloud::Request::NetworkError;
     notifyFinished();
 }
@@ -122,26 +135,22 @@ void Uploader::onError (QLocalSocket::LocalSocketError error)
 void Uploader::run()
 {
     QByteArray array;
-    m_slave->dataReq();
-
-    int result = m_slave->readData(array);
-    if (result <= 0) {
-        if (result < 0)
-            m_error = QCloud::Request::NetworkError;
-        else {
-            m_socket->disconnectFromServer();
+    int result;
+    do {
+        m_slave->dataReq();
+        result = m_slave->readData(array);
+        if (result > 0) {
+            result = m_socket->write(array);
+            // kioDebug() << "Uploader::run write result: " << result;
         }
-        notifyFinished();
-    }
-    else {
-        kioDebug() << "Uploader::run" << array;
-        m_socket->write(array);
-    }
-}
+    } while (result > 0);
 
-void Uploader::bytesWritten(qint64 size)
-{
-    run();
+    if (result < 0)
+        m_error = QCloud::Request::NetworkError;
+    else {
+        m_socket->waitForBytesWritten();
+        m_socket->disconnectFromServer();
+    }
 }
 
 Downloader::Downloader (int requestId, QLocalServer* server, CloudSlave* slave, QObject* object) : GeneralRequestWatcher (requestId, slave, object)
@@ -155,14 +164,35 @@ Downloader::Downloader (int requestId, QLocalServer* server, CloudSlave* slave, 
         connect(m_server, SIGNAL(newConnection()), SLOT(onNewConnection()));
 }
 
+Downloader::~Downloader()
+{
+    if (m_socket)
+        delete m_socket;
+}
+
+
 void Downloader::onNewConnection()
 {
     m_socket = m_server->nextPendingConnection();
     m_server->close();
     connect(m_socket, SIGNAL(readyRead()), SLOT(readyRead()));
     connect(m_socket, SIGNAL(error(QLocalSocket::LocalSocketError)), SLOT(onError(QLocalSocket::LocalSocketError)));
+    connect(m_slave->client(), SIGNAL(downloadProgress(int,qlonglong,qlonglong)), SLOT(downloadProgress(int,qlonglong,qlonglong)));
     run();
 }
+
+void Downloader::downloadProgress (int id, qlonglong sent, qlonglong total)
+{
+    if (id != m_requestId)
+        return;
+
+    // kioDebug() << "Downloader::downloadProgress" << id << sent << total;
+
+    if (total > 0)
+        m_slave->totalSize(total);
+    m_slave->processedSize(sent);
+}
+
 
 void Downloader::onError (QLocalSocket::LocalSocketError error)
 {
@@ -178,9 +208,10 @@ void Downloader::run()
     int result = 0;
     do {
         result = m_socket->read(buf, sizeof(buf));
-        if (result > 0)
+        if (result > 0) {
             m_slave->data(QByteArray(buf, result));
-        kioDebug() << "Downloader::run" << result;
+        }
+        // kioDebug() << "Downloader::run" << result;
     } while(result > 0);
 
     if (result < 0) {
@@ -197,7 +228,7 @@ void Downloader::readyRead()
 
 void Downloader::requestFinished (int id, uint error)
 {
-    kioDebug() << "Downloader::requestFinished" << m_error;
+    // kioDebug() << "Downloader::requestFinished" << m_error;
     int result = 0;
     if (m_socket->bytesAvailable()) {
         char buf[8192];
@@ -205,14 +236,13 @@ void Downloader::requestFinished (int id, uint error)
             result = m_socket->read(buf, sizeof(buf));
             if (result > 0)
                 m_slave->data(QByteArray(buf, result));
-            kioDebug() << "Downloader::run" << result;
+            // kioDebug() << "Downloader::run" << result;
         } while(result > 0);
     }
     m_slave->data(QByteArray());
 
     if (result < 0) {
         m_error = QCloud::Request::NetworkError;
-        kioDebug() << m_socket->errorString() << m_socket->error() << m_socket->state();
         m_errorString = m_socket->errorString();
     }
     GeneralRequestWatcher::requestFinished (id, error);

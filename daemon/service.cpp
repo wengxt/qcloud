@@ -86,6 +86,7 @@ int Service::uploadFile (const QString& uuid, const QString& file, uint type, co
     GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
     QCloud::Request* request = account->backend()->uploadFile(file, type, dest);
     requestHandler->setRequest(request);
+    connect(requestHandler, SIGNAL(uploadProgress(int,qint64, qint64)), SLOT(notifyUploadProgress(int,qint64, qint64)));
     return currentRequestId ++;
 }
 
@@ -98,6 +99,7 @@ int Service::downloadFile (const QString& uuid, const QString& src, const QStrin
     GeneralRequestHandler* requestHandler = new GeneralRequestHandler(currentRequestId, this);
     QCloud::Request* request = account->backend()->downloadFile(src, file, type);
     requestHandler->setRequest(request);
+    connect(requestHandler, SIGNAL(downloadProgress(int,qint64, qint64)), SLOT(notifyDownloadProgress(int,qint64, qint64)));
     return currentRequestId ++;
 }
 
@@ -189,13 +191,6 @@ int Service::fetchInfo (const QString& uuid, const QString& path)
     requestHandler->setRequest(request);
     return currentRequestId ++;
 }
-
-int Service::queryProgress (int request_id)
-{
-    return 0;
-}
-
-
 
 ListFilesRequestHandler::ListFilesRequestHandler(int id, QCloud::Server* server) : RequestHandler(server)
 {

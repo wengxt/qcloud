@@ -29,7 +29,6 @@ public:
     virtual int moveFile (const QString& uuid, const QString& src, const QString& dst);
     virtual int copyFile (const QString& uuid, const QString& src, const QString& dst);
     virtual int fetchInfo (const QString& uuid, const QString& directory);
-    virtual int queryProgress (int request_id);
 
 private:
     Daemon* m_daemon;

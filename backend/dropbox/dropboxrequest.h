@@ -24,8 +24,6 @@ public:
 protected slots:
     virtual void readyForRead();
     virtual void replyFinished();
-    void uploadProgress(qint64 send, qint64 total);
-    void downloadProgress(qint64 send, qint64 total);
 protected:
     void sendRequest(const QUrl& url, const QOAuth::HttpMethod& method, QIODevice* device = 0, QOAuth::ParamMap paramMap = QOAuth::ParamMap());
     QString getRootType();

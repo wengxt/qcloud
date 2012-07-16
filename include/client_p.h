@@ -1,5 +1,6 @@
 #include "client.h"
 
+class QDBusServiceWatcher;
 class OrgQcloudDaemonInterface;
 
 namespace QCloud
@@ -15,5 +16,6 @@ public:
 private:
     QDBusConnection connection;
     OrgQcloudDaemonInterface* daemon;
+    QDBusServiceWatcher* watcher;
 };
 }

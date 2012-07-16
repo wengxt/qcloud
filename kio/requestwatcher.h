@@ -17,6 +17,9 @@ public:
 signals:
     void finished();
 
+protected slots:
+    void resetRequest();
+
 protected:
     void notifyFinished();
     int m_requestId;
@@ -65,12 +68,12 @@ class Uploader : public GeneralRequestWatcher {
     Q_OBJECT
 public:
     Uploader(int requestId, QLocalServer* server, CloudSlave* slave, QObject* object = 0);
+    virtual ~Uploader();
 protected slots:
     void onError(QLocalSocket::LocalSocketError error);
     void onNewConnection();
-    void bytesWritten (qint64 size);
-protected:
     void run();
+protected:
     QLocalServer* m_server;
     QLocalSocket* m_socket;
 };
@@ -79,11 +82,13 @@ class Downloader : public GeneralRequestWatcher {
     Q_OBJECT
 public:
     Downloader(int requestId, QLocalServer* server, CloudSlave* slave, QObject* object = 0);
+    virtual ~Downloader();
 protected slots:
     void onError(QLocalSocket::LocalSocketError error);
     void readyRead ();
     void onNewConnection();
     virtual void requestFinished (int id, uint error);
+    void downloadProgress (int id, qlonglong sent, qlonglong total);
 protected:
     void run();
     QLocalServer* m_server;

@@ -8,6 +8,7 @@ namespace QCloud
 ClientPrivate::ClientPrivate (Client* client) :
     connection (QDBusConnection::sessionBus())
     , daemon (new org::qcloud::Daemon ("org.qcloud.Daemon", "/daemon", connection, client))
+    , watcher (new QDBusServiceWatcher(client))
 {
 }
 
@@ -19,15 +20,27 @@ ClientPrivate::~ClientPrivate()
 Client::Client (QObject* parent) : QObject (parent)
     , d (new ClientPrivate (this))
 {
+    d->watcher->addWatchedService(d->daemon->service());
+
+    connect(d->watcher, SIGNAL(serviceOwnerChanged(QString,QString,QString)), this, SLOT(serviceOwnerChanged(QString,QString,QString)));
     connect(d->daemon, SIGNAL(accountUpdated()), this, SIGNAL(accountUpdated()));
     connect(d->daemon, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)), this, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)));
     connect(d->daemon, SIGNAL(requestFinished(int,uint)), this, SIGNAL(requestFinished(int,uint)));
     connect(d->daemon, SIGNAL(fileInfoTransformed(int,uint,QCloud::EntryInfo)), this, SIGNAL(fileInfoTransformed(int,uint,QCloud::EntryInfo)));
+    connect(d->daemon, SIGNAL(downloadProgress(int,qlonglong,qlonglong)), this, SIGNAL(downloadProgress(int,qlonglong,qlonglong)));
+    connect(d->daemon, SIGNAL(uploadProgress(int,qlonglong,qlonglong)), this, SIGNAL(uploadProgress(int,qlonglong,qlonglong)));
 }
 
 Client::~Client()
 {
     delete d;
+}
+
+void Client::serviceOwnerChanged(const QString & serviceName, const QString & oldOwner, const QString & newOwner)
+{
+    if (!newOwner.isEmpty()) {
+        emit resetRequest();
+    }
 }
 
 bool Client::isValid()

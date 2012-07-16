@@ -14,9 +14,16 @@ public:
     virtual ~RequestHandler();
     void setRequest(QCloud::Request* request);
 
+signals:
+    void uploadProgress (int m_id, qint64 sent, qint64 total);
+    void downloadProgress (int m_id, qint64 sent, qint64 total);
+
 public slots:
     virtual void requestFinished();
 
+protected slots:
+    void updateUploadProgress (qint64 sent, qint64 total);
+    void updateDownloadProgress (qint64 sent, qint64 total);
 protected:
     int m_id;
     Request* m_request;

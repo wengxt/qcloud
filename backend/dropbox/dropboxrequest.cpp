@@ -58,8 +58,9 @@ void DropboxRequest::sendRequest (const QUrl& url, const QOAuth::HttpMethod& met
         request.setRawHeader ("Authorization", m_dropbox->authorizationString (url, method));
         if (method == QOAuth::GET)
             m_reply = m_dropbox->networkAccessManager()->get (request);
-        else if (method == QOAuth::PUT)
+        else if (method == QOAuth::PUT) {
             m_reply = m_dropbox->networkAccessManager()->put (request, device);
+        }
         else {
             m_error = Request::NetworkError;
             qDebug() << "Not supported method";
@@ -68,20 +69,7 @@ void DropboxRequest::sendRequest (const QUrl& url, const QOAuth::HttpMethod& met
     }
     connect (m_reply, SIGNAL (readyRead()) , this , SLOT (readyForRead()));
     connect (m_reply, SIGNAL (finished()) , this , SLOT (replyFinished()));
-    connect (m_reply, SIGNAL (uploadProgress(qint64,qint64)), this, SLOT(uploadProgress(qint64, qint64)));
-    connect (m_reply, SIGNAL (downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64, qint64)));
 }
-
-void DropboxRequest::uploadProgress (qint64 send, qint64 total)
-{
-    qDebug() << "====Uploading" << send << total;
-}
-
-void DropboxRequest::downloadProgress (qint64 send, qint64 total)
-{
-    qDebug() << "====Downloading" << send << total;
-}
-
 
 QString DropboxRequest::getRootType()
 {
@@ -125,7 +113,7 @@ DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& loc
         case QCloud::IBackend::LocalSocket:
         {
             QLocalSocket* socket = new QLocalSocket;
-            socket->connectToServer(localFileName);
+            socket->connectToServer(localFileName, QIODevice::ReadOnly);
             if (!socket->waitForConnected()) {
                 m_error = FileError;
                 QTimer::singleShot (0, this, SIGNAL (finished()));
@@ -143,7 +131,11 @@ DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& loc
     surl = surl.arg (getRootType(),removeInvalidSlash(remoteFilePath));
     QUrl url (surl);
     sendRequest (url, QOAuth::PUT, m_iodevice);
+
+    connect (m_reply, SIGNAL (uploadProgress(qint64, qint64)), this, SIGNAL(uploadProgress(qint64, qint64)));
+    connect (m_reply, SIGNAL (downloadProgress(qint64, qint64)), this, SIGNAL(downloadProgress(qint64, qint64)));
 }
+
 
 void DropboxUploadRequest::readyForRead()
 {
@@ -199,7 +191,7 @@ DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString&
         case QCloud::IBackend::LocalSocket:
         {
             QLocalSocket* socket = new QLocalSocket;
-            socket->connectToServer(localFileName);
+            socket->connectToServer(localFileName, QIODevice::WriteOnly);
             if (!socket->waitForConnected()) {
                 m_error = FileError;
                 QTimer::singleShot (0, this, SIGNAL (finished()));
@@ -213,6 +205,8 @@ DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString&
     surl = surl.arg (getRootType(),removeInvalidSlash(remoteFilePath));
     QUrl url (surl);
     sendRequest (url, QOAuth::GET);
+    connect (m_reply, SIGNAL (uploadProgress(qint64,qint64)), this, SIGNAL(uploadProgress(qint64, qint64)));
+    connect (m_reply, SIGNAL (downloadProgress(qint64,qint64)), this, SIGNAL(downloadProgress(qint64, qint64)));
 }
 
 DropboxDownloadRequest::~DropboxDownloadRequest()
@@ -224,7 +218,6 @@ DropboxDownloadRequest::~DropboxDownloadRequest()
 void DropboxDownloadRequest::readyForRead()
 {
     QByteArray buf = m_reply->readAll();
-    qDebug() << "Downloading" << buf.size();
     qint64 result = m_iodevice->write (buf);
     if (result < 0)
         qDebug() << "Download send error" << m_iodevice->errorString();
@@ -434,7 +427,7 @@ QCloud::EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoM
     return info;
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path, QCloud::EntryInfo* info,QCloud::EntryInfoList* contents)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path, QCloud::EntryInfo* info, QCloud::EntryInfoList* contents)
 {
     m_dropbox = dropbox;
     m_info = info;
@@ -460,7 +453,6 @@ void DropboxGetInfoRequest::replyFinished()
         qDebug() << "Reponse error " << m_reply->errorString();
     }
     QVariant result = m_parser.parse(m_buffer.data());
-    qDebug() << result;
     QVariantMap infoMap = result.toMap();
     if (m_info!=NULL){
         (*m_info) = getInfoFromMap(infoMap);
@@ -475,7 +467,6 @@ void DropboxGetInfoRequest::replyFinished()
             foreach(QVariant i,contentsList){
                 QCloud::EntryInfo info = getInfoFromMap(i.toMap());
                 infoList << info;
-                qDebug() << info.path();
             }
             (*m_contents) = infoList;
         }

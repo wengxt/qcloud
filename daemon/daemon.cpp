@@ -11,7 +11,7 @@ Daemon::Daemon (int& argc, char** argv) : QApplication (argc, argv)
     ,m_secureStore(QCloud::Factory::instance()->createSecureStore("kwallet", this))
     ,m_accountManager(new AccountManager(this))
     ,m_service(new Service(this))
-    ,m_networkPluginName("kde")
+    ,m_networkPluginName("general")
 {
     if (!m_service->isValid()) {
         QTimer::singleShot(0, this, SLOT(quit()));

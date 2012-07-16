@@ -36,10 +36,15 @@ public:
     QDBusPendingReply<int> copyFile (const QString& uid1, const QString& src, const QString& dest);
     QDBusPendingReply<int> fetchInfo (const QString& uuid, const QString& path);
 signals:
+    void resetRequest();
     void accountUpdated();
     void fileInfoTransformed(int id, uint error, const QCloud::EntryInfo &info);
     void directoryInfoTransformed(int id, uint error, const QCloud::EntryInfoList &info);
     void requestFinished(int id, uint error);
+    void downloadProgress (int id, qlonglong sent, qlonglong total);
+    void uploadProgress (int id, qlonglong sent, qlonglong total);
+protected slots:
+    void serviceOwnerChanged (const QString & serviceName, const QString & oldOwner, const QString & newOwner);
 protected:
     ClientPrivate* d;
 };

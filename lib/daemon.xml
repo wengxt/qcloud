@@ -75,12 +75,19 @@
             <arg name="dst" type="s" direction="in" />
             <arg name="request_id" type="i" direction="out" />
         </method>
-        <method name="queryProgress">
-            <arg name="request_id" type="i"/>
-        </method>
         <signal name="requestFinished">
             <arg name="request_id" type="i"/>
             <arg name="error" type="u"/>
+        </signal>
+        <signal name="downloadProgress">
+            <arg name="request_id" type="i"/>
+            <arg name="send" type="x"/>
+            <arg name="total" type="x"/>
+        </signal>
+        <signal name="uploadProgress">
+            <arg name="request_id" type="i"/>
+            <arg name="send" type="x"/>
+            <arg name="total" type="x"/>
         </signal>
         <signal name="accountUpdated">
         </signal>
