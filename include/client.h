@@ -28,17 +28,23 @@ public:
     QDBusPendingReply<void> addAccount (const QString& backend_name, const QString& user_name);
     QDBusPendingReply<void> deleteAccount (const QString& uuid);
     QDBusPendingReply<int> sync (const QString& app_name);
-    QDBusPendingReply<int> uploadFile (const QString& app_name, const QStringList& file_list);
+    QDBusPendingReply<int> uploadFile (const QString& uuid, const QString& file, uint type, const QString& dest);
+    QDBusPendingReply<int> downloadFile (const QString& uuid, const QString& src, const QString& file, uint type);
     QDBusPendingReply<int> createFolder(const QString& uuid, const QString& path);
     QDBusPendingReply<int> deleteFile (const QString& uuid, const QString& path);
     QDBusPendingReply<int> moveFile (const QString& uid1, const QString& src, const QString& dest);
     QDBusPendingReply<int> copyFile (const QString& uid1, const QString& src, const QString& dest);
     QDBusPendingReply<int> fetchInfo (const QString& uuid, const QString& path);
 signals:
+    void resetRequest();
     void accountUpdated();
     void fileInfoTransformed(int id, uint error, const QCloud::EntryInfo &info);
     void directoryInfoTransformed(int id, uint error, const QCloud::EntryInfoList &info);
     void requestFinished(int id, uint error);
+    void downloadProgress (int id, qlonglong sent, qlonglong total);
+    void uploadProgress (int id, qlonglong sent, qlonglong total);
+protected slots:
+    void serviceOwnerChanged (const QString & serviceName, const QString & oldOwner, const QString & newOwner);
 protected:
     ClientPrivate* d;
 };

@@ -25,7 +25,8 @@ public:
     virtual InfoList listBackends() = 0;
     virtual InfoList listAccounts() = 0;
     virtual int listFiles(const QString& uuid,const QString& directory) = 0;
-    virtual int uploadFile (const QString& app_name, const QStringList& file_list) = 0;
+    virtual int uploadFile (const QString& uuid, const QString& file, uint type, const QString& dest) = 0;
+    virtual int downloadFile (const QString& uuid, const QString& src, const QString& file, uint type) = 0;
     virtual void addAccount (const QString& backend_name, const QString& user_name) = 0;
     virtual void deleteAccount (const QString& uuid) = 0;
     virtual int sync (const QString& app_name) = 0;
@@ -34,17 +35,24 @@ public:
     virtual int moveFile (const QString& uuid, const QString& src, const QString& dst) = 0;
     virtual int copyFile (const QString& uuid, const QString& src, const QString& dst) = 0;
     virtual int fetchInfo (const QString& uuid, const QString& directory) = 0;
+
+    bool isValid() const;
+
+public slots:
     void notifyAccountUpdated();
     void notifyDirectoryInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfoList& info);
     void notifyFileInfoTransformed(int id, QCloud::Request::Error error, const QCloud::EntryInfo& info);
     void notifyRequestFinished(int id, QCloud::Request::Error error);
-    bool isValid() const;
+    void notifyUploadProgress(int id, qint64 send, qint64 total);
+    void notifyDownloadProgress(int id, qint64 send, qint64 total);
 
 signals:
     void accountUpdated();
     void requestFinished(int id, uint error);
     void directoryInfoTransformed(int id, uint error, const QCloud::EntryInfoList& info);
     void fileInfoTransformed(int id, uint error, const QCloud::EntryInfo& info);
+    void uploadProgress(int id, qlonglong send, qlonglong total);
+    void downloadProgress(int id, qlonglong send, qlonglong total);
 private:
     Q_DISABLE_COPY (Server)
     ServerPrivate* d;

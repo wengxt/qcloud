@@ -1,6 +1,9 @@
 #include <QCoreApplication>
 #include <QDBusInterface>
 #include <QFileInfo>
+#include <QUuid>
+#include <QLocalServer>
+#include <QLocalSocket>
 
 #include <KDebug>
 #include <KComponentData>
@@ -15,10 +18,8 @@
 
 #include "kio_cloud.h"
 #include "requestwatcher.h"
-#include <client.h>
-
-
-#define KIO_CLOUD_DEBUG
+#include "client.h"
+#include "ibackend.h"
 
 #ifdef KIO_CLOUD_DEBUG
 class KioDebug {
@@ -80,10 +81,15 @@ CloudSlave::~CloudSlave()
 {
 }
 
+QCloud::Client* CloudSlave::client()
+{
+    return m_client;
+}
+
+
 void CloudSlave::stat (const KUrl& url)
 {
     if (isRootUrl(url)) {
-        kioDebug() << "Stat root" << url;
         //
         // stat the root path
         //
@@ -104,7 +110,6 @@ void CloudSlave::stat (const KUrl& url)
         if (!path.isEmpty() && path[0] == '/')
             path = path.mid(1);
         QString uid = path.section('/', 0, 0);
-        kioDebug() <<  path << uid << path.section('/', 1);
         QDBusPendingReply< int > requestId = m_client->fetchInfo(uid, path.section('/', 1));
         requestId.waitForFinished();
 
@@ -118,44 +123,42 @@ void CloudSlave::stat (const KUrl& url)
             error(KIO::ERR_UNSUPPORTED_ACTION, url.prettyUrl());
             return;
         }
-        RequestWatcher watcher(requestId);
-        QObject::connect(m_client, SIGNAL(fileInfoTransformed(int,uint,QCloud::EntryInfo)), &watcher, SLOT(reveivedInfo(int,uint,QCloud::EntryInfo)));
+        InfoRequestWatcher watcher(requestId, this);
 
         QEventLoop loop;
-        QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+        QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
         loop.exec();
-        kioDebug() << "Stat root" << url;
         //
         // stat the root path
         //
         KIO::UDSEntry uds;
-        kioDebug() << watcher.m_entryinfo.path() << watcher.m_entryinfo.modifiedTime() << watcher.m_entryinfo.isDir();
-        QFileInfo f(watcher.m_entryinfo.path());
+        QFileInfo f(watcher.entryInfo().path());
         uds.insert(KIO::UDSEntry::UDS_NAME, f.fileName());
-        uds.insert(KIO::UDSEntry::UDS_SIZE, watcher.m_entryinfo.size());
-        uds.insert(KIO::UDSEntry::UDS_ICON_NAME, watcher.m_entryinfo.icon());
-        uds.insert(KIO::UDSEntry::UDS_FILE_TYPE, watcher.m_entryinfo.isDir()? S_IFDIR: S_IFREG);
-        uds.insert(KIO::UDSEntry::UDS_ACCESS, watcher.m_entryinfo.isDir() ? (S_IRUSR | S_IWUSR | S_IXUSR) : (S_IRUSR | S_IWUSR));
-        uds.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, watcher.m_entryinfo.modifiedTime().toTime_t());
-        uds.insert(KIO::UDSEntry::UDS_MIME_TYPE, watcher.m_entryinfo.mime());
+        uds.insert(KIO::UDSEntry::UDS_SIZE, watcher.entryInfo().size());
+        uds.insert(KIO::UDSEntry::UDS_ICON_NAME, watcher.entryInfo().icon());
+        uds.insert(KIO::UDSEntry::UDS_FILE_TYPE, watcher.entryInfo().isDir()? S_IFDIR: S_IFREG);
+        uds.insert(KIO::UDSEntry::UDS_ACCESS, watcher.entryInfo().isDir() ? (S_IRUSR | S_IWUSR | S_IXUSR) : (S_IRUSR | S_IWUSR));
+        uds.insert(KIO::UDSEntry::UDS_MODIFICATION_TIME, watcher.entryInfo().modifiedTime().toTime_t());
+        uds.insert(KIO::UDSEntry::UDS_MIME_TYPE, watcher.entryInfo().mime());
 
         statEntry(uds);
         finished();
     }
 }
 
-void CloudSlave::get (const KUrl& url)
+bool CloudSlave::parseUrl(const KUrl& url, QString& uuid, QString &path)
 {
-    kioDebug() << "CloudSlave::listDir" << url.url();
-    KIO::SlaveBase::get (url);
+    QString fullpath = url.path();
+    if (!fullpath.isEmpty() && fullpath[0] == '/')
+        fullpath = fullpath.mid(1);
+    uuid = fullpath.section('/', 0, 0);
+    path = fullpath.section('/', 1);
+    return true;
 }
 
 void CloudSlave::listDir (const KUrl& url)
 {
-    kioDebug() << "CloudSlave::listDir" << url.url();
-
     if (!m_client->isValid()) {
-        kioDebug() << "!!!!!!!!!!!!!!!NOT VALID";
         error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
     }
 
@@ -170,7 +173,6 @@ void CloudSlave::listDir (const KUrl& url)
 
         KIO::UDSEntry uds;
         Q_FOREACH(const QCloud::Info & account, result.value()) {
-            kioDebug() << account.name() << account.iconName();
             uds.clear();
             uds.insert(KIO::UDSEntry::UDS_NAME, account.name());
             uds.insert(KIO::UDSEntry::UDS_DISPLAY_NAME, account.displayName());
@@ -186,15 +188,10 @@ void CloudSlave::listDir (const KUrl& url)
         finished();
     }
     else {
-        QString path = url.path();
-        if (!path.isEmpty() && path[0] == '/')
-            path = path.mid(1);
-        QString uid = path.section('/', 0, 0);
-        kioDebug() <<  path << uid << path.section('/', 1);
-        QDBusPendingReply< int > requestId = m_client->listFiles(uid, path.section('/', 1));
+        QString path, uid;
+        parseUrl(url, uid, path);
+        QDBusPendingReply< int > requestId = m_client->listFiles(uid, path);
         requestId.waitForFinished();
-
-        kioDebug() << uid << path.section('/', 1);
 
         if (requestId.isError()) {
             error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
@@ -207,16 +204,13 @@ void CloudSlave::listDir (const KUrl& url)
             return;
         }
 
-        RequestWatcher watcher(requestId);
-        QObject::connect(m_client, SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)), &watcher, SLOT(receivedList(int,uint,QCloud::EntryInfoList)));
-
+        InfoListRequestWatcher watcher(requestId, this);
         QEventLoop loop;
-        QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+        QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
         loop.exec();
 
         KIO::UDSEntry uds;
-        Q_FOREACH(const QCloud::EntryInfo & item, watcher.m_entryinfolist) {
-            kioDebug() << item.path() << item.modifiedTime() << item.isDir();
+        Q_FOREACH(const QCloud::EntryInfo & item, watcher.entryInfoList()) {
             QFileInfo f(item.path());
             uds.clear();
             uds.insert(KIO::UDSEntry::UDS_NAME, f.fileName());
@@ -228,7 +222,7 @@ void CloudSlave::listDir (const KUrl& url)
             uds.insert(KIO::UDSEntry::UDS_MIME_TYPE, item.mime());
             listEntry(uds, false);
         }
-        totalSize(watcher.m_entryinfolist.count());
+        totalSize(watcher.entryInfoList().count());
         listEntry(uds, true);
 
         finished();
@@ -237,12 +231,9 @@ void CloudSlave::listDir (const KUrl& url)
 
 void CloudSlave::mkdir (const KUrl& url, int permissions)
 {
-    QString path = url.path();
-    if (!path.isEmpty() && path[0] == '/')
-        path = path.mid(1);
-    QString uid = path.section('/', 0, 0);
-    kioDebug() <<  path << uid << path.section('/', 1);
-    QDBusPendingReply< int > requestId = m_client->createFolder(uid, path.section('/', 1));
+    QString path, uid;
+    parseUrl(url, uid, path);
+    QDBusPendingReply< int > requestId = m_client->createFolder(uid, path);
     requestId.waitForFinished();
 
     if (requestId.isError()) {
@@ -255,23 +246,18 @@ void CloudSlave::mkdir (const KUrl& url, int permissions)
         error(KIO::ERR_UNSUPPORTED_ACTION, url.prettyUrl());
         return;
     }
-    RequestWatcher watcher(requestId);
-    QObject::connect(m_client, SIGNAL(requestFinished(int,uint)), &watcher, SLOT(requestFinished(int,uint)));
-
+    GeneralRequestWatcher watcher(requestId, this);
     QEventLoop loop;
-    QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+    QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
     finished();
 }
 
 void CloudSlave::del (const KUrl& url, bool isfile)
 {
-    QString path = url.path();
-    if (!path.isEmpty() && path[0] == '/')
-        path = path.mid(1);
-    QString uid = path.section('/', 0, 0);
-    kioDebug() <<  path << uid << path.section('/', 1);
-    QDBusPendingReply< int > requestId = m_client->deleteFile(uid, path.section('/', 1));
+    QString path, uid;
+    parseUrl(url, uid, path);
+    QDBusPendingReply< int > requestId = m_client->deleteFile(uid, path);
     requestId.waitForFinished();
 
     if (requestId.isError()) {
@@ -284,33 +270,23 @@ void CloudSlave::del (const KUrl& url, bool isfile)
         error(KIO::ERR_UNSUPPORTED_ACTION, url.prettyUrl());
         return;
     }
-    RequestWatcher watcher(requestId);
-    QObject::connect(m_client, SIGNAL(requestFinished(int,uint)), &watcher, SLOT(requestFinished(int,uint)));
-
+    GeneralRequestWatcher watcher(requestId, this);
     QEventLoop loop;
-    QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+    QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
     finished();
 }
 
 void CloudSlave::rename (const KUrl& src, const KUrl& dest, KIO::JobFlags flags)
 {
-    QString path1 = src.path();
-    QString path2 = dest.path();
-    if (!path1.isEmpty() && path1[0] == '/')
-        path1 = path1.mid(1);
-    if (!path2.isEmpty() && path2[0] == '/')
-        path2 = path2.mid(1);
-    QString uid1 = path1.section('/', 0, 0);
-    QString uid2 = path2.section('/', 0, 0);
+    QString path1, uid1, path2, uid2;
+    parseUrl(src, uid1, path1);
+    parseUrl(src, uid2, path2);
     if (uid1 != uid2) {
         error(KIO::ERR_UNSUPPORTED_ACTION, "move file cannot across account");
         return;
     }
-
-    kioDebug() <<  path1 << uid1 << path1.section('/', 1);
-    kioDebug() <<  path2 << uid2 << path2.section('/', 1);
-    QDBusPendingReply< int > requestId = m_client->moveFile(uid1, path1.section('/', 1), path2.section('/', 1));
+    QDBusPendingReply< int > requestId = m_client->moveFile(uid1, path1, path2);
     requestId.waitForFinished();
 
     if (requestId.isError()) {
@@ -323,33 +299,24 @@ void CloudSlave::rename (const KUrl& src, const KUrl& dest, KIO::JobFlags flags)
         error(KIO::ERR_UNSUPPORTED_ACTION, src.prettyUrl());
         return;
     }
-    RequestWatcher watcher(requestId);
-    QObject::connect(m_client, SIGNAL(requestFinished(int,uint)), &watcher, SLOT(requestFinished(int,uint)));
-
+    GeneralRequestWatcher watcher(requestId, this);
     QEventLoop loop;
-    QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+    QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
     finished();
 }
 
 void CloudSlave::copy (const KUrl& src, const KUrl& dest, int permissions, KIO::JobFlags flags)
 {
-    QString path1 = src.path();
-    QString path2 = dest.path();
-    if (!path1.isEmpty() && path1[0] == '/')
-        path1 = path1.mid(1);
-    if (!path2.isEmpty() && path2[0] == '/')
-        path2 = path2.mid(1);
-    QString uid1 = path1.section('/', 0, 0);
-    QString uid2 = path2.section('/', 0, 0);
+    QString path1, uid1, path2, uid2;
+    parseUrl(src, uid1, path1);
+    parseUrl(src, uid2, path2);
     if (uid1 != uid2) {
         error(KIO::ERR_UNSUPPORTED_ACTION, "move file cannot across account");
         return;
     }
 
-    kioDebug() <<  path1 << uid1 << path1.section('/', 1);
-    kioDebug() <<  path2 << uid2 << path2.section('/', 1);
-    QDBusPendingReply< int > requestId = m_client->copyFile(uid1, path1.section('/', 1), path2.section('/', 1));
+    QDBusPendingReply< int > requestId = m_client->copyFile(uid1, path1, path2);
     requestId.waitForFinished();
 
     if (requestId.isError()) {
@@ -362,13 +329,11 @@ void CloudSlave::copy (const KUrl& src, const KUrl& dest, int permissions, KIO::
         error(KIO::ERR_UNSUPPORTED_ACTION, src.prettyUrl());
         return;
     }
-    RequestWatcher watcher(requestId);
-    QObject::connect(m_client, SIGNAL(requestFinished(int,uint)), &watcher, SLOT(requestFinished(int,uint)));
-
+    GeneralRequestWatcher watcher(requestId, this);
     QEventLoop loop;
-    QObject::connect(&watcher, SIGNAL(end()), &loop, SLOT(quit()));
+    QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
-    switch (watcher.m_error) {
+    switch (watcher.error()) {
         case QCloud::Request::NoError:
             finished();
             break;
@@ -381,5 +346,78 @@ void CloudSlave::copy (const KUrl& src, const KUrl& dest, int permissions, KIO::
         default:
             error(KIO::ERR_UNKNOWN, dest.prettyUrl());
             break;
+    }
+}
+
+
+void CloudSlave::put (const KUrl& url, int permissions, KIO::JobFlags flags)
+{
+    if (!m_client->isValid()) {
+        error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
+    }
+
+    QString path, uid;
+    parseUrl(url, uid, path);
+
+    QLocalServer server;
+    server.setMaxPendingConnections(1);
+    QUuid uuid = QUuid::createUuid();
+    QString serverName = QString("/tmp/qcloud-%1").arg(uuid.toString());
+    if (!server.listen(serverName)) {
+        error(KIO::ERR_UNKNOWN, "Not able to start the Server");
+    }
+    QDBusPendingReply< int > resultRequest = m_client->uploadFile(uid, server.serverName(), QCloud::IBackend::LocalSocket, path);
+    resultRequest.waitForFinished();
+    int requestId = resultRequest.value();
+    Uploader watcher(requestId, &server, this);
+
+    QEventLoop loop;
+    QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+
+    QFile file(serverName);
+    file.remove();
+
+    if (watcher.error()) {
+        error(KIO::ERR_WRITE_ACCESS_DENIED, url.prettyUrl());
+    }
+    else {
+        finished();
+    }
+}
+
+void CloudSlave::get (const KUrl& url)
+{
+    if (!m_client->isValid()) {
+        error(KIO::ERR_COULD_NOT_CONNECT, url.prettyUrl());
+    }
+
+    QString path, uid;
+    parseUrl(url, uid, path);
+
+    QLocalServer server;
+    server.setMaxPendingConnections(1);
+    QUuid uuid = QUuid::createUuid();
+    QString serverName = QString("/tmp/qcloud-%1").arg(uuid.toString());
+    if (!server.listen(serverName)) {
+        error(KIO::ERR_UNKNOWN, "Not able to start the Server");
+    }
+    QDBusPendingReply< int > resultRequest = m_client->downloadFile(uid, path, server.serverName(), QCloud::IBackend::LocalSocket);
+    resultRequest.waitForFinished();
+    int requestId = resultRequest.value();
+    Downloader watcher(requestId, &server, this);
+
+    QEventLoop loop;
+    QObject::connect(&watcher, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+
+    QFile file(serverName);
+    file.remove();
+
+    if (watcher.error()) {
+        error(KIO::ERR_UNKNOWN, watcher.errorString());
+    }
+    else {
+        finished();
     }
 }

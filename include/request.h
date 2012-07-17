@@ -27,6 +27,8 @@ public:
 
 signals:
     void finished();
+    void uploadProgress(qint64 send, qint64 total);
+    void downloadProgress(qint64 send, qint64 total);
 };
 }
 

@@ -13,5 +13,5 @@ writing=true
 deleting=true
 moving=true
 copying=true
-maxInstances=1
+maxInstances=4
 Class=:internet

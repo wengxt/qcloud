@@ -5,6 +5,7 @@
 #include <QNetworkReply>
 #include <QDebug>
 #include <QTimer>
+#include <QLocalSocket>
 #include <qjson/parser.h>
 #include "dropboxrequest.h"
 #include "dropbox.h"
@@ -57,8 +58,9 @@ void DropboxRequest::sendRequest (const QUrl& url, const QOAuth::HttpMethod& met
         request.setRawHeader ("Authorization", m_dropbox->authorizationString (url, method));
         if (method == QOAuth::GET)
             m_reply = m_dropbox->networkAccessManager()->get (request);
-        else if (method == QOAuth::PUT)
+        else if (method == QOAuth::PUT) {
             m_reply = m_dropbox->networkAccessManager()->put (request, device);
+        }
         else {
             m_error = Request::NetworkError;
             qDebug() << "Not supported method";
@@ -92,24 +94,48 @@ DropboxRequest::~DropboxRequest()
 
 }
 
-DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, const QString& remoteFilePath) :
-m_file (localFileName)
+DropboxUploadRequest::DropboxUploadRequest (Dropbox* dropbox, const QString& localFileName, uint type, const QString& remoteFilePath) :
+    m_iodevice(0)
 {
-    m_dropbox = dropbox;
-    if (!m_file.open (QIODevice::ReadOnly)) {
-        m_error = FileError;
-        QTimer::singleShot (0, this, SIGNAL (finished()));
-        return;
+    qDebug() << localFileName << type << remoteFilePath;
+    switch(type) {
+        case QCloud::IBackend::LocalFile:
+        {
+            QFile* file = new QFile(localFileName);
+            m_iodevice = file;
+            if (!file->open (QIODevice::ReadOnly)) {
+                m_error = FileError;
+                QTimer::singleShot (0, this, SIGNAL (finished()));
+                return;
+            }
+        }
+        break;
+        case QCloud::IBackend::LocalSocket:
+        {
+            QLocalSocket* socket = new QLocalSocket;
+            socket->connectToServer(localFileName, QIODevice::ReadOnly);
+            if (!socket->waitForConnected()) {
+                m_error = FileError;
+                QTimer::singleShot (0, this, SIGNAL (finished()));
+                return;
+            }
+            m_iodevice = socket;
+        }
+        break;
     }
+    m_dropbox = dropbox;
 
     m_buffer.open (QBuffer::ReadWrite);
 
-    QString surl;
-    surl = "https://api-content.dropbox.com/1/files_put/%1/%2";
+    QString surl("https://api-content.dropbox.com/1/files_put/%1/%2");
     surl = surl.arg (getRootType(),removeInvalidSlash(remoteFilePath));
     QUrl url (surl);
-    sendRequest (url, QOAuth::PUT, &m_file);
+    sendRequest (url, QOAuth::PUT, m_iodevice);
+
+    connect (m_reply, SIGNAL (uploadProgress(qint64, qint64)), this, SIGNAL(uploadProgress(qint64, qint64)));
+    connect (m_reply, SIGNAL (downloadProgress(qint64, qint64)), this, SIGNAL(downloadProgress(qint64, qint64)));
 }
+
 
 void DropboxUploadRequest::readyForRead()
 {
@@ -119,6 +145,8 @@ void DropboxUploadRequest::readyForRead()
 
 DropboxUploadRequest::~DropboxUploadRequest()
 {
+    if (m_iodevice)
+        delete m_iodevice;
 }
 
 void DropboxUploadRequest::replyFinished()
@@ -131,35 +159,69 @@ void DropboxUploadRequest::replyFinished()
     m_buffer.seek (0);
     // Lets print the HTTP PUT response.
     QVariant result = m_parser.parse (m_buffer.data());
+    qDebug() << "====Upload====";
     qDebug() << result;
-    m_file.close();
+    QLocalSocket* socket = qobject_cast<QLocalSocket*>(m_iodevice);
+    if (socket) {
+        socket->disconnectFromServer();
+    }
+    else {
+        m_iodevice->close();
+    }
     emit finished();
 }
 
-DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName) :
-m_file (localFileName)
+DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString& remoteFilePath, const QString& localFileName, uint type) :
+    m_iodevice(0)
 {
+    qDebug() << "DropboxDownloadRequest" << remoteFilePath << localFileName << type;
     m_dropbox = dropbox;
-    if (!m_file.open (QIODevice::WriteOnly)) {
-        m_error = FileError;
-        qDebug() << "Failed opening file for writing!";
-        QTimer::singleShot (0, this, SIGNAL (finished()));
-        return;
+    switch(type) {
+        case QCloud::IBackend::LocalFile:
+        {
+            QFile* file = new QFile(localFileName);
+            m_iodevice = file;
+            if (!file->open (QIODevice::ReadOnly)) {
+                m_error = FileError;
+                QTimer::singleShot (0, this, SIGNAL (finished()));
+                return;
+            }
+        }
+        break;
+        case QCloud::IBackend::LocalSocket:
+        {
+            QLocalSocket* socket = new QLocalSocket;
+            socket->connectToServer(localFileName, QIODevice::WriteOnly);
+            if (!socket->waitForConnected()) {
+                m_error = FileError;
+                QTimer::singleShot (0, this, SIGNAL (finished()));
+                return;
+            }
+            m_iodevice = socket;
+        }
+        break;
     }
-    QString urlString;
-    urlString = "https://api-content.dropbox.com/1/files/%1/%2";
-    urlString = urlString.arg (getRootType(),remoteFilePath);
-    QUrl url (removeInvalidSlash(urlString));
+    QString surl("https://api-content.dropbox.com/1/files/%1/%2");
+    surl = surl.arg (getRootType(),removeInvalidSlash(remoteFilePath));
+    QUrl url (surl);
     sendRequest (url, QOAuth::GET);
+    connect (m_reply, SIGNAL (uploadProgress(qint64,qint64)), this, SIGNAL(uploadProgress(qint64, qint64)));
+    connect (m_reply, SIGNAL (downloadProgress(qint64,qint64)), this, SIGNAL(downloadProgress(qint64, qint64)));
 }
 
 DropboxDownloadRequest::~DropboxDownloadRequest()
 {
+    if (m_iodevice)
+        delete m_iodevice;
 }
 
 void DropboxDownloadRequest::readyForRead()
 {
-    m_file.write (m_reply->readAll());
+    QByteArray buf = m_reply->readAll();
+    qint64 result = m_iodevice->write (buf);
+    if (result < 0)
+        qDebug() << "Download send error" << m_iodevice->errorString();
+
 }
 
 void DropboxDownloadRequest::replyFinished()
@@ -168,9 +230,32 @@ void DropboxDownloadRequest::replyFinished()
         qDebug() << "Reponse error " << m_reply->errorString();
         m_error = NetworkError;
     }
-    m_file.close();
-    emit finished();
+    QLocalSocket* socket = qobject_cast<QLocalSocket*>(m_iodevice);
+    if (socket) {
+        if (socket->bytesToWrite()) {
+            connect(m_iodevice, SIGNAL(bytesWritten(qint64)), SLOT(bytesWritten(qint64)));
+        }
+        else {
+            socket->disconnectFromServer();
+            emit finished();
+        }
+    }
+    else {
+        m_iodevice->close();
+        emit finished();
+    }
 }
+
+
+void DropboxDownloadRequest::bytesWritten (qint64)
+{
+    if (!m_iodevice->bytesToWrite()) {
+        QLocalSocket* socket = qobject_cast<QLocalSocket*>(m_iodevice);
+        socket->disconnectFromServer();
+        emit finished();
+    }
+}
+
 
 DropboxCopyRequest::DropboxCopyRequest (Dropbox* dropbox, const QString& fromPath, const QString& toPath)
 {
@@ -342,7 +427,7 @@ QCloud::EntryInfo DropboxGetInfoRequest::getInfoFromMap(const QVariantMap& infoM
     return info;
 }
 
-DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path, QCloud::EntryInfo* info,QCloud::EntryInfoList* contents)
+DropboxGetInfoRequest::DropboxGetInfoRequest(Dropbox* dropbox, const QString& path, QCloud::EntryInfo* info, QCloud::EntryInfoList* contents)
 {
     m_dropbox = dropbox;
     m_info = info;
@@ -368,7 +453,6 @@ void DropboxGetInfoRequest::replyFinished()
         qDebug() << "Reponse error " << m_reply->errorString();
     }
     QVariant result = m_parser.parse(m_buffer.data());
-    qDebug() << result;
     QVariantMap infoMap = result.toMap();
     if (m_info!=NULL){
         (*m_info) = getInfoFromMap(infoMap);
@@ -383,7 +467,6 @@ void DropboxGetInfoRequest::replyFinished()
             foreach(QVariant i,contentsList){
                 QCloud::EntryInfo info = getInfoFromMap(i.toMap());
                 infoList << info;
-                qDebug() << info.path();
             }
             (*m_contents) = infoList;
         }
