@@ -30,11 +30,13 @@ private slots:
     void fileListActivated();
     void listButtonClicked();
     void createFolderTriggered();
+    void deleteFileTriggered();
     void requestFinished(int requestId,uint error);
     void fileListFinished(int id, uint error, const QCloud::EntryInfoList& info);
 private:
     QString getUuid();
     void removeId(int id);
+    
     QWidget* m_widget;
     Ui::Tool* m_ui;
     InfoModel* m_accountModel;
@@ -45,4 +47,9 @@ private:
     QString currentDir;
     QSet<int> idSet;
     QMap<int,QString> idPath;
+    QAction* refreshAction;
+    QAction* createFolderAction;
+    QAction* deleteFileAction;
+    QAction* downloadAction;
+    QAction* uploadAction;
 };

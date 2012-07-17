@@ -35,9 +35,21 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
 
     m_addAccountButton->setIcon (QIcon::fromTheme ("list-add"));
     m_deleteAccountButton->setIcon (QIcon::fromTheme ("list-remove"));
+    
+    refreshAction = new QAction("Refresh",this);
+    createFolderAction = new QAction("Create Folder",this);
+    downloadAction = new QAction("Download",this);
+    uploadAction = new QAction("Upload",this);
+    deleteFileAction = new QAction("Delete",this);
 
     m_ui->fileView->setModel(m_fileModel);
     m_ui->fileView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_ui->fileView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_ui->fileView->addAction(refreshAction);
+    m_ui->fileView->addAction(createFolderAction);
+    m_ui->fileView->addAction(downloadAction);
+    m_ui->fileView->addAction(uploadAction);
+    m_ui->fileView->addAction(deleteFileAction);
 
     setWindowTitle (tr ("QCloud"));
     setWindowIcon (QIcon::fromTheme ("qcloud"));
@@ -47,6 +59,10 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     connect (m_ui->fileView, SIGNAL(activated(QModelIndex)),this, SLOT(fileListActivated()));
     connect (m_listButton, SIGNAL(clicked(bool)),this, SLOT(listButtonClicked()));
     connect (m_ui->createFolderButton, SIGNAL(clicked(bool)),this, SLOT(createFolderTriggered()));
+    connect (refreshAction,SIGNAL(triggered(bool)),this,SLOT(listButtonClicked()));
+    connect (createFolderAction,SIGNAL(triggered(bool)),this,SLOT(createFolderTriggered()));
+    connect (m_ui->accountView,SIGNAL(clicked(QModelIndex)),this,SLOT(listButtonClicked()));
+    connect (deleteFileAction,SIGNAL(triggered(bool)),this,SLOT(deleteFileTriggered()));
 }
 
 MainWindow::~MainWindow()
@@ -108,10 +124,11 @@ bool MainWindow::loadFileList()
     }
     QDBusPendingReply< int > id = ClientApp::instance()->client()->listFiles(uuid,currentDir);
     //ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    QEventLoop loop;
+    QEventLoop* loop = new QEventLoop;
     QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(id);
-    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), &loop,SLOT(quit()));
-    loop.exec();
+    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), loop,SLOT(quit()));
+    loop->exec();
+    delete loop;
     idSet.insert(id.value());
     idPath[id.value()] = currentDir;
     delete appsWatcher;
@@ -186,9 +203,10 @@ void MainWindow::createFolderTriggered()
         return ;
     QDBusPendingReply < int > id = ClientApp::instance()->client()->createFolder(uuid,path);
     QDBusPendingCallWatcher *appsWatcher = new QDBusPendingCallWatcher(id);
-    QEventLoop loop;
-    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),&loop, SLOT(quit()));
-    loop.exec();
+    QEventLoop* loop = new QEventLoop;
+    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),loop, SLOT(quit()));
+    loop->exec();
+    delete loop;
     delete appsWatcher;
     idSet.insert(id.value());
     idPath[id.value()] = path;
@@ -216,3 +234,35 @@ void MainWindow::removeId(int id)
     idSet.remove(id);
     idPath.remove(id);
 }
+
+void MainWindow::deleteFileTriggered()
+{
+    if (!m_ui->fileView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
+    QModelIndex index;
+    index = m_ui->fileView->currentIndex();
+    QString currentPath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    QMessageBox msgBox;
+    msgBox.setText(QString("Are you sure to remove file '%1'?").arg(currentPath));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    int ret = msgBox.exec();
+    if (ret==QMessageBox::No)
+        return ;
+    
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->deleteFile(uuid,currentPath);
+    QDBusPendingCallWatcher *appsWatcher = new QDBusPendingCallWatcher(id);
+    QEventLoop* loop = new QEventLoop;
+    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),loop, SLOT(quit()));
+    loop->exec();
+    delete loop;
+    delete appsWatcher;
+    idSet.insert(id);
+    idPath[id] = currentPath;
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
