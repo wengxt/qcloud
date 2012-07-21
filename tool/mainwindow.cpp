@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QDir>
+#include <QFileDialog>
 
 #include "mainwindow.h"
 #include "accountdialog.h"
@@ -63,6 +64,8 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     connect (createFolderAction,SIGNAL(triggered(bool)),this,SLOT(createFolderTriggered()));
     connect (m_ui->accountView,SIGNAL(clicked(QModelIndex)),this,SLOT(listButtonClicked()));
     connect (deleteFileAction,SIGNAL(triggered(bool)),this,SLOT(deleteFileTriggered()));
+    connect (downloadAction,SIGNAL(triggered(bool)),this,SLOT(downloadFileTriggered()));
+    connect (uploadAction,SIGNAL(triggered(bool)),this,SLOT(uploadFileTriggered()));
 }
 
 MainWindow::~MainWindow()
@@ -123,16 +126,8 @@ bool MainWindow::loadFileList()
         return false;
     }
     QDBusPendingReply< int > id = ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    //ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    QEventLoop* loop = new QEventLoop;
-    QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(id);
-    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), loop,SLOT(quit()));
-    loop->exec();
-    delete loop;
-    idSet.insert(id.value());
-    idPath[id.value()] = currentDir;
-    delete appsWatcher;
-    //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
+    dbusWatchUntilFinished(id);
+    addId(id.value(),currentDir);
     connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
     return true;
 }
@@ -202,14 +197,8 @@ void MainWindow::createFolderTriggered()
     if (uuid.isEmpty())
         return ;
     QDBusPendingReply < int > id = ClientApp::instance()->client()->createFolder(uuid,path);
-    QDBusPendingCallWatcher *appsWatcher = new QDBusPendingCallWatcher(id);
-    QEventLoop* loop = new QEventLoop;
-    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),loop, SLOT(quit()));
-    loop->exec();
-    delete loop;
-    delete appsWatcher;
-    idSet.insert(id.value());
-    idPath[id.value()] = path;
+    dbusWatchUntilFinished(id);
+    addId(id.value(),path);
     connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
 }
 
@@ -225,6 +214,7 @@ void MainWindow::requestFinished(int requestId, uint error)
         msgBox.exec();
         return ;
     }
+    qDebug() << "Request Finished signal received , ID : " << requestId;
     loadFileList();
     removeId(requestId);
 }
@@ -255,14 +245,66 @@ void MainWindow::deleteFileTriggered()
     if (uuid.isEmpty())
         return ;
     QDBusPendingReply < int > id = ClientApp::instance()->client()->deleteFile(uuid,currentPath);
+    dbusWatchUntilFinished(id);
+    addId(id.value(),currentPath);
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
+void MainWindow::downloadFileTriggered()
+{
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    if (!m_ui->fileView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
+    QModelIndex index;
+    index = m_ui->fileView->currentIndex();
+    QString remotePath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    QString localPath = QFileDialog::getSaveFileName(this);
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->downloadFile(uuid,remotePath,localPath,QCloud::IBackend::LocalFile);
+    dbusWatchUntilFinished(id);
+    QFileInfo remoteInfo(remotePath);
+    addId(id,remoteInfo.path());
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
+void MainWindow::uploadFileTriggered()
+{
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    if (!m_ui->fileView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
+    QModelIndex index;
+    index = m_ui->fileView->currentIndex();
+    QString remotePath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    QString localPath = QFileDialog::getOpenFileName(this);
+    QFileInfo remoteInfo(remotePath);
+    QFileInfo localInfo(localPath);
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->uploadFile(uuid
+        ,localPath
+        ,QCloud::IBackend::LocalFile,remoteInfo.path() + localInfo.fileName());
+    dbusWatchUntilFinished(id);
+    addId(id,remoteInfo.path());
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
+void MainWindow::dbusWatchUntilFinished(QDBusPendingReply< int >& id)
+{
     QDBusPendingCallWatcher *appsWatcher = new QDBusPendingCallWatcher(id);
     QEventLoop* loop = new QEventLoop;
     connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),loop, SLOT(quit()));
     loop->exec();
     delete loop;
     delete appsWatcher;
-    idSet.insert(id);
-    idPath[id] = currentPath;
-    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
 }
 
+void MainWindow::addId(int id,const QString& currentPath)
+{
+    idSet.insert(id);
+    idPath[id] = currentPath;
+}

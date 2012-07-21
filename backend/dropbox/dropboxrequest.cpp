@@ -181,7 +181,7 @@ DropboxDownloadRequest::DropboxDownloadRequest (Dropbox* dropbox, const QString&
         {
             QFile* file = new QFile(localFileName);
             m_iodevice = file;
-            if (!file->open (QIODevice::ReadOnly)) {
+            if (!file->open (QIODevice::WriteOnly)) {
                 m_error = FileError;
                 QTimer::singleShot (0, this, SIGNAL (finished()));
                 return;

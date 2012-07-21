@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include <QSet>
+#include "client.h"
 #include "infomodel.h"
 #include "entryinfomodel.h"
 #include "entryinfo.h"
@@ -31,11 +32,15 @@ private slots:
     void listButtonClicked();
     void createFolderTriggered();
     void deleteFileTriggered();
+    void downloadFileTriggered();
+    void uploadFileTriggered();
     void requestFinished(int requestId,uint error);
     void fileListFinished(int id, uint error, const QCloud::EntryInfoList& info);
 private:
     QString getUuid();
     void removeId(int id);
+    void addId(int id,const QString& currentPath);
+    void dbusWatchUntilFinished(QDBusPendingReply< int >& id);
     
     QWidget* m_widget;
     Ui::Tool* m_ui;
