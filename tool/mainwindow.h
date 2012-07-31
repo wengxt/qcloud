@@ -14,6 +14,7 @@ namespace Ui
 class Tool;
 }
 
+class IdHandler;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -34,6 +35,7 @@ private slots:
     void deleteFileTriggered();
     void downloadFileTriggered();
     void uploadFileTriggered();
+    void gotIdFinished();
     void requestFinished(int requestId,uint error);
     void fileListFinished(int id, uint error, const QCloud::EntryInfoList& info);
 private:
@@ -57,4 +59,20 @@ private:
     QAction* deleteFileAction;
     QAction* downloadAction;
     QAction* uploadAction;
+};
+
+class IdHandler : public QObject
+{
+    Q_OBJECT
+public:
+    IdHandler(const QDBusPendingReply < int >& id,const QString& path,QObject* parent = 0);
+    virtual ~IdHandler();
+    QString path();
+    int Id();
+signals:
+    void gotIdFinished();
+private:
+    QDBusPendingReply < int > m_id;
+    QDBusPendingCallWatcher *appsWatcher;
+    QString m_path;
 };

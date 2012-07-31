@@ -66,6 +66,7 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     connect (deleteFileAction,SIGNAL(triggered(bool)),this,SLOT(deleteFileTriggered()));
     connect (downloadAction,SIGNAL(triggered(bool)),this,SLOT(downloadFileTriggered()));
     connect (uploadAction,SIGNAL(triggered(bool)),this,SLOT(uploadFileTriggered()));
+    
 }
 
 MainWindow::~MainWindow()
@@ -126,9 +127,8 @@ bool MainWindow::loadFileList()
         return false;
     }
     QDBusPendingReply< int > id = ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    dbusWatchUntilFinished(id);
-    addId(id.value(),currentDir);
-    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
+    IdHandler* handler = new IdHandler(id,currentDir);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
     return true;
 }
 
@@ -197,8 +197,8 @@ void MainWindow::createFolderTriggered()
     if (uuid.isEmpty())
         return ;
     QDBusPendingReply < int > id = ClientApp::instance()->client()->createFolder(uuid,path);
-    dbusWatchUntilFinished(id);
-    addId(id.value(),path);
+    IdHandler* handler = new IdHandler(id,path);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
     connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
 }
 
@@ -245,8 +245,8 @@ void MainWindow::deleteFileTriggered()
     if (uuid.isEmpty())
         return ;
     QDBusPendingReply < int > id = ClientApp::instance()->client()->deleteFile(uuid,currentPath);
-    dbusWatchUntilFinished(id);
-    addId(id.value(),currentPath);
+    IdHandler* handler = new IdHandler(id,currentPath);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
     connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
 }
 
@@ -264,9 +264,9 @@ void MainWindow::downloadFileTriggered()
     QString remotePath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
     QString localPath = QFileDialog::getSaveFileName(this);
     QDBusPendingReply < int > id = ClientApp::instance()->client()->downloadFile(uuid,remotePath,localPath,QCloud::IBackend::LocalFile);
-    dbusWatchUntilFinished(id);
     QFileInfo remoteInfo(remotePath);
-    addId(id,remoteInfo.path());
+    IdHandler* handler = new IdHandler(id,remoteInfo.path(),this);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
     connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
 }
 
@@ -288,23 +288,46 @@ void MainWindow::uploadFileTriggered()
     QDBusPendingReply < int > id = ClientApp::instance()->client()->uploadFile(uuid
         ,localPath
         ,QCloud::IBackend::LocalFile,remoteInfo.path() + localInfo.fileName());
-    dbusWatchUntilFinished(id);
-    addId(id,remoteInfo.path());
-    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
-}
-
-void MainWindow::dbusWatchUntilFinished(QDBusPendingReply< int >& id)
-{
-    QDBusPendingCallWatcher *appsWatcher = new QDBusPendingCallWatcher(id);
-    QEventLoop* loop = new QEventLoop;
-    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),loop, SLOT(quit()));
-    loop->exec();
-    delete loop;
-    delete appsWatcher;
+    IdHandler* handler = new IdHandler(id,remoteInfo.path(),this);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
 }
 
 void MainWindow::addId(int id,const QString& currentPath)
 {
     idSet.insert(id);
     idPath[id] = currentPath;
+}
+
+void MainWindow::gotIdFinished()
+{
+    IdHandler* handler = static_cast<IdHandler*> (sender());
+    addId(handler->Id(),handler->path());
+    delete handler;
+    connect (ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+    connect (ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
+}
+
+
+IdHandler::IdHandler(const QDBusPendingReply< int >& id, const QString& path, QObject* parent): QObject()
+{
+    m_path = path;
+    m_id = id;
+    appsWatcher = new QDBusPendingCallWatcher(m_id);
+    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),this,SIGNAL(gotIdFinished()));
+}
+
+int IdHandler::Id()
+{
+    return m_id.value();
+}
+
+QString IdHandler::path()
+{
+    return m_path;
+}
+
+
+IdHandler::~IdHandler()
+{
+    delete appsWatcher;
 }
