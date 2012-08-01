@@ -51,6 +51,7 @@ void Server::notifyFileInfoTransformed(int id, QCloud::Request::Error error, con
 void Server::notifyRequestFinished(int id, QCloud::Request::Error error)
 {
     emit requestFinished(id, (uint)error);
+    qDebug() << "signal Request Finished sent"; 
 }
 
 void Server::notifyUploadProgress(int id, qint64 send, qint64 total)

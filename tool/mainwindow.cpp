@@ -1,5 +1,9 @@
 #include <QDebug>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QDir>
+#include <QFileDialog>
 
 #include "mainwindow.h"
 #include "accountdialog.h"
@@ -8,6 +12,7 @@
 #include "factory.h"
 #include "ibackend.h"
 #include "client.h"
+#include <qdbusconnection.h>
 #include "appmanager.h"
 #include "ui_tool.h"
 
@@ -31,9 +36,21 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
 
     m_addAccountButton->setIcon (QIcon::fromTheme ("list-add"));
     m_deleteAccountButton->setIcon (QIcon::fromTheme ("list-remove"));
+    
+    refreshAction = new QAction("Refresh",this);
+    createFolderAction = new QAction("Create Folder",this);
+    downloadAction = new QAction("Download",this);
+    uploadAction = new QAction("Upload",this);
+    deleteFileAction = new QAction("Delete",this);
 
     m_ui->fileView->setModel(m_fileModel);
     m_ui->fileView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_ui->fileView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    m_ui->fileView->addAction(refreshAction);
+    m_ui->fileView->addAction(createFolderAction);
+    m_ui->fileView->addAction(downloadAction);
+    m_ui->fileView->addAction(uploadAction);
+    m_ui->fileView->addAction(deleteFileAction);
 
     setWindowTitle (tr ("QCloud"));
     setWindowIcon (QIcon::fromTheme ("qcloud"));
@@ -42,6 +59,14 @@ MainWindow::MainWindow (QWidget* parent, Qt::WindowFlags flags) : QMainWindow (p
     connect (m_deleteAccountButton, SIGNAL(clicked(bool)), this, SLOT(deleteAccountButtonClicked()));
     connect (m_ui->fileView, SIGNAL(activated(QModelIndex)),this, SLOT(fileListActivated()));
     connect (m_listButton, SIGNAL(clicked(bool)),this, SLOT(listButtonClicked()));
+    connect (m_ui->createFolderButton, SIGNAL(clicked(bool)),this, SLOT(createFolderTriggered()));
+    connect (refreshAction,SIGNAL(triggered(bool)),this,SLOT(listButtonClicked()));
+    connect (createFolderAction,SIGNAL(triggered(bool)),this,SLOT(createFolderTriggered()));
+    connect (m_ui->accountView,SIGNAL(clicked(QModelIndex)),this,SLOT(listButtonClicked()));
+    connect (deleteFileAction,SIGNAL(triggered(bool)),this,SLOT(deleteFileTriggered()));
+    connect (downloadAction,SIGNAL(triggered(bool)),this,SLOT(downloadFileTriggered()));
+    connect (uploadAction,SIGNAL(triggered(bool)),this,SLOT(uploadFileTriggered()));
+    
 }
 
 MainWindow::~MainWindow()
@@ -79,6 +104,7 @@ void MainWindow::accountsFinished(QDBusPendingCallWatcher* watcher)
 {
     QDBusPendingReply< QCloud::InfoList > backends(*watcher);
     m_accountModel->setInfoList(backends.value());
+    delete watcher;
 }
 
 
@@ -96,22 +122,13 @@ bool MainWindow::loadFileList()
         qDebug() << "Invalid index!";
         return false;
     }
-    QModelIndex index;
-    index = m_ui->accountView->currentIndex();
-    QString uuid = static_cast< QCloud::Info* > (index.internalPointer())->name();
+    QString uuid = getUuid();
     if (uuid.isEmpty()){
         return false;
     }
     QDBusPendingReply< int > id = ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    //ClientApp::instance()->client()->listFiles(uuid,currentDir);
-    QEventLoop loop;
-    QDBusPendingCallWatcher* appsWatcher = new QDBusPendingCallWatcher(id);
-    connect(appsWatcher, SIGNAL(finished(QDBusPendingCallWatcher*)), &loop,SLOT(quit()));
-    loop.exec();
-    idSet.insert(id.value());
-    idPath[id.value()] = currentDir;
-    //connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(QCloud::InfoList)),this,SLOT(fileListFinished(QCloud::InfoList)));
-    connect(ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
+    IdHandler* handler = new IdHandler(id,currentDir);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
     return true;
 }
 
@@ -141,7 +158,14 @@ void MainWindow::fileListFinished(int id, uint error, const QCloud::EntryInfoLis
 {
     if (!idSet.contains(id))
         return ;
-    idSet.remove(id);
+    if (error!=0){
+        QMessageBox msgBox;
+        QString text = QString("Error while listing directory ,id=%1 code=%2").arg(id,error);
+        qDebug() << text;
+        msgBox.setText(text);
+        msgBox.exec();
+        return ;
+    }
     qDebug() << "Got file list info with ID : " << id;
     QFileInfo currentDirInfo(idPath[id]);
     QCloud::EntryInfo parentPath;
@@ -151,5 +175,159 @@ void MainWindow::fileListFinished(int id, uint error, const QCloud::EntryInfoLis
     if (currentDirInfo.absolutePath()!="" && currentDirInfo.absolutePath()!=currentDirInfo.absoluteFilePath())
         m_info << parentPath;
     m_fileModel->setEntryInfoList(idPath[id],m_info);
+    removeId(id);
 }
 
+QString MainWindow::getUuid()
+{
+    QModelIndex index;
+    index = m_ui->accountView->currentIndex();
+    return static_cast< QCloud::Info* > (index.internalPointer())->name();
+}
+
+void MainWindow::createFolderTriggered()
+{
+    bool ok;
+    QString dirName = QInputDialog::getText(this,"Directory Name","Please Input Directory Name",QLineEdit::Normal,"",&ok);
+    if (!ok)
+        return ;
+    QDir parentPath(currentDir);
+    QString path = parentPath.absoluteFilePath(dirName);
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->createFolder(uuid,path);
+    IdHandler* handler = new IdHandler(id,path);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
+void MainWindow::requestFinished(int requestId, uint error)
+{
+    if (!idSet.contains(requestId))
+        return ;
+    if (error!=0){
+        QMessageBox msgBox;
+        QString text = QString("Error while processing ,id=%1 code=%2").arg(requestId).arg(error);
+        qDebug() << text;
+        msgBox.setText(text);
+        msgBox.exec();
+        return ;
+    }
+    qDebug() << "Request Finished signal received , ID : " << requestId;
+    loadFileList();
+    removeId(requestId);
+}
+
+void MainWindow::removeId(int id)
+{
+    idSet.remove(id);
+    idPath.remove(id);
+}
+
+void MainWindow::deleteFileTriggered()
+{
+    if (!m_ui->fileView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
+    QModelIndex index;
+    index = m_ui->fileView->currentIndex();
+    QString currentPath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    QMessageBox msgBox;
+    msgBox.setText(QString("Are you sure to remove file '%1'?").arg(currentPath));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    int ret = msgBox.exec();
+    if (ret==QMessageBox::No)
+        return ;
+    
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->deleteFile(uuid,currentPath);
+    IdHandler* handler = new IdHandler(id,currentPath);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
+void MainWindow::downloadFileTriggered()
+{
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    if (!m_ui->fileView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
+    QModelIndex index;
+    index = m_ui->fileView->currentIndex();
+    QString remotePath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    QString localPath = QFileDialog::getSaveFileName(this);
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->downloadFile(uuid,remotePath,localPath,QCloud::IBackend::LocalFile);
+    QFileInfo remoteInfo(remotePath);
+    IdHandler* handler = new IdHandler(id,remoteInfo.path(),this);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
+    connect(ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+}
+
+void MainWindow::uploadFileTriggered()
+{
+    QString uuid = getUuid();
+    if (uuid.isEmpty())
+        return ;
+    if (!m_ui->fileView->currentIndex().isValid()){
+        qDebug() << "Invalid index!";
+        return ;
+    }
+    QModelIndex index;
+    index = m_ui->fileView->currentIndex();
+    QString remotePath = static_cast<QCloud::EntryInfo*> (index.internalPointer())->path();
+    QString localPath = QFileDialog::getOpenFileName(this);
+    QFileInfo remoteInfo(remotePath);
+    QFileInfo localInfo(localPath);
+    QDBusPendingReply < int > id = ClientApp::instance()->client()->uploadFile(uuid
+        ,localPath
+        ,QCloud::IBackend::LocalFile,remoteInfo.path() + localInfo.fileName());
+    IdHandler* handler = new IdHandler(id,remoteInfo.path(),this);
+    connect (handler,SIGNAL(gotIdFinished()),this,SLOT(gotIdFinished()));
+}
+
+void MainWindow::addId(int id,const QString& currentPath)
+{
+    idSet.insert(id);
+    idPath[id] = currentPath;
+}
+
+void MainWindow::gotIdFinished()
+{
+    IdHandler* handler = static_cast<IdHandler*> (sender());
+    addId(handler->Id(),handler->path());
+    delete handler;
+    connect (ClientApp::instance()->client(),SIGNAL(requestFinished(int,uint)),this,SLOT(requestFinished(int,uint)));
+    connect (ClientApp::instance()->client(),SIGNAL(directoryInfoTransformed(int,uint,QCloud::EntryInfoList)),this,SLOT(fileListFinished(int,uint,QCloud::EntryInfoList)));
+}
+
+
+IdHandler::IdHandler(const QDBusPendingReply< int >& id, const QString& path, QObject* parent): QObject()
+{
+    m_path = path;
+    m_id = id;
+    appsWatcher = new QDBusPendingCallWatcher(m_id);
+    connect(appsWatcher,SIGNAL(finished(QDBusPendingCallWatcher*)),this,SIGNAL(gotIdFinished()));
+}
+
+int IdHandler::Id()
+{
+    return m_id.value();
+}
+
+QString IdHandler::path()
+{
+    return m_path;
+}
+
+
+IdHandler::~IdHandler()
+{
+    delete appsWatcher;
+}
