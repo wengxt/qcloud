@@ -2,8 +2,11 @@
 #define KWALLET_H
 
 #include "isecurestore.h"
-#include <KWallet/Wallet>
 #define QCLOUD_KWALLET_FOLDER_NAME "QCloud"
+
+namespace KWallet {
+class Wallet;
+}
 
 enum KWALLET_STAT {
     NOT_SET,

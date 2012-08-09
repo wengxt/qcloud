@@ -1,4 +1,5 @@
 #include "kwalletstore.h"
+#include <KWallet/Wallet>
 #include <QDebug>
 
 using KWallet::Wallet;
